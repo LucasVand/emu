@@ -1,0 +1,89 @@
+==============================
+=         LUC-8 SPEC         =
+==============================
+
+=== OVERVIEW  ===
+* 8-bit data width
+* 16-bit address bus/64 KiB accessible memory, more with banking
+* Memory banking via MB register allowing for 256 possible memory banks
+  (total 24-bit address space, 16 MiB possible addressable memory)
+* Designed for 4 MHz clock speed, ~100-150k instructions/second
+
+=== INSTRUCTIONS ===
+0: MOV   reg, imm8/reg   -> reg = imm8/reg
+1: LDR   reg, [imm16/HL] -> reg = [HL/imm16]
+2: STR   [imm16/HL], reg -> [HL/imm16] = reg
+3: PUSH imm8/reg        -> [SP--] = imm8/reg
+4: POP  reg             -> reg = [++SP]
+5: LDA  [imm16]         -> HL = imm16
+6: JNZ  imm8/reg        -> PC = HL if imm8/reg != 0 else NOP
+7: LSL  reg, imm8/reg   -> reg << imm8/reg 
+8: SUB  reg, imm8/reg   -> reg = reg - imm8/reg 
+9: ADD^ reg, imm8/reg   -> reg = reg + imm8/reg
+A: ADC^ reg, imm8/reg   -> reg = reg + imm8/reg + c
+B: AND^ reg, imm8/reg   -> reg = reg & imm8/reg
+C: OR   reg, imm8/reg   -> reg = reg | imm8/reg
+D: NOR  reg, imm8/reg   -> reg = ~(reg | imm8/reg)
+E: CMP^ reg, imm8/reg   -> f = compare reg, imm8/reg (see below)
+F: SBB^ reg, imm8/reg   -> reg = reg - imm8/reg - b
+
+* imm8/16 are the byte(s) immediately following the instruction byte in memory
+* with imm8/reg and imm16/HL, the choice is indicated by the y-bit
+  (see INSTRUCTION LAYOUT)
+
+^ these instructions load the (F)lags register
+
+=== INSTRUCTION CONSTANTS ===
+In data defining we can have strings, hex, bin, dec, label, chars, expressions
+In instructions constants we can have chars, hex, bin, dec, label, char, expressions
+
+=== REGISTERS ===
+A (0): GP register
+B (1): GP register
+C (2): GP register
+D (3): GP register
+L (4): GP register/(L)ow index register
+H (5): GP register/(H)igh index register
+Z (6): GP register
+F (7): flags (LSB to MSB)
+    LESS
+    EQUAL
+    CARRY
+    BORROW
+
+* Calling convention
+    * A, B, C, D, Z for arguments
+      * Use 16-bit pairs AB and CD if arguments are 16-bits wide
+      * Skip register if necessary to pair registers together into 16 bits
+    * Remaining arguments pushed to stack in order
+    * Return value in Z
+
+=== INSTRUCTION LAYOUT ===
+Instruction layout is XXXXYZZZ where
+X: 4-bit instruction identifier (see INSTRUCTIONS)
+Y: 0 if argument is imm(8/16), 1 if argument is reg
+Z: 3-bit register identifier of first register argument (see REGISTERS)
+
+* instructions with reg, reg arguments have the second register encoded in the
+  first three bits of the second instruction byte
+* For LW/SW, the Y-bit indicates imm16 (0) and HL (1). Z-bits are ALWAYS reg.
+* Instructions can be 1-3 bytes long
+    * PUSH/POP with one register argument are one byte instructions
+    * LW/SW with Y=0 (imm16) are 3 bytes each
+    * LDA is always 3 bytes
+
+=== MEMORY LAYOUT ===
+0x0000..0x7FFF: GENERAL PURPOSE ROM
+0x8000..0xBFFF: GENERAL PURPOSE RAM (BANKED)
+0xC000..0xFDFF: GENERAL PURPOSE RAM
+0xFC00..0xFEFF: STACK (RECOMMENDED), else GP RAM
+0xFF00..0xFFF9: GENERAL PURPOSE RAM
+0xFFFA..0xFFFA: MB/(M)emory (B)ank
+0xFFFB..0xFFFB: UNUSED
+0xFFFC..0xFFFD: SP/(S)tack (P)ointer
+0xFFFE..0xFFFF: PC/(P)rogram (C)ounter
+
+=== MEMORY BANKING ===
+0x8000..0xBFFF can be swapped using the MB register, where MB=0 indicates that
+the built-in RAM is in use. MB=1 maps to the built-in VRAM.
+
