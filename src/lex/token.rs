@@ -1,41 +1,55 @@
 use std::fmt::Display;
 
+#[derive(Clone, Debug)]
 pub struct Token {
     pub token: String,
+    pub is_addr: bool,
     pub kind: TokenType,
-    pub line: usize,
+    pub line_num: usize,
+    pub line: String,
 }
 impl Token {
-    pub fn new(token: &str, kind: TokenType, line: usize) -> Token {
+    pub fn new(token: &str, kind: TokenType, line_num: usize, line: &str) -> Token {
         Token {
+            is_addr: false,
             token: token.to_string(),
             kind,
-            line,
+            line_num: line_num,
+            line: line.to_string(),
+        }
+    }
+    pub fn new_address(token: &str, kind: TokenType, line_num: usize, line: &str) -> Token {
+        Token {
+            is_addr: true,
+            token: token.to_string(),
+            kind,
+            line_num: line_num,
+            line: line.to_string(),
         }
     }
 }
 impl Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "(Token: {}, Kind: {}, Line: {})",
-            self.token, self.kind, self.line
-        )
+        write!(f, "{:?}", self)
     }
 }
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum TokenType {
     Mnemonic,
+    MacroMnemonic,
     Register,
     Label,
-    MacroIdenifier,
+    LabelDefinition,
 
-    DefineLabel,
+    DefineDefinitionLabel,
     DefineKeyword,
-    DefineValue,
+    UnDefineKeyword,
 
+    MacroDefinitionParameter,
     MacroKeyword,
+    MacroDefinitionMnemonic,
+    EndKeyword,
 
     // Data Definition
     WordDataDefineKeyword,
@@ -43,9 +57,9 @@ pub enum TokenType {
     StringDataDefineKeyword,
 
     // Data Defining Types
-    Address,
+    MacroParameter,
     Expression,
-    Contant,
+    String,
     Hex,
     Binary,
     Character,

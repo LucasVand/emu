@@ -1,6 +1,9 @@
+pub mod constant_lexer;
 pub mod data_lexer;
 pub mod define_lexer;
+pub mod instruction_lexer;
 pub mod label_lexer;
 pub mod lexer;
 pub mod macro_lexer;
+pub mod marco_definition_lexer;
 pub mod token;

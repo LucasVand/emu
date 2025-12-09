@@ -3,16 +3,56 @@ use colored::Colorize;
 pub struct Logging {}
 
 impl Logging {
+    pub fn log_preprocessor_error(message: &str, line_num: usize, line: &str) {
+        Self::log_error_internal("Preprocessor", message, line_num, line, None);
+    }
+    pub fn log_preprocessor_error_specific(
+        message: &str,
+        line_num: usize,
+        line: &str,
+        error_token: &str,
+    ) {
+        Self::log_error_internal("Preprocessor", message, line_num, line, Some(error_token));
+    }
     pub fn log_lexer_error(message: &str, line_num: usize, line: &str) {
-        let main = format!("{} {}", "Lexer Error:".bold().red(), message);
-        eprintln!("{}", main);
+        Self::log_error_internal("Lexer", message, line_num, line, None);
+    }
+    pub fn log_lexer_error_specific(message: &str, line_num: usize, line: &str, error_token: &str) {
+        Self::log_error_internal("Lexer", message, line_num, line, Some(error_token));
+    }
+    fn log_error_internal(
+        error_type: &str,
+        message: &str,
+        line_num: usize,
+        line: &str,
+        error_token: Option<&str>,
+    ) {
+        let error_type = format!("{} Error:", error_type);
+        let main = format!("{} {}", error_type.bold().red(), message);
+        println!("{}", main);
 
         let line_num_str = format!("-> Line: {}", line_num);
-        eprintln!("{}", line_num_str.red());
+        println!("{}", line_num_str.red());
 
         let line = format!("{}", line);
-        eprintln!("{}", line);
+        println!("{}", line);
 
-        eprintln!("");
+        if let Some(token) = error_token {
+            let loc = line.find(token);
+            if let Some(location) = loc {
+                let num_spaces = location - (token.len() + 2).min(location);
+                let mut spaces = "".to_string();
+                for _ in 0..num_spaces {
+                    spaces.push_str(" ");
+                }
+                spaces.push_str(&format!("\"{}\"", token));
+                for _ in 0..(token.len()) {
+                    spaces.push_str("^");
+                }
+                println!("{}", spaces.red())
+            }
+        }
+
+        println!("");
     }
 }

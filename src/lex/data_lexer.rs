@@ -1,7 +1,10 @@
 use regex::Regex;
 
 use crate::{
-    lex::token::{Token, TokenType},
+    lex::{
+        constant_lexer::ConstantLexer,
+        token::{Token, TokenType},
+    },
     utils::logging::Logging,
 };
 
@@ -34,15 +37,15 @@ impl DataLexer {
 
         let data_char: char = first_section.trim().chars().nth(2).unwrap();
         let first_token_type = Self::token_type_from_char(data_char);
-        let data_keyword_token = Token::new(first_section, first_token_type.clone(), line_num);
+        let data_keyword_token =
+            Token::new(first_section, first_token_type.clone(), line_num, line);
 
         parsed_tokens.push(data_keyword_token);
 
         let data = second_section.split(",");
 
         for ele in data {
-            let token = Token::new(ele, first_token_type, line_num);
-            parsed_tokens.push(token);
+            ConstantLexer::parse_constant_data(ele, line, parsed_tokens, line_num);
         }
         return true;
     }

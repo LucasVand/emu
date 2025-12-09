@@ -5,6 +5,7 @@ mod emulator;
 mod instruction;
 mod lex;
 mod memory;
+mod preprocessor;
 mod registers;
 mod utils;
 

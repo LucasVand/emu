@@ -17,22 +17,22 @@ impl Emulator {
         let instruction = Instruction::parse_mnemonic(inst);
 
         match instruction {
-            Instruction::MOV => Instruction::execute_MOV(self, inst),
-            Instruction::LDR => Instruction::execute_LDR(self, inst),
-            Instruction::STR => Instruction::execute_STR(self, inst),
-            Instruction::JNZ => Instruction::execute_JNZ(self, inst),
-            Instruction::ADD => Instruction::execute_ADD(self, inst),
-            Instruction::ADC => Instruction::execute_ADC(self, inst),
-            Instruction::SUB => Instruction::execute_SUB(self, inst),
-            Instruction::SBB => Instruction::execute_SBB(self, inst),
-            Instruction::LSL => Instruction::execute_LSL(self, inst),
-            Instruction::AND => Instruction::execute_AND(self, inst),
-            Instruction::ORR => Instruction::execute_ORR(self, inst),
-            Instruction::NOR => Instruction::execute_NOR(self, inst),
-            Instruction::CMP => Instruction::execute_CMP(self, inst),
-            Instruction::LDA => Instruction::execute_LDA(self, inst),
-            Instruction::POP => Instruction::execute_POP(self, inst),
-            Instruction::PUSH => Instruction::execute_PUSH(self, inst),
+            Instruction::MOV => Instruction::execute_mov(self, inst),
+            Instruction::LDR => Instruction::execute_ldr(self, inst),
+            Instruction::STR => Instruction::execute_str(self, inst),
+            Instruction::JNZ => Instruction::execute_jnz(self, inst),
+            Instruction::ADD => Instruction::execute_add(self, inst),
+            Instruction::ADC => Instruction::execute_adc(self, inst),
+            Instruction::SUB => Instruction::execute_sub(self, inst),
+            Instruction::SBB => Instruction::execute_sbb(self, inst),
+            Instruction::LSL => Instruction::execute_lsl(self, inst),
+            Instruction::AND => Instruction::execute_and(self, inst),
+            Instruction::ORR => Instruction::execute_orr(self, inst),
+            Instruction::NOR => Instruction::execute_nor(self, inst),
+            Instruction::CMP => Instruction::execute_cmp(self, inst),
+            Instruction::LDA => Instruction::execute_lda(self, inst),
+            Instruction::POP => Instruction::execute_pop(self, inst),
+            Instruction::PUSH => Instruction::execute_push(self, inst),
         }
     }
     pub fn cycle(&mut self) {

@@ -8,7 +8,7 @@ use crate::{
 pub struct LabelLexer {}
 
 impl LabelLexer {
-    const REGEX_EXPRESSION: &'static str = r"^[a-zA-z0-9_.]+:$";
+    pub const REGEX_EXPRESSION: &'static str = r"^[a-zA-Z._][a-zA-z0-9_.]*:$";
 
     pub fn check_line(line: &str) -> bool {
         return Regex::new(Self::REGEX_EXPRESSION).unwrap().is_match(line);
@@ -23,7 +23,7 @@ impl LabelLexer {
         }
         let remove_end = remove_end.unwrap();
 
-        let token = Token::new(remove_end, TokenType::Label, line_num);
+        let token = Token::new(remove_end, TokenType::LabelDefinition, line_num, line);
 
         parsed_tokens.push(token);
         return true;

@@ -1,11 +1,12 @@
 use regex::Regex;
 
-use crate::lex::{
-    data_lexer::DataLexer,
-    define_lexer::DefineLexer,
-    label_lexer::LabelLexer,
-    macro_lexer::MacroLexer,
-    token::{Token, TokenType},
+use crate::{
+    lex::{
+        data_lexer::DataLexer, define_lexer::DefineLexer, instruction_lexer::InstructionLexer,
+        label_lexer::LabelLexer, macro_lexer::MacroLexer,
+        marco_definition_lexer::MacroDefinitionLexer, token::Token,
+    },
+    utils::logging::Logging,
 };
 
 pub struct Lexer {}
@@ -58,38 +59,19 @@ impl Lexer {
             return DataLexer::parse_line(trimmed, parsed_tokens, line_num);
         }
 
-        // marco defintion
-        let last_token = parsed_tokens.last();
-        // is last token a macro keyword
-        let is_under_macro =
-            last_token.is_some() && last_token.unwrap().kind == TokenType::MacroKeyword;
-        // if the line starts with @macro
-        let starts_with_macro = Regex::new(r"^@macro ").unwrap().is_match(trimmed);
-        // is it a macro
-        let is_macro = is_under_macro || starts_with_macro;
-        if is_macro
-            && Regex::new(
-                r"^(@macro )?[a-zA-Z0-9_.]+ ((%[ri]\d+|\[%[ri]\d+\])\s*,\s*)*(%[ri]\d+|\[%[ri]\d+\]):$",
-            )
-            .unwrap()
-            .is_match(trimmed)
-        {
-            // println!("Line {} is marco defintion line", line_num);
-            return true;
+        if MacroDefinitionLexer::check_line(trimmed, parsed_tokens) {
+            return MacroDefinitionLexer::parse_line(line, parsed_tokens, line_num);
         }
-        // empty line
         if trimmed.is_empty() {
-            // println!("Line {} is empty", line_num);
             return true;
         }
 
         // instruction line
-        if Regex::new(r"^[a-zA-Z0-9_.]+ ((%[ri]\d+|\[%[ri]\d+\]|[a-zA-Z0-9._]+|\[[a-zA-Z0-9._]+\]|\(.*\))\s*,\s*)*(%[ri]\d+|\[%[ri]\d+\]|[a-zA-Z0-9._]+|\[[a-zA-Z0-9._]+\]|\(.*\))$").unwrap().is_match(trimmed) {
-            // println!("Line {} is instruction", line_num);
-            return true;
+        if InstructionLexer::check_line(trimmed) {
+            return InstructionLexer::parse_line(line, parsed_tokens, line_num);
         }
 
-        println!("Line {} Unable to parse unknown line", line_num);
+        Logging::log_lexer_error("line does not match any known expression", line_num, line);
         return false;
     }
 }

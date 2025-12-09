@@ -80,7 +80,7 @@ impl Instruction {
     pub fn is_literal(inst: u8) -> bool {
         return (inst & 0b00001000) == 1;
     }
-    pub fn execute_MOV(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_mov(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
 
@@ -93,7 +93,7 @@ impl Instruction {
         emu.registers[reg] = value;
         return 2;
     }
-    pub fn execute_POP(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_pop(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg1: u8 = Self::first_register(inst[0]);
 
         let sp = emu.memory.get_stack();
@@ -101,7 +101,7 @@ impl Instruction {
         emu.memory.decrement_stack();
         return 1;
     }
-    pub fn execute_PUSH(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_push(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let output: u8;
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
@@ -120,7 +120,7 @@ impl Instruction {
 
         return output;
     }
-    pub fn execute_LDR(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_ldr(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let output: u8;
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
@@ -137,7 +137,7 @@ impl Instruction {
         emu.registers[reg] = emu.memory[addr];
         return output;
     }
-    pub fn execute_STR(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_str(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let output: u8;
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
@@ -154,7 +154,7 @@ impl Instruction {
         emu.memory[addr] = emu.registers[reg];
         return output;
     }
-    pub fn execute_JNZ(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_jnz(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let output: u8;
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
@@ -173,7 +173,7 @@ impl Instruction {
         }
         return output;
     }
-    pub fn execute_ADD(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_add(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
 
@@ -187,7 +187,7 @@ impl Instruction {
         emu.registers[reg] = emu.registers[reg] + value;
         return 2;
     }
-    pub fn execute_ADC(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_adc(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
 
@@ -201,7 +201,7 @@ impl Instruction {
         emu.registers[reg] = emu.registers[reg] + value; //+ emu.special.get_carry();
         return 2;
     }
-    pub fn execute_SUB(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_sub(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
 
@@ -216,7 +216,7 @@ impl Instruction {
         emu.registers[reg] = emu.registers[reg] - value;
         return 2;
     }
-    pub fn execute_SBB(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_sbb(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
 
@@ -230,7 +230,7 @@ impl Instruction {
         emu.registers[reg] = emu.registers[reg] - value; //- emu.special.get_carry();
         return 2;
     }
-    pub fn execute_LSL(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_lsl(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
 
@@ -244,7 +244,7 @@ impl Instruction {
         emu.registers[reg] = emu.registers[reg] << value;
         return 2;
     }
-    pub fn execute_AND(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_and(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
 
@@ -258,7 +258,7 @@ impl Instruction {
         emu.registers[reg] = emu.registers[reg] & value;
         return 2;
     }
-    pub fn execute_ORR(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_orr(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
 
@@ -271,7 +271,7 @@ impl Instruction {
         emu.registers[reg] = emu.registers[reg] | value;
         return 2;
     }
-    pub fn execute_NOR(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_nor(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
 
@@ -284,7 +284,7 @@ impl Instruction {
         emu.registers[reg] = !(emu.registers[reg] | value);
         return 2;
     }
-    pub fn execute_CMP(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_cmp(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg: u8 = Self::first_register(inst[0]);
         let literal: bool = Self::is_literal(inst[0]);
 
@@ -298,7 +298,7 @@ impl Instruction {
 
         return 2;
     }
-    pub fn execute_LDA(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
+    pub fn execute_lda(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         emu.registers.h = inst[1];
         emu.registers.l = inst[2];
         return 3;

@@ -1,11 +1,10 @@
 use std::fs;
 
-use crate::lex::lexer::Lexer;
+use crate::{lex::lexer::Lexer, preprocessor::preprocessor::Preprocessor};
 
 pub struct Assembler {}
 
 impl Assembler {
-    const DELIMITERS: &str = " ,\n:";
     pub fn new() -> Self {
         Assembler {}
     }
@@ -18,7 +17,10 @@ impl Assembler {
         let unwrapped_contents = contents.unwrap();
 
         let lexed = Lexer::parse_str(&unwrapped_contents);
-        for ele in lexed {
+
+        let preprocessed = Preprocessor::preprocess_tokens(&lexed);
+
+        for ele in preprocessed {
             println!("{}", ele);
         }
     }
