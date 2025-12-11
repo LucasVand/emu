@@ -6,39 +6,31 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct Macro {
+pub struct MacroDefinition {
     pub label: String,
     pub parameters: Vec<Token>,
     pub value: Vec<Token>,
 }
-pub struct MacroExpansion {
-    pub index: usize,
-    pub tokens: Vec<Token>,
-}
-impl Display for Macro {
+impl Display for MacroDefinition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:#?}", self)
     }
 }
-
-impl Macro {
+impl MacroDefinition {
     pub fn new(label: &str) -> Self {
-        Macro {
+        MacroDefinition {
             label: label.to_string(),
-            parameters: Vec;
-    
-        while let Some(token) = iter.next() {
-            // if macro then we need to expand
-            if token.kind == TokenType::MacroMnemonic {
-                
-            }
-
+            parameters: Vec::new(),
+            value: Vec::new(),
+        }
     }
-    pub fn create_macro_expansion(iter: impl Iterator<Item = Token) {
 
-    }
-    pub fn create_macro_list(token_list: &Vec<Token>) -> Vec<Macro> {
-        let mut iter = token_list.ite        if ele.kind == TokenType::MacroKeyword {
+    pub fn create_macro_list(token_list: &Vec<Token>) -> Vec<MacroDefinition> {
+        let mut iter = token_list.iter();
+        let mut macro_list: Vec<MacroDefinition> = Vec::new();
+
+        while let Some(ele) = iter.next() {
+            if ele.kind == TokenType::MacroKeyword {
                 Self::parse_macro(ele, &mut iter, &mut macro_list);
             }
         }
@@ -48,7 +40,7 @@ impl Macro {
     pub fn parse_macro<'a>(
         token: &Token,
         iter: &mut impl Iterator<Item = &'a Token>,
-        macro_list: &mut Vec<Macro>,
+        macro_list: &mut Vec<MacroDefinition>,
     ) -> bool {
         let macro_def = iter.next();
 
@@ -73,7 +65,7 @@ impl Macro {
             return false;
         }
 
-        let mut macro_obj = Macro::new(&macro_def.token);
+        let mut macro_obj = MacroDefinition::new(&macro_def.token);
         loop {
             let current = iter.next();
             if current.is_none() {

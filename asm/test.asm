@@ -12,8 +12,9 @@ add b, (5 + 5)
 
 main: 
   ldr a, [sub]
-  hjd 9, [0x4567]
   add a, const
+  ADD a, b, [0x6767] 
+  ADD a, b, [sub]
 
 data:
   @define thing1 'l'

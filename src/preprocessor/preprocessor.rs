@@ -1,7 +1,8 @@
 use crate::{
-    lex::token::{Token, TokenType},
-    preprocessor::{define_macro::DefineMacro, macro_expansion::Macro},
-    utils::logging::Logging,
+    lex::token::Token,
+    preprocessor::{
+        define_macro::DefineMacro, macro_expansion::macro_preprocessing::MacroPreprocessing,
+    },
 };
 
 pub struct Preprocessor {}
@@ -12,7 +13,7 @@ impl Preprocessor {
 
         DefineMacro::replace_defines(&mut tokens_clone);
 
-        Macro::expand_macros(&mut tokens_clone);
+        MacroPreprocessing::expand_macros(&mut tokens_clone);
 
         return tokens_clone;
     }

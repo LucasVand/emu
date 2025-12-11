@@ -65,6 +65,17 @@ pub enum TokenType {
     Character,
     Decimal,
 }
+impl TokenType {
+    pub const INSTRUCTION_OPERANDS: [TokenType; 7] = [
+        TokenType::Expression,
+        TokenType::String,
+        TokenType::Hex,
+        TokenType::Binary,
+        TokenType::Character,
+        TokenType::Decimal,
+        TokenType::Register,
+    ];
+}
 impl Display for TokenType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
