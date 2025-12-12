@@ -50,6 +50,10 @@ F (7): flags (LSB to MSB)
     EQUAL
     CARRY
     BORROW
+    N 
+    N 
+    N 
+    HALT
 
 * Calling convention
     * A, B, C, D, Z for arguments

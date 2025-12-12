@@ -12,6 +12,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "assembler"
+version = "0.1.0"
+dependencies = [
+ "colored",
+ "common",
+ "regex",
+]
+
+[[package]]
 name = "colored"
 version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -21,11 +30,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "emu"
+name = "common"
+version = "0.1.0"
+
+[[package]]
+name = "emulator"
 version = "0.1.0"
 dependencies = [
- "colored",
- "regex",
+ "common",
 ]
 
 [[package]]

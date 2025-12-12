@@ -14,7 +14,7 @@ main:
   ldr a, [sub]
   add a, const
   ADD a, b, [0x6767] 
-  ADD a, b, [sub]
+  ADD a, b, [data]
 
 data:
   @define thing1 'l'
