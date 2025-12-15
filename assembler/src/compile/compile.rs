@@ -1,5 +1,3 @@
-use std::iter;
-
 use crate::compile::compiled_token::CompiledToken;
 use crate::compile::data_compiler::DataCompiler;
 use crate::compile::instruction_compiler::InstructionCompiler;
@@ -31,6 +29,8 @@ impl Compile {
         }
 
         LabelCompiler::compile_labels(&mut bytes, &labels);
+
+        //TODO: Add expression evaluation, with label subbing
 
         return bytes;
     }

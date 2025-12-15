@@ -1,9 +1,6 @@
-use std::{fmt::Display, iter::Peekable};
+use std::fmt::Display;
 
-use crate::{
-    compile::compiled_token::CompiledToken,
-    lex::token::{self, Token},
-};
+use crate::{compile::compiled_token::CompiledToken, lex::token::Token};
 
 pub struct LabelResolution {}
 

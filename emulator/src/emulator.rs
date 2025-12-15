@@ -13,6 +13,7 @@ pub struct Emulator {
 }
 
 impl Emulator {
+    // TODO: Build CCR
     pub fn new() -> Self {
         Emulator::default()
     }

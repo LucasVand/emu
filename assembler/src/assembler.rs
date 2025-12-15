@@ -14,6 +14,7 @@ impl Assembler {
     }
     pub fn assemble_file(&self, filename: &str) -> Vec<u8> {
         let contents = fs::read_to_string(filename);
+
         if contents.is_err() {
             println!("Unable to read file {}", filename);
             return vec![];
@@ -25,6 +26,7 @@ impl Assembler {
         let preprocessed = Preprocessor::preprocess_tokens(&lexed);
 
         let compiled = Compile::compile(&preprocessed);
+
         println!("Compiled Length: {}", compiled.len());
         for ele in &compiled {
             println!("{}", ele);

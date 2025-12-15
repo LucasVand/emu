@@ -118,7 +118,15 @@ impl Execute {
         } else {
             value = emu.registers[inst[1]];
         }
-        emu.registers[reg] = emu.registers[reg] + value;
+        let register_value = emu.registers[reg];
+        let res = emu.registers[reg] + value;
+
+        emu.registers[reg] = res;
+
+        emu.registers.update_zero_less(res);
+        emu.registers
+            .update_carry_borrow_overflow(register_value, value, 0, true);
+
         return 2;
     }
     pub fn execute_adc(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
@@ -131,7 +139,16 @@ impl Execute {
         } else {
             value = emu.registers[inst[1]];
         }
-        emu.registers[reg] = emu.registers[reg] + value; //+ emu.special.get_carry();
+        let carry = emu.registers.get_carry() as u8;
+        let register_value = emu.registers[reg];
+        let res = emu.registers[reg] + value + carry;
+
+        emu.registers[reg] = res;
+
+        emu.registers.update_zero_less(res);
+        emu.registers
+            .update_carry_borrow_overflow(register_value, value, carry, true);
+
         return 2;
     }
     pub fn execute_sub(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
@@ -145,7 +162,14 @@ impl Execute {
             value = emu.registers[inst[1]];
         }
 
-        emu.registers[reg] = emu.registers[reg] - value;
+        let register_value = emu.registers[reg];
+        let res = emu.registers[reg] + !value + 1;
+
+        emu.registers[reg] = res;
+
+        emu.registers.update_zero_less(res);
+        emu.registers
+            .update_carry_borrow_overflow(register_value, value, 0, false);
         return 2;
     }
     pub fn execute_sbb(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
@@ -158,7 +182,16 @@ impl Execute {
         } else {
             value = emu.registers[inst[1]];
         }
-        emu.registers[reg] = emu.registers[reg] - value; //- emu.special.get_carry();
+
+        let borrow = emu.registers.get_borrow() as u8;
+        let register_value = emu.registers[reg];
+        let res = emu.registers[reg] + !value + (1 - borrow);
+
+        emu.registers[reg] = res;
+
+        emu.registers.update_zero_less(res);
+        emu.registers
+            .update_carry_borrow_overflow(register_value, value, borrow, false);
         return 2;
     }
     pub fn execute_lsl(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
@@ -184,7 +217,9 @@ impl Execute {
         } else {
             value = emu.registers[inst[1]];
         }
-        emu.registers[reg] = emu.registers[reg] & value;
+        let res = emu.registers[reg] & value;
+        emu.registers[reg] = res;
+        emu.registers.update_zero_less(res);
         return 2;
     }
     pub fn execute_orr(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
@@ -224,6 +259,12 @@ impl Execute {
             other = emu.registers[inst[1]];
         }
         let value = emu.registers[reg];
+
+        let res = value + !other;
+
+        emu.registers.update_zero_less(res);
+        emu.registers
+            .update_carry_borrow_overflow(value, other, 0, false);
 
         return 2;
     }

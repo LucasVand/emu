@@ -10,6 +10,7 @@ pub struct Preprocessor {}
 impl Preprocessor {
     pub fn preprocess_tokens(tokens: &Vec<Token>) -> Vec<Token> {
         let mut tokens_clone = tokens.clone();
+        // TODO: allow zero operand macros
 
         DefineMacro::replace_defines(&mut tokens_clone);
 

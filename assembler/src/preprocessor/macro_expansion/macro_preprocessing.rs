@@ -7,6 +7,8 @@ pub struct MacroPreprocessing {}
 
 impl MacroPreprocessing {
     pub fn expand_macros(tokens: &mut Vec<Token>) {
+        // TODO: allow for labels in macros by prepending the macro name and the invocation number
+        // so that all the labels are unique after expassion
         let macro_list = MacroDefinition::create_macro_list(tokens);
         let mut iter = tokens.iter().peekable();
         let mut expansion_list: Vec<MacroExpansion> = Vec::new();

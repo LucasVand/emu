@@ -8,6 +8,8 @@ pub struct Token {
     pub line_num: usize,
     pub line: String,
 }
+// TODO: add a debug object that can be passed around during token transformation to enable better
+// error messages
 impl Token {
     pub fn new(token: &str, kind: TokenType, line_num: usize, line: &str) -> Token {
         Token {

@@ -1,8 +1,5 @@
 use crate::{
-    compile::{
-        compiled_token::{self, CompiledToken},
-        label_resolution::CompilerLabel,
-    },
+    compile::{compiled_token::CompiledToken, label_resolution::CompilerLabel},
     utils::logging::Logging,
 };
 
