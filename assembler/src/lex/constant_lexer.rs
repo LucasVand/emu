@@ -13,9 +13,9 @@ impl ConstantLexer {
     const MACRO_PARAMETER_REGEX: &'static str = r"^(%[ri]\d+|\[%[ri]\d+\])$";
     const CHARACTER_REGEX: &'static str = r"^'[\x00-\x7F]'$";
     const STRING_REGEX: &'static str = "^\"([\x00-\x7F])*\"$";
-    const HEX_REGEX: &'static str = r"^0x[0-9abcdefABCDEF]+$";
-    const BIN_REGEX: &'static str = r"^0b[10]+$";
-    const DEC_REGEX: &'static str = r"^[0-9]+$";
+    const HEX_REGEX: &'static str = r"^[-+]?0x[0-9abcdefABCDEF]+$";
+    const BIN_REGEX: &'static str = r"^[-+]?0b[10]+$";
+    const DEC_REGEX: &'static str = r"^[-+]?[0-9]+$";
     const EXPRESSION_REGEX: &'static str = r"^\([0-9A-Za-z_. \+\-\*/<>\(\)]+\)$";
     const LABEL: &'static str = r"^[a-zA-Z0-9._]+$";
     const ADDRESS: &'static str = r"^\[.+\]$";

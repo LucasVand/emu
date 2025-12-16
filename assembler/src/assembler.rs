@@ -28,9 +28,6 @@ impl Assembler {
         let compiled = Compile::compile(&preprocessed);
 
         println!("Compiled Length: {}", compiled.len());
-        for ele in &compiled {
-            println!("{}", ele);
-        }
 
         let bin: Vec<u8> = compiled
             .iter()

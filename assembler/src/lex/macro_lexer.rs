@@ -17,10 +17,12 @@ impl MacroLexer {
     }
 
     pub fn parse_line(line: &str, parsed_tokens: &mut Vec<Token>, line_num: usize) -> bool {
+        // checks if its a @macro or @end line
         if line != "@macro" && line != "@end" {
             Logging::log_lexer_error("expected @marco", line_num, line);
             return false;
         }
+        // gets the token type for it
         let token_type = if line != "@macro" {
             TokenType::EndKeyword
         } else {

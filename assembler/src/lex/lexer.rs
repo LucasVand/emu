@@ -19,8 +19,6 @@ impl Lexer {
         let lines = file_string.split("\n");
         let mut line_num = 0;
 
-        let mut error_count = 0;
-
         let mut num = 0;
         for line in lines.clone().into_iter() {
             num += 1;
@@ -30,12 +28,8 @@ impl Lexer {
 
         for line in lines {
             line_num += 1;
-            let res = Self::parse_line(line, &mut parsed_tokens, line_num);
-            if !res {
-                error_count += 1;
-            }
+            Self::parse_line(line.trim(), &mut parsed_tokens, line_num);
         }
-        println!("Total Errors: {}", error_count);
         return parsed_tokens;
     }
     pub fn parse_line(line: &str, parsed_tokens: &mut Vec<Token>, line_num: usize) -> bool {
@@ -44,6 +38,11 @@ impl Lexer {
         // checks if @macro line
         if MacroLexer::check_line(line) {
             return MacroLexer::parse_line(trimmed, parsed_tokens, line_num);
+        }
+
+        // checks if its a macro definition line
+        if MacroDefinitionLexer::check_line(trimmed, parsed_tokens) {
+            return MacroDefinitionLexer::parse_line(line, parsed_tokens, line_num);
         }
 
         //check if @define line
@@ -60,9 +59,6 @@ impl Lexer {
             return DataLexer::parse_line(trimmed, parsed_tokens, line_num);
         }
 
-        if MacroDefinitionLexer::check_line(trimmed, parsed_tokens) {
-            return MacroDefinitionLexer::parse_line(line, parsed_tokens, line_num);
-        }
         if trimmed.is_empty() {
             return true;
         }

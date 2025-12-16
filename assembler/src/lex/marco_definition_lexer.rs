@@ -7,7 +7,7 @@ pub struct MacroDefinitionLexer {}
 
 impl MacroDefinitionLexer {
     const REGEX_EXPRESSION: &'static str =
-        r"^[a-zA-Z0-9_.]+ ((%[ri]\d+|\[%[ri]\d+\])\s*,\s*)*(%[ri]\d+|\[%[ri]\d+\]):$";
+        r"^[a-zA-Z0-9_.]+\s?((%[ri]\d+|\[%[ri]\d+\])\s*,\s*)*(%[ri]\d+|\[%[ri]\d+\])?:$";
 
     const MACRO_OPERAND_REGEX: &'static str = r"^(%[ri]\d+|\[%[ri]\d+\])$";
 
@@ -33,7 +33,7 @@ impl MacroDefinitionLexer {
             return false;
         }
 
-        let operation = operation.unwrap();
+        let operation = &operation.unwrap().replace(":", "");
 
         let operation_token = Token::new(
             operation,

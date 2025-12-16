@@ -15,16 +15,26 @@ impl Compile {
         let mut bytes: Vec<CompiledToken> = Vec::new();
         let mut labels: Vec<CompilerLabel> = Vec::new();
 
+        let mut is_macro = false;
         while let Some(ele) = peakable.next() {
-            if ele.kind == TokenType::Mnemonic {
-                InstructionCompiler::compile_instruction(&mut peakable, &ele, &mut bytes);
+            if ele.kind == TokenType::MacroKeyword {
+                is_macro = true;
             }
-            if TokenType::DATA_DEFINITIONS.contains(&ele.kind) {
-                DataCompiler::compile_data(&mut peakable, &ele, &mut bytes);
+            if ele.kind == TokenType::EndKeyword {
+                is_macro = false;
             }
-            if ele.kind == TokenType::LabelDefinition {
-                let res = LabelResolution::create_compiler_label(ele, &bytes);
-                labels.push(res);
+            // making sure we dont compile instructions in the macro
+            if !is_macro {
+                if ele.kind == TokenType::Mnemonic {
+                    InstructionCompiler::compile_instruction(&mut peakable, &ele, &mut bytes);
+                }
+                if TokenType::DATA_DEFINITIONS.contains(&ele.kind) {
+                    DataCompiler::compile_data(&mut peakable, &ele, &mut bytes);
+                }
+                if ele.kind == TokenType::LabelDefinition {
+                    let res = LabelResolution::create_compiler_label(ele, &bytes);
+                    labels.push(res);
+                }
             }
         }
 

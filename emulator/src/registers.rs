@@ -35,7 +35,8 @@ impl Registers {
     ) {
         if is_add {
             // if the total is greater then 255 overflow
-            let total = (value1 as u16) + (value2 as u16) + carry as u16;
+            let total =
+                (value1 as u16).saturating_add((value2 as u16).saturating_add(carry as u16));
             self.set_carry(total > 255);
 
             let overflow = (value1 >> 7) == (value2 >> 7) && (value1 >> 7) != ((total as u8) >> 7);
@@ -43,7 +44,8 @@ impl Registers {
         } else {
             // if value1 is less then value2 + c then we underflow
             let res = (value1 as u16) < (value2 as u16) + carry as u16;
-            let total = (value1 as u16) + !(value2 as u16) + (1 - carry as u16);
+            let total =
+                (value1 as u16).saturating_add((!(value2 as u16)).saturating_add(1 - carry as u16));
             self.set_borrow(res);
 
             let overflow = (value1 >> 7) != (value2 >> 7) && (value1 >> 7) != ((total as u8) >> 7);

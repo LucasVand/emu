@@ -20,7 +20,11 @@ impl Operand {
 
         if operands_vec.len() != requirements.len() {
             Logging::log_compiler_error_specific(
-                "incorrect number of operands",
+                &format!(
+                    "incorrect number of operands, expected {} but found {}",
+                    requirements.len(),
+                    operands_vec.len()
+                ),
                 inst_token.line_num,
                 &inst_token.line,
                 &inst_token.token,

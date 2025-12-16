@@ -119,7 +119,7 @@ impl Execute {
             value = emu.registers[inst[1]];
         }
         let register_value = emu.registers[reg];
-        let res = emu.registers[reg] + value;
+        let res = emu.registers[reg].saturating_add(value);
 
         emu.registers[reg] = res;
 
@@ -141,7 +141,7 @@ impl Execute {
         }
         let carry = emu.registers.get_carry() as u8;
         let register_value = emu.registers[reg];
-        let res = emu.registers[reg] + value + carry;
+        let res = emu.registers[reg].saturating_add(value.saturating_add(carry));
 
         emu.registers[reg] = res;
 
@@ -163,7 +163,7 @@ impl Execute {
         }
 
         let register_value = emu.registers[reg];
-        let res = emu.registers[reg] + !value + 1;
+        let res = emu.registers[reg].saturating_add(!value.saturating_add(1));
 
         emu.registers[reg] = res;
 
@@ -185,7 +185,7 @@ impl Execute {
 
         let borrow = emu.registers.get_borrow() as u8;
         let register_value = emu.registers[reg];
-        let res = emu.registers[reg] + !value + (1 - borrow);
+        let res = emu.registers[reg].saturating_add(!value.saturating_add(1 - borrow));
 
         emu.registers[reg] = res;
 
@@ -260,7 +260,7 @@ impl Execute {
         }
         let value = emu.registers[reg];
 
-        let res = value + !other;
+        let res = value.saturating_add(!other.saturating_add(1));
 
         emu.registers.update_zero_less(res);
         emu.registers

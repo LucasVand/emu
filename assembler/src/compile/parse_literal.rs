@@ -15,11 +15,21 @@ impl ParseLiteral {
     fn parse_literal(token: &Token) -> u64 {
         let token_token = &token.token;
 
-        let token_str = token_token
+        let token_brackets_stripped = token_token
             .strip_prefix("[")
             .unwrap_or(token_token)
             .strip_suffix("]")
             .unwrap_or(token_token);
+
+        let token_brackets_plus_stripped = token_brackets_stripped
+            .strip_prefix("+")
+            .unwrap_or(token_brackets_stripped);
+
+        let is_neg = token_brackets_stripped.strip_prefix("-").is_some();
+
+        let token_str = token_brackets_plus_stripped
+            .strip_prefix("-")
+            .unwrap_or(token_brackets_plus_stripped);
 
         let value: Option<u64>;
         if token.kind == TokenType::Decimal {
@@ -53,7 +63,11 @@ impl ParseLiteral {
         if value.is_none() {
             panic!("could not parse literal: {}", token_str);
         }
+        let value = value.unwrap();
+        if is_neg {
+            return !value + 1;
+        }
 
-        return value.unwrap();
+        return value;
     }
 }
