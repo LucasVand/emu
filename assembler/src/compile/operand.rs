@@ -1,5 +1,6 @@
-use crate::lex::token::TokenType;
-use crate::{lex::token::Token, utils::logging::Logging};
+use crate::utils::logging::Logging;
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
 use common::instruction::Instruction;
 
 #[derive(PartialEq, Eq)]
@@ -19,27 +20,20 @@ impl Operand {
         let requirements = Self::inst_requirements(&inst_token);
 
         if operands_vec.len() != requirements.len() {
-            Logging::log_compiler_error_specific(
+            Logging::log_compiler_error_info(
                 &format!(
                     "incorrect number of operands, expected {} but found {}",
                     requirements.len(),
                     operands_vec.len()
                 ),
-                inst_token.line_num,
-                &inst_token.line,
-                &inst_token.token,
+                &inst_token.token_info,
             );
             return false;
         }
 
         for i in 0..requirements.len() {
             if !requirements[i].equivalent(&operands_vec[i]) {
-                Logging::log_compiler_error_specific(
-                    "incorrect operand found",
-                    inst_token.line_num,
-                    &inst_token.line,
-                    &operands[i].token,
-                );
+                Logging::log_compiler_error_info("incorrect operand found", &inst_token.token_info);
                 return false;
             }
         }

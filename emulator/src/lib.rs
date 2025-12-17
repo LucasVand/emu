@@ -4,15 +4,15 @@ pub mod memory;
 pub mod registers;
 
 #[cfg(test)]
-mod tests {
+mod emulator_tests {
     use crate::emulator::Emulator;
-
-    use super::*;
 
     #[test]
     fn test_emulator_single_instructions() {
         let mut emu = Emulator::new();
 
-        emu.load_binary("tests.bin");
+        emu.load_binary("tests/arithmetic_test.bin");
+
+        assert!(emu.registers.a == 0)
     }
 }

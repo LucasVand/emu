@@ -1,8 +1,7 @@
-use crate::lex::token::TokenType;
 use crate::utils::logging::Logging;
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
 use std::fmt::Display;
-
-use crate::lex::token::Token;
 
 #[derive(Debug)]
 pub struct MacroDefinition {
@@ -44,22 +43,28 @@ impl MacroDefinition {
         let macro_def = iter.next();
 
         if macro_def.is_none() {
-            Logging::log_preprocessor_error(
-                "expected macro definition",
-                token.line_num,
-                &token.line,
-            );
+            Logging::log_preprocessor_error_info("expected macro definition", &token.token_info);
             return false;
         }
 
         let macro_def = macro_def.unwrap();
 
+        let is_taken = macro_list
+            .iter()
+            .find(|mac| return mac.label == macro_def.token);
+
+        if is_taken.is_some() {
+            Logging::log_preprocessor_error_info(
+                "a macro with this name already exists",
+                &macro_def.token_info,
+            );
+            return false;
+        }
+
         if macro_def.kind != TokenType::MacroDefinitionMnemonic {
-            Logging::log_preprocessor_error_specific(
+            Logging::log_preprocessor_error_info(
                 "expected macro definition",
-                macro_def.line_num,
-                &macro_def.line,
-                &macro_def.token,
+                &macro_def.token_info,
             );
             return false;
         }
@@ -68,10 +73,9 @@ impl MacroDefinition {
         loop {
             let current = iter.next();
             if current.is_none() {
-                Logging::log_preprocessor_error(
+                Logging::log_preprocessor_error_info(
                     "missing the end of a macro definition",
-                    token.line_num,
-                    &token.line,
+                    &token.token_info,
                 );
                 return false;
             }

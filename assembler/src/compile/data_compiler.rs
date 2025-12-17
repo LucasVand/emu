@@ -1,8 +1,9 @@
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
 use std::iter::Peekable;
 
 use crate::{
     compile::{compiled_token::CompiledToken, parse_literal::ParseLiteral},
-    lex::token::{Token, TokenType},
     utils::logging::Logging,
 };
 
@@ -37,12 +38,7 @@ impl DataCompiler {
             return;
         }
 
-        Logging::log_compiler_error_specific(
-            "expected a data definition",
-            inital_token.line_num,
-            &inital_token.line,
-            &inital_token.token,
-        );
+        Logging::log_compiler_error_info("expected a data definition", &inital_token.token_info);
     }
     fn compile_string(compiled: &mut Vec<CompiledToken>, data_items: &Vec<Token>) {
         for ele in data_items {
@@ -55,20 +51,20 @@ impl DataCompiler {
                     .unwrap();
                 for ch in remove_quotes.chars() {
                     let lit = ch as u8;
-                    compiled.push(CompiledToken::create_token(lit));
+                    compiled.push(CompiledToken::create_token(lit, &ele.token_info));
                 }
 
                 // look at the last added byte
                 if let Some(last) = compiled.last() {
                     match last {
                         // if the byte is not a null terminator add one
-                        CompiledToken::Binary { byte } => {
+                        CompiledToken::Binary { byte, info } => {
                             let ch = *byte as char;
                             if ch != '\0' {
-                                compiled.push(CompiledToken::create_token('\0' as u8));
+                                compiled.push(CompiledToken::create_token('\0' as u8, &info));
                             }
                         }
-                        CompiledToken::Label { name: _ } => {
+                        CompiledToken::Label { name: _, info: _ } => {
                             panic!(
                                 "This should never happen, we cannot compile a string into a label"
                             );
@@ -76,19 +72,14 @@ impl DataCompiler {
                     }
                 }
             } else {
-                Logging::log_compiler_error_specific(
-                    "expected a string",
-                    ele.line_num,
-                    &ele.line,
-                    &ele.token,
-                );
+                Logging::log_compiler_error_info("expected a string", &ele.token_info);
             }
         }
     }
     fn compile_double_word(compiled: &mut Vec<CompiledToken>, data_items: &Vec<Token>) {
         for ele in data_items {
             if TokenType::Label == ele.kind {
-                compiled.push(CompiledToken::create_label(&ele.token));
+                compiled.push(CompiledToken::create_label(&ele.token, &ele.token_info));
             } else if TokenType::LITERALS.contains(&ele.kind)
                 && ![TokenType::String].contains(&ele.kind)
             {
@@ -96,14 +87,12 @@ impl DataCompiler {
                 let byte3 = doubleword as u8;
                 let byte2 = (doubleword >> 8) as u8;
 
-                compiled.push(CompiledToken::create_token(byte2));
-                compiled.push(CompiledToken::create_token(byte3));
+                compiled.push(CompiledToken::create_token(byte2, &ele.token_info));
+                compiled.push(CompiledToken::create_token(byte3, &ele.token_info));
             } else {
-                Logging::log_compiler_error_specific(
+                Logging::log_compiler_error_info(
                     "unable to parse double word this data item",
-                    ele.line_num,
-                    &ele.line,
-                    &ele.token,
+                    &ele.token_info,
                 );
             }
         }
@@ -114,13 +103,11 @@ impl DataCompiler {
                 && ![TokenType::Label, TokenType::String].contains(&ele.kind)
             {
                 let byte = ParseLiteral::parse_u8(ele);
-                compiled.push(CompiledToken::create_token(byte));
+                compiled.push(CompiledToken::create_token(byte, &ele.token_info));
             } else {
-                Logging::log_compiler_error_specific(
+                Logging::log_compiler_error_info(
                     "unable to parse this word data item",
-                    ele.line_num,
-                    &ele.line,
-                    &ele.token,
+                    &ele.token_info,
                 );
             }
         }

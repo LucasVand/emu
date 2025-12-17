@@ -1,16 +1,13 @@
-use crate::{
-    lex::token::Token,
-    preprocessor::{
-        define_macro::DefineMacro, macro_expansion::macro_preprocessing::MacroPreprocessing,
-    },
+use crate::preprocessor::{
+    define_macro::DefineMacro, macro_expansion::macro_preprocessing::MacroPreprocessing,
 };
+use crate::utils::token::Token;
 
 pub struct Preprocessor {}
 
 impl Preprocessor {
     pub fn preprocess_tokens(tokens: &Vec<Token>) -> Vec<Token> {
         let mut tokens_clone = tokens.clone();
-        // TODO: allow zero operand macros
 
         DefineMacro::replace_defines(&mut tokens_clone);
 

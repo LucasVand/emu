@@ -13,7 +13,6 @@ pub struct Emulator {
 }
 
 impl Emulator {
-    // TODO: Build CCR
     pub fn new() -> Self {
         Emulator::default()
     }
@@ -39,22 +38,28 @@ impl Emulator {
             Instruction::PUSH => Execute::execute_push(self, inst),
         }
     }
-    pub fn cycle(&mut self) {
+    pub fn cycle(&mut self, print_reg: bool) {
         let inst = self.memory.load_instruction();
+        if print_reg {
+            let inst_str = Instruction::from_u8(inst[0] >> 4);
+            println!("{}: {}", inst_str, self.registers);
+        }
+
         let inst_length = self.execute_instruction(inst);
+
         self.memory
             .set_pc(self.memory.get_pc() + inst_length as u16);
     }
     pub fn start(&mut self, print_reg: bool) {
         loop {
-            if print_reg {
-                println!("{}", self.registers);
-            }
             if self.registers.is_halted() {
+                if print_reg {
+                    println!("HAL: {}", self.registers);
+                }
                 return;
             }
-            self.cycle();
-            sleep(Duration::from_millis(100));
+            self.cycle(print_reg);
+            sleep(Duration::from_millis(10));
         }
     }
     pub fn load_binary(&mut self, filename: &str) {
@@ -70,5 +75,15 @@ impl Emulator {
             self.memory[index] = *byte;
             index += 1;
         });
+    }
+    pub fn clean_memory(&mut self) {
+        self.memory = Memory::default();
+    }
+    pub fn clean_registers(&mut self) {
+        self.registers = Registers::default();
+    }
+    pub fn clean(&mut self) {
+        self.clean_memory();
+        self.clean_registers();
     }
 }

@@ -1,6 +1,7 @@
-use crate::lex::token::Token;
-use crate::lex::token::TokenType;
 use crate::utils::logging::Logging;
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
+use crate::utils::token_info::TokenInfo;
 use regex::Regex;
 
 pub struct MacroLexer {}
@@ -29,7 +30,8 @@ impl MacroLexer {
             TokenType::MacroKeyword
         };
 
-        let token = Token::new(line, token_type, line_num, line);
+        let info = TokenInfo::new(line, line, line_num, "macro_lexer");
+        let token = Token::new(line, token_type, info);
         parsed_tokens.push(token);
 
         return true;

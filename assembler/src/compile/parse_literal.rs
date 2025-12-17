@@ -1,5 +1,5 @@
-use crate::lex::token::Token;
-use crate::lex::token::TokenType;
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
 
 pub struct ParseLiteral {}
 

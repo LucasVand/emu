@@ -1,14 +1,25 @@
 use std::ops::{Index, IndexMut};
 
 pub struct Memory {
-    pub memory: Box<[u8; 65536]>,
-    pub banks: Box<[[u8; 16385]; 256]>,
+    pub memory: Box<[u8]>,       // size of 65536
+    pub banks: Box<[Box<[u8]>]>, // size of 16385 by 256
 }
 impl Default for Memory {
     fn default() -> Self {
+        // this vec stuff is make sure the stack is not overflowed
+        let mem: Box<[u8]> = vec![0; 65536].into_boxed_slice();
+        let bank_boxes = vec![vec![0; 16385]; 256].into_boxed_slice();
+
+        let banks = bank_boxes
+            .iter()
+            .map(|b| {
+                return b.clone().into_boxed_slice();
+            })
+            .collect();
+
         Memory {
-            memory: Box::new([0; 65536]),
-            banks: Box::new([[0; 16385]; 256]),
+            memory: mem,
+            banks: banks,
         }
     }
 }

@@ -1,6 +1,7 @@
-use crate::lex::token::Token;
-use crate::lex::token::TokenType;
 use crate::utils::logging::Logging;
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
+use crate::utils::token_info::TokenInfo;
 use regex::Regex;
 
 pub struct LabelLexer {}
@@ -21,7 +22,8 @@ impl LabelLexer {
         }
         let remove_end = remove_end.unwrap();
 
-        let token = Token::new(remove_end, TokenType::LabelDefinition, line_num, line);
+        let info = TokenInfo::new(line, remove_end, line_num, "label_lexer");
+        let token = Token::new(remove_end, TokenType::LabelDefinition, info);
 
         parsed_tokens.push(token);
         return true;

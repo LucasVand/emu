@@ -1,6 +1,6 @@
+use crate::compile::compiled_token::CompiledToken;
+use crate::utils::token::Token;
 use std::fmt::Display;
-
-use crate::{compile::compiled_token::CompiledToken, lex::token::Token};
 
 pub struct LabelResolution {}
 
@@ -31,10 +31,10 @@ impl LabelResolution {
         let mut count = 0;
         for ele in compiled {
             match ele {
-                CompiledToken::Label { name: _ } => {
+                CompiledToken::Label { name: _, info: _ } => {
                     count += 2;
                 }
-                CompiledToken::Binary { byte: _ } => {
+                CompiledToken::Binary { byte: _, info: _ } => {
                     count += 1;
                 }
             };

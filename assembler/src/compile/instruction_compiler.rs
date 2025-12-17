@@ -1,10 +1,10 @@
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
 use common::instruction::Instruction;
 
 use crate::compile::compiled_token::CompiledToken;
 use crate::compile::operand::Operand;
 use crate::compile::parse_literal::ParseLiteral;
-use crate::lex::token::Token;
-use crate::lex::token::TokenType;
 use std::iter::Peekable;
 
 pub struct InstructionCompiler {}
@@ -65,10 +65,13 @@ impl InstructionCompiler {
 
         let byte1 = instruction | literal;
 
-        compiled.push(CompiledToken::create_token(byte1));
+        compiled.push(CompiledToken::create_token(byte1, &inst_token.token_info));
 
         if operands[0].kind == TokenType::Label {
-            compiled.push(CompiledToken::create_label(&operands[0].token));
+            compiled.push(CompiledToken::create_label(
+                &operands[0].token,
+                &operands[0].token_info,
+            ));
             return;
         }
         let doubleword = ParseLiteral::parse_u16(&operands[0]);
@@ -76,8 +79,8 @@ impl InstructionCompiler {
         let byte3 = doubleword as u8;
         let byte2 = (doubleword >> 8) as u8;
 
-        compiled.push(CompiledToken::create_token(byte2));
-        compiled.push(CompiledToken::create_token(byte3));
+        compiled.push(CompiledToken::create_token(byte2, &operands[0].token_info));
+        compiled.push(CompiledToken::create_token(byte3, &operands[0].token_info));
     }
     pub fn encode_reg_addr(
         inst_token: &Token,
@@ -94,10 +97,13 @@ impl InstructionCompiler {
         if is_literal {
             let byte1 = instruction | literal | reg;
 
-            compiled.push(CompiledToken::create_token(byte1));
+            compiled.push(CompiledToken::create_token(byte1, &inst_token.token_info));
 
             if operands[1].kind == TokenType::Label {
-                compiled.push(CompiledToken::create_label(&operands[1].token));
+                compiled.push(CompiledToken::create_label(
+                    &operands[1].token,
+                    &operands[1].token_info,
+                ));
                 return;
             }
 
@@ -106,8 +112,8 @@ impl InstructionCompiler {
             let byte3 = doubleword as u8;
             let byte2 = (doubleword >> 8) as u8;
 
-            compiled.push(CompiledToken::create_token(byte2));
-            compiled.push(CompiledToken::create_token(byte3));
+            compiled.push(CompiledToken::create_token(byte2, &operands[1].token_info));
+            compiled.push(CompiledToken::create_token(byte3, &operands[1].token_info));
         } else {
             println!("This is not supported yet");
         }
@@ -127,12 +133,12 @@ impl InstructionCompiler {
 
             let byte2 = ParseLiteral::parse_u8(&operands[0]);
 
-            compiled.push(CompiledToken::create_token(byte1));
-            compiled.push(CompiledToken::create_token(byte2));
+            compiled.push(CompiledToken::create_token(byte1, &inst_token.token_info));
+            compiled.push(CompiledToken::create_token(byte2, &operands[0].token_info));
         } else {
             let reg = Self::register_to_u8(&operands[0]);
             let byte1 = instruction | literal | reg;
-            compiled.push(CompiledToken::create_token(byte1));
+            compiled.push(CompiledToken::create_token(byte1, &inst_token.token_info));
         }
     }
     pub fn encode_reg_reglit(
@@ -149,7 +155,7 @@ impl InstructionCompiler {
 
         let byte1 = instruction | literal | reg;
 
-        compiled.push(CompiledToken::create_token(byte1));
+        compiled.push(CompiledToken::create_token(byte1, &inst_token.token_info));
 
         let byte2: u8;
         if is_literal {
@@ -157,10 +163,10 @@ impl InstructionCompiler {
             let value = ParseLiteral::parse_u8(&operands[1]);
 
             byte2 = value;
-            compiled.push(CompiledToken::create_token(byte2));
+            compiled.push(CompiledToken::create_token(byte2, &operands[1].token_info));
         } else {
             byte2 = Self::register_to_u8(&operands[1]);
-            compiled.push(CompiledToken::create_token(byte2));
+            compiled.push(CompiledToken::create_token(byte2, &operands[1].token_info));
         }
     }
 
@@ -175,7 +181,7 @@ impl InstructionCompiler {
 
         let byte = instruction | literal | reg;
 
-        compiled.push(CompiledToken::create_token(byte));
+        compiled.push(CompiledToken::create_token(byte, &inst_token.token_info));
     }
     fn register_to_u8(token: &Token) -> u8 {
         let token_str: &str = &token.token;

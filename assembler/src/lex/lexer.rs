@@ -4,16 +4,13 @@ use crate::lex::instruction_lexer::InstructionLexer;
 use crate::lex::label_lexer::LabelLexer;
 use crate::lex::macro_lexer::MacroLexer;
 use crate::lex::marco_definition_lexer::MacroDefinitionLexer;
-use crate::lex::token::Token;
 use crate::utils::logging::Logging;
+use crate::utils::token::Token;
 
 pub struct Lexer {}
 
 impl Lexer {
     pub fn parse_str(file: &str) -> Vec<Token> {
-        // TODO: add support for comments, just remove everything after the semi colon
-        // and store the original line in the debug object
-
         let mut parsed_tokens: Vec<Token> = Vec::new();
         let file_string = file.to_string();
         let lines = file_string.split("\n");
@@ -27,8 +24,12 @@ impl Lexer {
         println!("");
 
         for line in lines {
+            // remove comments
+            let mut spl = line.split(";");
+            // do this unsafe unwrap
+            let ln = spl.next().unwrap();
             line_num += 1;
-            Self::parse_line(line.trim(), &mut parsed_tokens, line_num);
+            Self::parse_line(ln, &mut parsed_tokens, line_num);
         }
         return parsed_tokens;
     }

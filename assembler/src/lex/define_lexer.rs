@@ -1,7 +1,8 @@
 use crate::lex::constant_lexer::ConstantLexer;
-use crate::lex::token::Token;
-use crate::lex::token::TokenType;
 use crate::utils::logging::Logging;
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
+use crate::utils::token_info::TokenInfo;
 use regex::Regex;
 
 pub struct DefineLexer {}
@@ -41,8 +42,10 @@ impl DefineLexer {
         let keyword = keyword.unwrap();
         let label = label.unwrap();
 
-        let token = Token::new(keyword, TokenType::UnDefineKeyword, line_num, line);
-        let label_token = Token::new(label, TokenType::Label, line_num, line);
+        let info_keyword = TokenInfo::new(line, keyword, line_num, "define_lexer");
+        let token = Token::new(keyword, TokenType::UnDefineKeyword, info_keyword);
+        let info_label = TokenInfo::new(line, label, line_num, "define_lexer");
+        let label_token = Token::new(label, TokenType::Label, info_label);
 
         parsed_tokens.push(token);
         parsed_tokens.push(label_token);
@@ -75,8 +78,10 @@ impl DefineLexer {
         let value = value.unwrap();
         let label = label.unwrap();
 
-        let keyword_token = Token::new(keyword, TokenType::DefineKeyword, line_num, line);
-        let label = Token::new(label, TokenType::DefineDefinitionLabel, line_num, line);
+        let info_keyword = TokenInfo::new(line, keyword, line_num, "define_lexer");
+        let keyword_token = Token::new(keyword, TokenType::DefineKeyword, info_keyword);
+        let info_label = TokenInfo::new(line, label, line_num, "define_lexer");
+        let label = Token::new(label, TokenType::DefineDefinitionLabel, info_label);
 
         parsed_tokens.push(keyword_token);
         parsed_tokens.push(label);

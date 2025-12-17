@@ -15,6 +15,11 @@ pub struct Registers {
     pub f: u8,
 }
 impl Registers {
+    pub fn get_16bit_pair(&self, first: u8, second: u8) -> u16 {
+        let reg1 = self[first];
+        let reg2 = self[second];
+        return (reg1 as u16) << 8 | (reg2 as u16);
+    }
     pub fn get_hl(&self) -> u16 {
         return ((self.h as u16) << 8) | (self.l as u16);
     }
@@ -35,72 +40,96 @@ impl Registers {
     ) {
         if is_add {
             // if the total is greater then 255 overflow
-            let total =
-                (value1 as u16).saturating_add((value2 as u16).saturating_add(carry as u16));
+            let (plus_carry, _) = (value2 as u16).overflowing_add(carry as u16);
+            let (total, _) = (value1 as u16).overflowing_add(plus_carry as u16);
             self.set_carry(total > 255);
 
-            let overflow = (value1 >> 7) == (value2 >> 7) && (value1 >> 7) != ((total as u8) >> 7);
+            let value1_sign = value1 >> 7;
+            let value2_sign = value2 >> 7;
+            let total_sign: u8 = (total >> 7) as u8;
+
+            let overflow = value1_sign == value2_sign && value1_sign != total_sign;
             self.set_overflow(overflow);
         } else {
+            let (value2_carry, _) = value2.overflowing_add(1);
             // if value1 is less then value2 + c then we underflow
-            let res = (value1 as u16) < (value2 as u16) + carry as u16;
-            let total =
-                (value1 as u16).saturating_add((!(value2 as u16)).saturating_add(1 - carry as u16));
+            let res = value1 < value2_carry;
+            let (neg, _) = (!value2).overflowing_add(1 - carry);
+            let (total, _) = value1.overflowing_add(neg);
             self.set_borrow(res);
 
-            let overflow = (value1 >> 7) != (value2 >> 7) && (value1 >> 7) != ((total as u8) >> 7);
+            let value1_sign = value1 >> 7;
+            let value2_sign = value2 >> 7;
+            let total_sign = total >> 7;
+            let overflow = value1_sign != value2_sign && value1_sign != total_sign;
             self.set_overflow(overflow);
         }
     }
+    pub fn set_f_bit(&mut self, bit: usize, value: bool) {
+        let bit = (1 << bit) as u8;
+        if value {
+            self.f = self.f | bit;
+        } else {
+            self.f = self.f & !bit;
+        }
+    }
     pub fn set_overflow(&mut self, value: bool) {
-        let bit = (value as u8) << 3;
-        let mask = !bit;
-        self.f = self.f & mask;
+        self.set_f_bit(3, value);
     }
     pub fn set_carry(&mut self, value: bool) {
-        let bit = (value as u8) << 5;
-        let mask = !bit;
-        self.f = self.f & mask;
+        self.set_f_bit(5, value);
     }
     pub fn set_borrow(&mut self, value: bool) {
-        let bit = (value as u8) << 4;
-        let mask = !bit;
-        self.f = self.f & mask;
+        self.set_f_bit(4, value);
     }
     pub fn set_zero(&mut self, value: bool) {
-        let bit = (value as u8) << 6;
-        let mask = !bit;
-        self.f = self.f & mask;
+        self.set_f_bit(6, value);
     }
     pub fn set_less(&mut self, value: bool) {
-        let bit = (value as u8) << 7;
-        let mask = !bit;
-        self.f = self.f & mask;
+        self.set_f_bit(7, value);
     }
-    pub fn get_overflow(&mut self) -> bool {
+    pub fn get_overflow(&self) -> bool {
         let mask: u8 = 0b00001000;
         return (self.f & mask) != 0;
     }
-    pub fn get_borrow(&mut self) -> bool {
+    pub fn get_borrow(&self) -> bool {
         let mask: u8 = 0b00010000;
         return (self.f & mask) != 0;
     }
-    pub fn get_carry(&mut self) -> bool {
+    pub fn get_carry(&self) -> bool {
         let mask: u8 = 0b00100000;
         return (self.f & mask) != 0;
     }
-    pub fn get_zero(&mut self) -> bool {
+    pub fn get_zero(&self) -> bool {
         let mask: u8 = 0b01000000;
         return (self.f & mask) != 0;
     }
-    pub fn get_less(&mut self) -> bool {
+    pub fn get_less(&self) -> bool {
         let mask: u8 = 0b10000000;
         return (self.f & mask) != 0;
     }
 }
 impl Display for Registers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(
+            f,
+            "a: {:<4}  b: {:<4}  c: {:<4}  d: {:<4}  h: {:<4}  l: {:<4}  z: {:<4}  f: {:<4}  less: {}  zero: {}  carry: {}  borrow: {}  overflow: {}  ab: {:<6}  bc: {:<6}",
+            self.a,
+            self.b,
+            self.c,
+            self.d,
+            self.h,
+            self.l,
+            self.z,
+            self.f,
+            self.get_less() as u8,
+            self.get_zero() as u8,
+            self.get_carry() as u8,
+            self.get_borrow() as u8,
+            self.get_overflow() as u8,
+            self.get_16bit_pair(0, 1),
+            self.get_16bit_pair(2, 3),
+        )
     }
 }
 

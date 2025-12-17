@@ -1,7 +1,7 @@
-use crate::lex::token::Token;
-use crate::lex::token::TokenType;
 use crate::preprocessor::macro_expansion::macro_definition::MacroDefinition;
 use crate::utils::logging::Logging;
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
 use std::{fmt::Display, iter::Peekable};
 
 #[derive(Debug)]
@@ -32,11 +32,9 @@ impl MacroExpansion {
 
         // if we cant find it log error and return
         if macro_def.is_none() {
-            Logging::log_preprocessor_error_specific(
+            Logging::log_preprocessor_error_info(
                 "unable to find macro definition",
-                inital_token.line_num,
-                &inital_token.line,
-                &inital_token.token,
+                &inital_token.token_info,
             );
             return None;
         }
@@ -58,15 +56,13 @@ impl MacroExpansion {
 
         // if we have an incorrect number of parameters
         if parameter_list.len() != macro_def.parameters.len() {
-            Logging::log_preprocessor_error_specific(
+            Logging::log_preprocessor_error_info(
                 &format!(
                     "incorrect number of parameters, expected {} found {}",
                     macro_def.parameters.len(),
                     parameter_list.len()
                 ),
-                inital_token.line_num,
-                &inital_token.line,
-                &inital_token.token,
+                &inital_token.token_info,
             );
             return None;
         }
@@ -86,11 +82,9 @@ impl MacroExpansion {
                 });
                 // if we cannot find the index then incorrect arguments
                 if index.is_none() {
-                    Logging::log_preprocessor_error_specific(
+                    Logging::log_preprocessor_error_info(
                         "unable to find argument",
-                        def_token.line_num,
-                        &def_token.line,
-                        &def_token.token,
+                        &def_token.token_info,
                     );
                     is_valid = false;
                     return;

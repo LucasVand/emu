@@ -10,7 +10,7 @@ impl LabelCompiler {
         let mut to_add: Vec<(usize, [CompiledToken; 2])> = Vec::new();
 
         for (index, ele) in compiled.iter().enumerate() {
-            if let CompiledToken::Label { name } = ele {
+            if let CompiledToken::Label { name, info } = ele {
                 let label = labels.iter().find(|lab| {
                     let unbracketed = name.strip_suffix("]").unwrap().strip_prefix("[").unwrap();
 
@@ -18,11 +18,11 @@ impl LabelCompiler {
                 });
 
                 if label.is_none() {
-                    Logging::log_compiler_error_specific("unable to find label", 0, &"", &name);
+                    Logging::log_compiler_error_info("unable to find label", &info);
                 }
                 let label = label.unwrap();
 
-                to_add.push((index, CompiledToken::create_tokens(label.value)));
+                to_add.push((index, CompiledToken::create_tokens(label.value, &info)));
             }
         }
 

@@ -1,7 +1,8 @@
 use crate::lex::constant_lexer::ConstantLexer;
-use crate::lex::token::Token;
-use crate::lex::token::TokenType;
 use crate::utils::logging::Logging;
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
+use crate::utils::token_info::TokenInfo;
 use common::instruction::Instruction;
 use regex::Regex;
 
@@ -33,7 +34,8 @@ impl InstructionLexer {
             TokenType::MacroMnemonic
         };
 
-        let mnemonic_token = Token::new(first, mnemonic_type, line_num, line);
+        let info = TokenInfo::new(line, first, line_num, "instruction_lexer");
+        let mnemonic_token = Token::new(first, mnemonic_type, info);
         parsed_tokens.push(mnemonic_token);
 
         let operands = sections.next();
@@ -41,7 +43,10 @@ impl InstructionLexer {
             return true;
         }
 
-        let operands = operands.unwrap();
+        let operands = operands.unwrap().trim();
+        if operands.is_empty() {
+            return true;
+        }
         let operand_list = operands.split(",");
 
         for ele in operand_list {

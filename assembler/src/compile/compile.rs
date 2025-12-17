@@ -4,8 +4,8 @@ use crate::compile::instruction_compiler::InstructionCompiler;
 use crate::compile::label_compiler::LabelCompiler;
 use crate::compile::label_resolution::CompilerLabel;
 use crate::compile::label_resolution::LabelResolution;
-use crate::lex::token::Token;
-use crate::lex::token::TokenType;
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
 
 pub struct Compile {}
 

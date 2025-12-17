@@ -23,6 +23,10 @@ impl Assembler {
 
         let lexed = Lexer::parse_str(&unwrapped_contents);
 
+        // for ele in &lexed {
+        //     println!("{}", ele);
+        // }
+
         let preprocessed = Preprocessor::preprocess_tokens(&lexed);
 
         let compiled = Compile::compile(&preprocessed);
@@ -32,7 +36,7 @@ impl Assembler {
         let bin: Vec<u8> = compiled
             .iter()
             .map(|tok| match tok {
-                CompiledToken::Binary { byte } => {
+                CompiledToken::Binary { byte, info: _ } => {
                     return byte.clone();
                 }
                 CompiledToken::Label { .. } => {

@@ -1,33 +1,43 @@
 use colored::Colorize;
 
+use crate::utils::token_info::TokenInfo;
+
 pub struct Logging {}
 
 impl Logging {
-    pub fn log_compiler_error_specific(
-        message: &str,
-        line_num: usize,
-        line: &str,
-        error_token: &str,
-    ) {
-        Self::log_error_internal("Compiler", message, line_num, line, Some(error_token));
-    }
-
-    pub fn log_preprocessor_error(message: &str, line_num: usize, line: &str) {
-        Self::log_error_internal("Preprocessor", message, line_num, line, None);
-    }
-    pub fn log_preprocessor_error_specific(
-        message: &str,
-        line_num: usize,
-        line: &str,
-        error_token: &str,
-    ) {
-        Self::log_error_internal("Preprocessor", message, line_num, line, Some(error_token));
+    pub fn log_compiler_error_info(message: &str, info: &TokenInfo) {
+        Self::log_error_internal(
+            "Compiler",
+            message,
+            info.line_num,
+            &info.line,
+            Some(&info.token),
+        );
     }
     pub fn log_lexer_error(message: &str, line_num: usize, line: &str) {
         Self::log_error_internal("Lexer", message, line_num, line, None);
     }
-    pub fn log_lexer_error_specific(message: &str, line_num: usize, line: &str, error_token: &str) {
-        Self::log_error_internal("Lexer", message, line_num, line, Some(error_token));
+    pub fn log_preprocessor_error(message: &str, line_num: usize, line: &str) {
+        Self::log_error_internal("Preprocessor", message, line_num, line, None);
+    }
+
+    pub fn log_preprocessor_error_info(message: &str, info: &TokenInfo) {
+        Self::log_error_internal(
+            "Lexer",
+            message,
+            info.line_num,
+            &info.line,
+            Some(&info.token),
+        );
+    }
+    pub fn log_lexer_error_info(message: &str, info: &TokenInfo) {
+        Self::log_error_internal(
+            "Lexer",
+            message,
+            info.line_num,
+            &info.line,
+            Some(&info.token),
+        );
     }
     fn log_error_internal(
         error_type: &str,

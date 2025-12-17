@@ -1,7 +1,7 @@
 use crate::utils::logging::Logging;
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
 use std::{fmt::Display, iter::Peekable};
-
-use crate::lex::token::{Token, TokenType};
 
 #[derive(Debug, Clone)]
 pub struct DefineMacro {
@@ -69,10 +69,9 @@ impl DefineMacro {
     ) -> bool {
         let label = iter.peek();
         if label.is_none() {
-            Logging::log_preprocessor_error(
+            Logging::log_preprocessor_error_info(
                 "expected @undefine label",
-                inital_token.line_num,
-                &inital_token.line,
+                &inital_token.token_info,
             );
             return false;
         }
@@ -80,12 +79,7 @@ impl DefineMacro {
         let label = label.unwrap();
 
         if label.kind != TokenType::Label {
-            Logging::log_preprocessor_error_specific(
-                "expected define label",
-                label.line_num,
-                &label.line,
-                &label.token,
-            );
+            Logging::log_preprocessor_error_info("expected define label", &label.token_info);
             return false;
         }
         let label = iter.next().unwrap();
@@ -93,11 +87,9 @@ impl DefineMacro {
             return define.label == label.token;
         });
         if index.is_none() {
-            Logging::log_preprocessor_error_specific(
+            Logging::log_preprocessor_error_info(
                 "undefine label does not match a know definition",
-                label.line_num,
-                &label.line,
-                &label.token,
+                &label.token_info,
             );
             return false;
         }
@@ -115,22 +107,16 @@ impl DefineMacro {
         let label = iter.peek();
 
         if label.is_none() {
-            Logging::log_preprocessor_error(
+            Logging::log_preprocessor_error_info(
                 "expected @define label",
-                inital_token.line_num,
-                &inital_token.line,
+                &inital_token.token_info,
             );
             return false;
         }
         let label = label.unwrap();
 
         if label.kind != TokenType::DefineDefinitionLabel {
-            Logging::log_preprocessor_error_specific(
-                "expected define label",
-                label.line_num,
-                &label.line,
-                &label.token,
-            );
+            Logging::log_preprocessor_error_info("expected define label", &label.token_info);
             return false;
         }
         let label = iter.next().unwrap();
@@ -138,10 +124,9 @@ impl DefineMacro {
         let value = iter.peek();
 
         if value.is_none() {
-            Logging::log_preprocessor_error(
+            Logging::log_preprocessor_error_info(
                 "expected @define value",
-                inital_token.line_num,
-                &inital_token.line,
+                &inital_token.token_info,
             );
         }
 
@@ -156,12 +141,7 @@ impl DefineMacro {
             != 0;
 
         if dup_names {
-            Logging::log_preprocessor_error_specific(
-                "duplicate definitions found",
-                label.line_num,
-                &label.line,
-                &label.token,
-            );
+            Logging::log_preprocessor_error_info("duplicate definitions found", &label.token_info);
             return false;
         }
 

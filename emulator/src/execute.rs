@@ -119,11 +119,10 @@ impl Execute {
             value = emu.registers[inst[1]];
         }
         let register_value = emu.registers[reg];
-        let res = emu.registers[reg].saturating_add(value);
+        let (res, _) = emu.registers[reg].overflowing_add(value);
 
         emu.registers[reg] = res;
 
-        emu.registers.update_zero_less(res);
         emu.registers
             .update_carry_borrow_overflow(register_value, value, 0, true);
 
@@ -141,11 +140,12 @@ impl Execute {
         }
         let carry = emu.registers.get_carry() as u8;
         let register_value = emu.registers[reg];
-        let res = emu.registers[reg].saturating_add(value.saturating_add(carry));
+
+        let (other_carry, _) = (value).overflowing_add(carry);
+        let (res, _) = emu.registers[reg].overflowing_add(other_carry);
 
         emu.registers[reg] = res;
 
-        emu.registers.update_zero_less(res);
         emu.registers
             .update_carry_borrow_overflow(register_value, value, carry, true);
 
@@ -163,11 +163,11 @@ impl Execute {
         }
 
         let register_value = emu.registers[reg];
-        let res = emu.registers[reg].saturating_add(!value.saturating_add(1));
+        let (neg_other, _) = (!value).overflowing_add(1);
+        let (res, _) = emu.registers[reg].overflowing_add(neg_other);
 
         emu.registers[reg] = res;
 
-        emu.registers.update_zero_less(res);
         emu.registers
             .update_carry_borrow_overflow(register_value, value, 0, false);
         return 2;
@@ -185,11 +185,11 @@ impl Execute {
 
         let borrow = emu.registers.get_borrow() as u8;
         let register_value = emu.registers[reg];
-        let res = emu.registers[reg].saturating_add(!value.saturating_add(1 - borrow));
+        let (neg_other, _) = (!value).overflowing_add(1 - borrow);
+        let (res, _) = emu.registers[reg].overflowing_add(neg_other);
 
         emu.registers[reg] = res;
 
-        emu.registers.update_zero_less(res);
         emu.registers
             .update_carry_borrow_overflow(register_value, value, borrow, false);
         return 2;
@@ -260,11 +260,10 @@ impl Execute {
         }
         let value = emu.registers[reg];
 
-        let res = value.saturating_add(!other.saturating_add(1));
+        let (neg_other, _) = (!other).overflowing_add(1);
+        let (res, _) = value.overflowing_add(neg_other);
 
         emu.registers.update_zero_less(res);
-        emu.registers
-            .update_carry_borrow_overflow(value, other, 0, false);
 
         return 2;
     }

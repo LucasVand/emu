@@ -1,9 +1,9 @@
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
+use crate::utils::token_info::TokenInfo;
 use regex::Regex;
 
-use crate::{
-    lex::token::{Token, TokenType},
-    utils::logging::Logging,
-};
+use crate::utils::logging::Logging;
 
 pub struct ConstantLexer {}
 
@@ -55,6 +55,8 @@ impl ConstantLexer {
             .strip_prefix("[")
             .unwrap_or(trimmed);
 
+        let info = TokenInfo::new(line, trimmed, line_num, "constant_lexer");
+
         let token_type: TokenType;
         if Self::check_expression(Self::CHARACTER_REGEX, constant_trimmed) {
             token_type = TokenType::Character;
@@ -76,20 +78,15 @@ impl ConstantLexer {
         } else if Self::check_expression(Self::LABEL, constant_trimmed) {
             token_type = TokenType::Label;
         } else {
-            Logging::log_lexer_error_specific(
-                "unable to parse constant",
-                line_num,
-                line,
-                constant_trimmed,
-            );
+            Logging::log_lexer_error_info("unable to parse constant", &info);
             return false;
         }
 
         // we use trimmed here because we want to keep the [] around the constant
         let token = if is_addr {
-            Token::new_address(trimmed, token_type, line_num, line)
+            Token::new_address(trimmed, token_type, info)
         } else {
-            Token::new(trimmed, token_type, line_num, line)
+            Token::new(trimmed, token_type, info)
         };
 
         parsed_tokens.push(token);

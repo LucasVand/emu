@@ -6,4 +6,3 @@ pub mod label_lexer;
 pub mod lexer;
 pub mod macro_lexer;
 pub mod marco_definition_lexer;
-pub mod token;

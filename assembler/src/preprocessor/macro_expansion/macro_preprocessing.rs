@@ -1,7 +1,7 @@
-use crate::lex::token::Token;
-use crate::lex::token::TokenType;
 use crate::preprocessor::macro_expansion::macro_definition::MacroDefinition;
 use crate::preprocessor::macro_expansion::macro_expansion::MacroExpansion;
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
 
 pub struct MacroPreprocessing {}
 

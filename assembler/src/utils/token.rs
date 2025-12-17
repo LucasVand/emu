@@ -1,32 +1,30 @@
 use std::fmt::Display;
 
+use crate::utils::token_info::TokenInfo;
+
 #[derive(Clone, Debug)]
 pub struct Token {
     pub token: String,
     pub is_addr: bool,
     pub kind: TokenType,
-    pub line_num: usize,
-    pub line: String,
+    pub token_info: TokenInfo,
 }
-// TODO: add a debug object that can be passed around during token transformation to enable better
-// error messages
+
 impl Token {
-    pub fn new(token: &str, kind: TokenType, line_num: usize, line: &str) -> Token {
+    pub fn new(token: &str, kind: TokenType, info: TokenInfo) -> Token {
         Token {
             is_addr: false,
             token: token.to_string(),
             kind,
-            line_num: line_num,
-            line: line.to_string(),
+            token_info: info,
         }
     }
-    pub fn new_address(token: &str, kind: TokenType, line_num: usize, line: &str) -> Token {
+    pub fn new_address(token: &str, kind: TokenType, info: TokenInfo) -> Token {
         Token {
             is_addr: true,
             token: token.to_string(),
             kind,
-            line_num: line_num,
-            line: line.to_string(),
+            token_info: info,
         }
     }
 }

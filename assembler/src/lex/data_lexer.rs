@@ -1,12 +1,9 @@
+use crate::utils::token::Token;
+use crate::utils::token::TokenType;
+use crate::utils::token_info::TokenInfo;
 use regex::Regex;
 
-use crate::{
-    lex::{
-        constant_lexer::ConstantLexer,
-        token::{Token, TokenType},
-    },
-    utils::logging::Logging,
-};
+use crate::{lex::constant_lexer::ConstantLexer, utils::logging::Logging};
 
 pub struct DataLexer {}
 
@@ -37,8 +34,10 @@ impl DataLexer {
 
         let data_char: char = first_section.trim().chars().nth(2).unwrap();
         let first_token_type = Self::token_type_from_char(data_char);
+
+        let data_keyword_info = TokenInfo::new(line, first_section, line_num, "data_lexer");
         let data_keyword_token =
-            Token::new(first_section, first_token_type.clone(), line_num, line);
+            Token::new(first_section, first_token_type.clone(), data_keyword_info);
 
         parsed_tokens.push(data_keyword_token);
 
