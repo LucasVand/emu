@@ -5,14 +5,14 @@ pub struct ParseLiteral {}
 
 impl ParseLiteral {
     pub fn parse_u8(token: &Token) -> u8 {
-        let base64 = Self::parse_literal(token);
+        let base64 = Self::parse_literal(token, false);
         return base64 as u8;
     }
     pub fn parse_u16(token: &Token) -> u16 {
-        let base64 = Self::parse_literal(token);
+        let base64 = Self::parse_literal(token, true);
         return base64 as u16;
     }
-    fn parse_literal(token: &Token) -> u64 {
+    fn parse_literal(token: &Token, double_word: bool) -> u64 {
         let token_token = &token.token;
 
         let token_brackets_stripped = token_token

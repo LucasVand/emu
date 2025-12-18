@@ -1,10 +1,10 @@
+use crate::compile::operand_compiler::OperandCompiler;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
 use common::instruction::Instruction;
 
 use crate::compile::compiled_token::CompiledToken;
 use crate::compile::operand::Operand;
-use crate::compile::parse_literal::ParseLiteral;
 use std::iter::Peekable;
 
 pub struct InstructionCompiler {}
@@ -36,27 +36,28 @@ impl InstructionCompiler {
             return;
         }
         if requirements == [Operand::Register, Operand::Both { is_addr: false }] {
-            Self::encode_reg_reglit(&inital_token, &operands, compiled);
+            Self::encode_reg_reglit(&inital_token, &operands, compiled, &requirements);
             return;
         }
         if requirements == [Operand::Both { is_addr: false }] {
-            Self::encode_reglit(&inital_token, &operands, compiled);
+            Self::encode_reglit(&inital_token, &operands, compiled, &requirements);
             return;
         }
         if requirements == [Operand::Register, Operand::Both { is_addr: true }] {
-            Self::encode_reg_addr(&inital_token, &operands, compiled);
+            Self::encode_reg_addr(&inital_token, &operands, compiled, &requirements);
             return;
         }
         if requirements == [Operand::Both { is_addr: true }] {
-            Self::encode_addr(&inital_token, &operands, compiled);
+            Self::encode_addr(&inital_token, &operands, compiled, &requirements);
             return;
         }
-        panic!("did not match any know instruction requirements");
+        panic!("did not match any known instruction requirements");
     }
     pub fn encode_addr(
         inst_token: &Token,
         operands: &Vec<Token>,
         compiled: &mut Vec<CompiledToken>,
+        requirements: &Vec<Operand>,
     ) {
         let instruction: u8 = (Instruction::from_str(&inst_token.token) as u8) << 4;
 
@@ -67,25 +68,15 @@ impl InstructionCompiler {
 
         compiled.push(CompiledToken::create_token(byte1, &inst_token.token_info));
 
-        if operands[0].kind == TokenType::Label {
-            compiled.push(CompiledToken::create_label(
-                &operands[0].token,
-                &operands[0].token_info,
-            ));
-            return;
-        }
-        let doubleword = ParseLiteral::parse_u16(&operands[0]);
-
-        let byte3 = doubleword as u8;
-        let byte2 = (doubleword >> 8) as u8;
-
-        compiled.push(CompiledToken::create_token(byte2, &operands[0].token_info));
-        compiled.push(CompiledToken::create_token(byte3, &operands[0].token_info));
+        let op_req = Self::create_op_req_pair(operands, requirements, 0);
+        OperandCompiler::compile_operands(&op_req, compiled);
     }
+
     pub fn encode_reg_addr(
         inst_token: &Token,
         operands: &Vec<Token>,
         compiled: &mut Vec<CompiledToken>,
+        requirements: &Vec<Operand>,
     ) {
         let instruction: u8 = (Instruction::from_str(&inst_token.token) as u8) << 4;
 
@@ -99,21 +90,8 @@ impl InstructionCompiler {
 
             compiled.push(CompiledToken::create_token(byte1, &inst_token.token_info));
 
-            if operands[1].kind == TokenType::Label {
-                compiled.push(CompiledToken::create_label(
-                    &operands[1].token,
-                    &operands[1].token_info,
-                ));
-                return;
-            }
-
-            let doubleword: u16 = ParseLiteral::parse_u16(&operands[1]);
-
-            let byte3 = doubleword as u8;
-            let byte2 = (doubleword >> 8) as u8;
-
-            compiled.push(CompiledToken::create_token(byte2, &operands[1].token_info));
-            compiled.push(CompiledToken::create_token(byte3, &operands[1].token_info));
+            let op = Self::create_op_req_pair(&operands, &requirements, 1);
+            OperandCompiler::compile_operands(&op, compiled);
         } else {
             println!("This is not supported yet");
         }
@@ -122,6 +100,7 @@ impl InstructionCompiler {
         inst_token: &Token,
         operands: &Vec<Token>,
         compiled: &mut Vec<CompiledToken>,
+        requirements: &Vec<Operand>,
     ) {
         let instruction: u8 = (Instruction::from_str(&inst_token.token) as u8) << 4;
 
@@ -130,11 +109,10 @@ impl InstructionCompiler {
 
         if is_literal {
             let byte1 = instruction | literal;
-
-            let byte2 = ParseLiteral::parse_u8(&operands[0]);
-
             compiled.push(CompiledToken::create_token(byte1, &inst_token.token_info));
-            compiled.push(CompiledToken::create_token(byte2, &operands[0].token_info));
+
+            let op = Self::create_op_req_pair(&operands, &requirements, 0);
+            OperandCompiler::compile_operands(&op, compiled);
         } else {
             let reg = Self::register_to_u8(&operands[0]);
             let byte1 = instruction | literal | reg;
@@ -145,6 +123,7 @@ impl InstructionCompiler {
         inst_token: &Token,
         operands: &Vec<Token>,
         compiled: &mut Vec<CompiledToken>,
+        requirements: &Vec<Operand>,
     ) {
         let instruction: u8 = (Instruction::from_str(&inst_token.token) as u8) << 4;
 
@@ -159,11 +138,8 @@ impl InstructionCompiler {
 
         let byte2: u8;
         if is_literal {
-            // insert the value
-            let value = ParseLiteral::parse_u8(&operands[1]);
-
-            byte2 = value;
-            compiled.push(CompiledToken::create_token(byte2, &operands[1].token_info));
+            let op = Self::create_op_req_pair(&operands, &requirements, 1);
+            OperandCompiler::compile_operands(&op, compiled);
         } else {
             byte2 = Self::register_to_u8(&operands[1]);
             compiled.push(CompiledToken::create_token(byte2, &operands[1].token_info));
@@ -183,7 +159,7 @@ impl InstructionCompiler {
 
         compiled.push(CompiledToken::create_token(byte, &inst_token.token_info));
     }
-    fn register_to_u8(token: &Token) -> u8 {
+    pub fn register_to_u8(token: &Token) -> u8 {
         let token_str: &str = &token.token;
         match token_str {
             "a" => 0,
@@ -196,5 +172,19 @@ impl InstructionCompiler {
             "f" => 7,
             _ => panic!("not a valid register token {}", token.token),
         }
+    }
+    fn create_op_req_pair(
+        ops: &Vec<Token>,
+        req: &Vec<Operand>,
+        start: usize,
+    ) -> Vec<(Token, Operand)> {
+        let mut ls: Vec<(Token, Operand)> = Vec::new();
+        for (index, op) in ops.iter().enumerate() {
+            if index >= start {
+                let re = req[index].clone();
+                ls.push((op.clone(), re));
+            }
+        }
+        return ls;
     }
 }

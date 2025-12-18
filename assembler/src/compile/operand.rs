@@ -3,7 +3,7 @@ use crate::utils::token::Token;
 use crate::utils::token::TokenType;
 use common::instruction::Instruction;
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone)]
 pub enum Operand {
     Both { is_addr: bool },
     Literal { is_addr: bool },
@@ -33,7 +33,10 @@ impl Operand {
 
         for i in 0..requirements.len() {
             if !requirements[i].equivalent(&operands_vec[i]) {
-                Logging::log_compiler_error_info("incorrect operand found", &inst_token.token_info);
+                Logging::log_compiler_error_info(
+                    "incorrect operand found",
+                    &operands[i].token_info,
+                );
                 return false;
             }
         }
@@ -116,5 +119,18 @@ impl Operand {
         }
 
         return false;
+    }
+    pub fn is_addr(&self) -> bool {
+        match self {
+            Operand::Both { is_addr } => {
+                return *is_addr;
+            }
+            Operand::Literal { is_addr } => {
+                return *is_addr;
+            }
+            Operand::Register => {
+                return false;
+            }
+        }
     }
 }

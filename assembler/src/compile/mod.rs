@@ -1,8 +1,10 @@
 pub mod compile;
 pub mod compiled_token;
 pub mod data_compiler;
+pub mod expression_compiler;
 pub mod instruction_compiler;
 pub mod label_compiler;
 pub mod label_resolution;
 pub mod operand;
+pub mod operand_compiler;
 pub mod parse_literal;

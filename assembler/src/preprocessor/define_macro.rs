@@ -1,6 +1,8 @@
 use crate::utils::logging::Logging;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
+use crate::utils::token_info::TokenInfo;
+use std::thread::current;
 use std::{fmt::Display, iter::Peekable};
 
 #[derive(Debug, Clone)]
@@ -31,8 +33,31 @@ impl DefineMacro {
                 let _ = Self::sub_label(&mut current, &define_list);
             } else if current.kind == TokenType::UnDefineKeyword {
                 let _ = Self::remove_definition(&mut iter, &mut define_list, &current);
+            } else if current.kind == TokenType::Expression {
+                let _ = Self::sub_expression(&mut current, &define_list);
             }
         }
+    }
+    pub fn sub_expression(token: &mut Token, define_macros: &Vec<DefineMacro>) -> bool {
+        let label_exists = define_macros.iter().find(|def| {
+            let stripped_token = &token.token;
+
+            return stripped_token.contains(&def.label);
+        });
+
+        if label_exists.is_none() {
+            let info: &TokenInfo = &token.token_info;
+            Logging::log_compiler_error_info("unable to find label definition", info);
+            return false;
+        }
+
+        let label_def = label_exists.unwrap();
+
+        let new_token = token.token.replace(&label_def.label, &label_def.value);
+
+        token.token = new_token;
+
+        return true;
     }
     pub fn sub_label(token: &mut Token, define_macros: &Vec<DefineMacro>) -> bool {
         let label_exists = define_macros.iter().find(|def| {

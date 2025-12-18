@@ -37,6 +37,14 @@ impl LabelResolution {
                 CompiledToken::Binary { byte: _, info: _ } => {
                     count += 1;
                 }
+                CompiledToken::Expression {
+                    expr: _,
+                    double_word,
+                    info: _,
+                } => {
+                    let size = if *double_word { 2 } else { 1 };
+                    count += size;
+                }
             };
         }
 

@@ -1,4 +1,7 @@
-use std::fs;
+use std::{
+    env,
+    fs::{self, write},
+};
 
 use crate::{
     compile::{compile::Compile, compiled_token::CompiledToken},
@@ -9,15 +12,12 @@ use crate::{
 pub struct Assembler {}
 
 impl Assembler {
-    pub fn new() -> Self {
-        Assembler {}
-    }
-    pub fn assemble_file(&self, filename: &str) -> Vec<u8> {
+    pub fn assemble_file(filename: &str, output: &str) -> bool {
         let contents = fs::read_to_string(filename);
 
         if contents.is_err() {
             println!("Unable to read file {}", filename);
-            return vec![];
+            return false;
         }
         let unwrapped_contents = contents.unwrap();
 
@@ -28,6 +28,10 @@ impl Assembler {
         // }
 
         let preprocessed = Preprocessor::preprocess_tokens(&lexed);
+
+        // for ele in &preprocessed {
+        //     println!("{}", ele);
+        // }
 
         let compiled = Compile::compile(&preprocessed);
 
@@ -42,9 +46,24 @@ impl Assembler {
                 CompiledToken::Label { .. } => {
                     panic!("Should not find this label: {}", tok);
                 }
+                CompiledToken::Expression { .. } => {
+                    panic!("Should not find this expression: {}", tok);
+                }
             })
             .collect();
 
-        return bin;
+        for ele in &bin {
+            println!("{}", ele);
+        }
+        return Self::write_file(&bin, output);
+    }
+    fn write_file(binary: &Vec<u8>, output: &str) -> bool {
+        let res = write(output, binary);
+
+        if res.is_err() {
+            println!("Unable to write");
+            return false;
+        }
+        return true;
     }
 }

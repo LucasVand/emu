@@ -56,18 +56,10 @@ impl DataCompiler {
 
                 // look at the last added byte
                 if let Some(last) = compiled.last() {
-                    match last {
-                        // if the byte is not a null terminator add one
-                        CompiledToken::Binary { byte, info } => {
-                            let ch = *byte as char;
-                            if ch != '\0' {
-                                compiled.push(CompiledToken::create_token('\0' as u8, &info));
-                            }
-                        }
-                        CompiledToken::Label { name: _, info: _ } => {
-                            panic!(
-                                "This should never happen, we cannot compile a string into a label"
-                            );
+                    if let CompiledToken::Binary { byte, info } = last {
+                        let ch = *byte as char;
+                        if ch != '\0' {
+                            compiled.push(CompiledToken::create_token('\0' as u8, &info));
                         }
                     }
                 }

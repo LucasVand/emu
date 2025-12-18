@@ -62,11 +62,11 @@ impl Emulator {
             sleep(Duration::from_millis(10));
         }
     }
-    pub fn load_binary(&mut self, filename: &str) {
+    pub fn load_binary(&mut self, filename: &str) -> bool {
         let bytes = fs::read(filename);
         if bytes.is_err() {
             println!("Unable to open file {}", filename);
-            return;
+            return false;
         }
         let unwrapped_bytes = bytes.unwrap();
         let mut index: u16 = 0;
@@ -75,6 +75,7 @@ impl Emulator {
             self.memory[index] = *byte;
             index += 1;
         });
+        return true;
     }
     pub fn clean_memory(&mut self) {
         self.memory = Memory::default();

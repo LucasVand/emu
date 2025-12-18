@@ -1,10 +1,7 @@
-mov a, 1
-mov b, 0 
+@define test 10
 
-mov c, 0
-mov d, 10
-
-sub b, d 
-sbb a, c
+mov a, 10 
+mov b, 10 
+add a, b
 
 orr f, 1
