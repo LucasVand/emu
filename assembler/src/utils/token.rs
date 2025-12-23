@@ -64,9 +64,12 @@ pub enum TokenType {
     Binary,
     Character,
     Decimal,
+
+    // Double Register
+    DoubleRegister,
 }
 impl TokenType {
-    pub const INSTRUCTION_OPERANDS: [TokenType; 8] = [
+    pub const INSTRUCTION_OPERANDS: [TokenType; 9] = [
         TokenType::Label,
         TokenType::Expression,
         TokenType::String,
@@ -75,8 +78,9 @@ impl TokenType {
         TokenType::Character,
         TokenType::Decimal,
         TokenType::Register,
+        TokenType::DoubleRegister,
     ];
-    pub const LITERALS: [TokenType; 7] = [
+    pub const LITERALS: [TokenType; 8] = [
         TokenType::Label,
         TokenType::Expression,
         TokenType::String,
@@ -84,6 +88,7 @@ impl TokenType {
         TokenType::Binary,
         TokenType::Character,
         TokenType::Decimal,
+        TokenType::DoubleRegister,
     ];
     pub const DATA_DEFINITIONS: [TokenType; 3] = [
         TokenType::WordDataDefineKeyword,

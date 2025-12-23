@@ -1,5 +1,7 @@
 use crate::compile::compiled_token::CompiledToken;
 use crate::compile::data_compiler::DataCompiler;
+use crate::compile::expression_compiler::expression_label_resolution::ExpressionLabelResolution;
+use crate::compile::expression_compiler::expression_solver::ExpressionSolver;
 use crate::compile::instruction_compiler::InstructionCompiler;
 use crate::compile::label_compiler::LabelCompiler;
 use crate::compile::label_resolution::CompilerLabel;
@@ -40,7 +42,9 @@ impl Compile {
 
         LabelCompiler::compile_labels(&mut bytes, &labels);
 
-        //TODO: Add expression evaluation, with label subbing
+        ExpressionLabelResolution::resolve_expression_labels(&mut bytes, &labels);
+
+        ExpressionSolver::sub_expressions(&mut bytes);
 
         return bytes;
     }

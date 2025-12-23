@@ -12,8 +12,7 @@ fn main() {
 
     let res = Assembler::assemble_file(&format!("asm/{}", &args[1]), &format!("bin/{}", &args[2]));
 
-    if !res {
-        println!("Unable to write");
-        return;
+    if res.is_err() {
+        println!("File was not assembled");
     }
 }

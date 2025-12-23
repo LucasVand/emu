@@ -51,7 +51,7 @@ impl DataCompiler {
                     .unwrap();
                 for ch in remove_quotes.chars() {
                     let lit = ch as u8;
-                    compiled.push(CompiledToken::create_token(lit, &ele.token_info));
+                    compiled.push(CompiledToken::create_word(lit, &ele.token_info));
                 }
 
                 // look at the last added byte
@@ -59,7 +59,7 @@ impl DataCompiler {
                     if let CompiledToken::Binary { byte, info } = last {
                         let ch = *byte as char;
                         if ch != '\0' {
-                            compiled.push(CompiledToken::create_token('\0' as u8, &info));
+                            compiled.push(CompiledToken::create_word('\0' as u8, &info));
                         }
                     }
                 }
@@ -79,8 +79,8 @@ impl DataCompiler {
                 let byte3 = doubleword as u8;
                 let byte2 = (doubleword >> 8) as u8;
 
-                compiled.push(CompiledToken::create_token(byte2, &ele.token_info));
-                compiled.push(CompiledToken::create_token(byte3, &ele.token_info));
+                compiled.push(CompiledToken::create_word(byte2, &ele.token_info));
+                compiled.push(CompiledToken::create_word(byte3, &ele.token_info));
             } else {
                 Logging::log_compiler_error_info(
                     "unable to parse double word this data item",
@@ -95,7 +95,7 @@ impl DataCompiler {
                 && ![TokenType::Label, TokenType::String].contains(&ele.kind)
             {
                 let byte = ParseLiteral::parse_u8(ele);
-                compiled.push(CompiledToken::create_token(byte, &ele.token_info));
+                compiled.push(CompiledToken::create_word(byte, &ele.token_info));
             } else {
                 Logging::log_compiler_error_info(
                     "unable to parse this word data item",

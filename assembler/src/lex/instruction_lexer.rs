@@ -9,7 +9,7 @@ use regex::Regex;
 pub struct InstructionLexer {}
 
 impl InstructionLexer {
-    const REGEX_EXPRESSION: &'static str = r"^[a-zA-Z0-9_.]+\s?((%[ri]\d+|\[%[ri]\d+\]|[a-zA-Z0-9._-]+|\[[a-zA-Z0-9._]+\]|\(.*\))\s*,\s*)*(%[ri]\d+|\[%[ri]\d+\]|[a-zA-Z0-9._-]+|\[[a-zA-Z0-9._]+\]|\(.*\))?$";
+    const REGEX_EXPRESSION: &'static str = r"^[a-zA-Z0-9_.]+\s?((%[ri]\d+|\[%[ri]\d+\]|[a-zA-Z0-9._-]+|\[[a-zA-Z0-9._]+\]|\(.*\)|\[\(.*\)\])\s*,\s*)*(%[ri]\d+|\[%[ri]\d+\]|[a-zA-Z0-9._-]+|\[[a-zA-Z0-9._]+\]|\(.*\)|\[\(.*\)\])?$";
 
     pub fn check_line(line: &str) -> bool {
         return Regex::new(Self::REGEX_EXPRESSION).unwrap().is_match(line);

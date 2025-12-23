@@ -1,8 +1,6 @@
 use crate::utils::logging::Logging;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
-use crate::utils::token_info::TokenInfo;
-use std::thread::current;
 use std::{fmt::Display, iter::Peekable};
 
 #[derive(Debug, Clone)]
@@ -46,9 +44,7 @@ impl DefineMacro {
         });
 
         if label_exists.is_none() {
-            let info: &TokenInfo = &token.token_info;
-            Logging::log_compiler_error_info("unable to find label definition", info);
-            return false;
+            return true;
         }
 
         let label_def = label_exists.unwrap();

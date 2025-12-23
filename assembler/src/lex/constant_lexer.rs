@@ -19,6 +19,7 @@ impl ConstantLexer {
     const EXPRESSION_REGEX: &'static str = r"^\([0-9A-Za-z_. \+\-\*/<>\(\)]+\)$";
     const LABEL: &'static str = r"^[a-zA-Z0-9._]+$";
     const ADDRESS: &'static str = r"^\[.+\]$";
+    const DOUBLE_REGISTER_ADDRESS: &'static str = r"^[abcdlhzf][abcdhlzf]$";
 
     pub fn parse_constant_data(
         constant: &str,
@@ -75,6 +76,10 @@ impl ConstantLexer {
             token_type = TokenType::MacroParameter;
         } else if !is_data && Self::REGISTER_LIST.contains(&constant_trimmed) {
             token_type = TokenType::Register;
+        } else if !is_data
+            && Self::check_expression(Self::DOUBLE_REGISTER_ADDRESS, constant_trimmed)
+        {
+            token_type = TokenType::DoubleRegister
         } else if Self::check_expression(Self::LABEL, constant_trimmed) {
             token_type = TokenType::Label;
         } else {

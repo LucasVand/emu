@@ -65,8 +65,13 @@ impl Execute {
             addr = ((inst[1] as u16) << 8) | (inst[2] as u16);
             output = 3;
         } else {
-            addr = emu.registers.get_hl();
-            output = 1;
+            let reg1 = inst[1] >> 3;
+            let reg2 = inst[1] & 0b00000111;
+            let value1 = emu.registers[reg1];
+            let value2 = emu.registers[reg2];
+
+            addr = (value1 as u16) << 8 | value2 as u16;
+            output = 2;
         }
 
         emu.registers[reg] = emu.memory[addr];
@@ -82,8 +87,13 @@ impl Execute {
             addr = ((inst[1] as u16) << 8) | (inst[2] as u16);
             output = 3;
         } else {
-            addr = emu.registers.get_hl();
-            output = 1;
+            let reg1 = inst[1] >> 3;
+            let reg2 = inst[1] & 0b00000111;
+            let value1 = emu.registers[reg1];
+            let value2 = emu.registers[reg2];
+
+            addr = (value1 as u16) << 8 | value2 as u16;
+            output = 2;
         }
 
         emu.memory[addr] = emu.registers[reg];

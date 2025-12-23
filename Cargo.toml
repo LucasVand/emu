@@ -2,7 +2,7 @@
 members = [
   "assembler",
   "common",
-  "emulator"]
+  "emulator", "run"]
 resolver = "3"
 
 # [package]

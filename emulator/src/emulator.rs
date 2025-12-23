@@ -62,6 +62,13 @@ impl Emulator {
             sleep(Duration::from_millis(10));
         }
     }
+    pub fn load_binary_vec(&mut self, bin: &Vec<u8>) -> bool {
+        for (index, byte) in bin.iter().enumerate() {
+            self.memory[index as u16] = *byte;
+        }
+        return true;
+    }
+
     pub fn load_binary(&mut self, filename: &str) -> bool {
         let bytes = fs::read(filename);
         if bytes.is_err() {

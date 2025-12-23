@@ -20,21 +20,35 @@ impl OperandCompiler {
                     is_addr,
                     &op.token_info,
                 ));
-            } else if op.kind == TokenType::Register {
-                let data = InstructionCompiler::register_to_u8(&op);
+            } else if [TokenType::Register, TokenType::DoubleRegister].contains(&op.kind) {
+                if req.is_addr() {
+                    let mut chs = op.token.chars();
+                    chs.next();
+                    let first = chs.next().unwrap();
+                    let second = chs.next().unwrap();
 
-                compiled.push(CompiledToken::create_token(data, &op.token_info));
+                    let byte1 = InstructionCompiler::ch_to_u8(first);
+                    let byte2 = InstructionCompiler::ch_to_u8(second);
+
+                    let byte = (byte1 << 3) | byte2;
+
+                    compiled.push(CompiledToken::create_word(byte, &op.token_info));
+                } else {
+                    let data = InstructionCompiler::register_to_u8(&op);
+
+                    compiled.push(CompiledToken::create_word(data, &op.token_info));
+                }
             } else {
                 if req.is_addr() {
                     let doubleword = ParseLiteral::parse_u16(op);
                     let byte3 = doubleword as u8;
                     let byte2 = (doubleword >> 8) as u8;
 
-                    compiled.push(CompiledToken::create_token(byte2, &op.token_info));
-                    compiled.push(CompiledToken::create_token(byte3, &op.token_info));
+                    compiled.push(CompiledToken::create_word(byte2, &op.token_info));
+                    compiled.push(CompiledToken::create_word(byte3, &op.token_info));
                 } else {
                     let word = ParseLiteral::parse_u8(op);
-                    compiled.push(CompiledToken::create_token(word, &op.token_info));
+                    compiled.push(CompiledToken::create_word(word, &op.token_info));
                 }
             }
         }

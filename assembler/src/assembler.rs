@@ -1,27 +1,17 @@
-use std::{
-    env,
-    fs::{self, write},
-};
+use std::fs;
+use std::io;
 
 use crate::{
-    compile::{compile::Compile, compiled_token::CompiledToken},
-    lex::lexer::Lexer,
-    preprocessor::preprocessor::Preprocessor,
+    compile::compile::Compile, lex::lexer::Lexer, preprocessor::preprocessor::Preprocessor,
 };
 
 pub struct Assembler {}
 
 impl Assembler {
-    pub fn assemble_file(filename: &str, output: &str) -> bool {
-        let contents = fs::read_to_string(filename);
+    pub fn assemble_file_to_vec(filename: &str) -> Result<Vec<u8>, io::Error> {
+        let contents = fs::read_to_string(filename)?;
 
-        if contents.is_err() {
-            println!("Unable to read file {}", filename);
-            return false;
-        }
-        let unwrapped_contents = contents.unwrap();
-
-        let lexed = Lexer::parse_str(&unwrapped_contents);
+        let lexed = Lexer::parse_str(&contents);
 
         // for ele in &lexed {
         //     println!("{}", ele);
@@ -35,35 +25,24 @@ impl Assembler {
 
         let compiled = Compile::compile(&preprocessed);
 
+        // for ele in &compiled {
+        //     println!("{}", ele);
+        // }
+
         println!("Compiled Length: {}", compiled.len());
 
-        let bin: Vec<u8> = compiled
-            .iter()
-            .map(|tok| match tok {
-                CompiledToken::Binary { byte, info: _ } => {
-                    return byte.clone();
-                }
-                CompiledToken::Label { .. } => {
-                    panic!("Should not find this label: {}", tok);
-                }
-                CompiledToken::Expression { .. } => {
-                    panic!("Should not find this expression: {}", tok);
-                }
-            })
-            .collect();
-
-        for ele in &bin {
-            println!("{}", ele);
+        let mut bin: Vec<u8> = Vec::new();
+        for token in compiled {
+            token.compile_btyes(&mut bin);
         }
-        return Self::write_file(&bin, output);
+
+        return Ok(bin);
     }
-    fn write_file(binary: &Vec<u8>, output: &str) -> bool {
-        let res = write(output, binary);
-
-        if res.is_err() {
-            println!("Unable to write");
-            return false;
-        }
-        return true;
+    pub fn assemble_file(filename: &str, output: &str) -> Result<(), io::Error> {
+        let bin = Self::assemble_file_to_vec(filename)?;
+        return Ok(Self::write_file(&bin, output)?);
+    }
+    fn write_file(binary: &Vec<u8>, output: &str) -> Result<(), io::Error> {
+        fs::write(output, binary)
     }
 }
