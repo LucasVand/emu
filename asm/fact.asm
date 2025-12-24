@@ -1,23 +1,33 @@
-CALL [func]
+push 5
+push 5
+CALL [mul]
 
 orr f, 1
 
-func:
+mul: 
   SET_FP
-  push 100 
-  push 50 
-  LDR_FP a, 0
-  LDR_FP b, 1
+  push a 
+  push b
+  push c
+  LDR_FP a, -3
+  LDR_FP b, -4
+  mov c, 0
+  mul_loop: 
+    add c, a 
+    sub b, 1 
+    lda [mul_loop]
+    jnz b
+  
   pop c 
-  pop c
+  pop b 
+  pop a
   RET
-
-
-
+  
+  
 @macro
 CALL [%i0]:
-  push (($ + 9) >> 8)  ; 2 bytes
-  push (($ + 7))    ; 2 bytes
+  push (($ + 9) >> 8)  ; 2 bytes h
+  push (($ + 7))    ; 2 bytes l
   lda [%i0] ; 3 bytes
   jnz 1 ; 2 bytes
 @end
@@ -43,4 +53,9 @@ SET_FP:
   ldr h, [0xFFFC]
   ldr l, [0xFFFD]
 @end
-  
+
+
+
+
+
+

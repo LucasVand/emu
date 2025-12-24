@@ -74,7 +74,7 @@ impl Operand {
                 Operand::Both { is_addr: true },
             ],
             Instruction::PUSH => vec![Operand::Both { is_addr: false }],
-            Instruction::POP => vec![Operand::Register { is_addr: true }],
+            Instruction::POP => vec![Operand::Register { is_addr: false }],
             Instruction::LDA => vec![Operand::Both { is_addr: true }],
             Instruction::JNZ => vec![Operand::Both { is_addr: false }],
             Instruction::LSL => vec![

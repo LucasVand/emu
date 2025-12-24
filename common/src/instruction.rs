@@ -2,7 +2,7 @@ use core::panic;
 use std::fmt::Display;
 
 #[repr(u8)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Instruction {
     MOV = 0x0,
     LDR = 0x1,
@@ -90,6 +90,11 @@ impl Instruction {
             0xF => Self::SBB,
             _ => panic!("Invalid Instruction: {}", inst),
         }
+    }
+    pub fn to_string(self) -> String {
+        let num = self as u8;
+        let s = Self::MNEMONIC_LIST[num as usize];
+        return s.to_string();
     }
 }
 impl Display for Instruction {

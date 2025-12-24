@@ -2,6 +2,7 @@ use crate::execute::Execute;
 use crate::memory::Memory;
 use crate::registers::Registers;
 use common::instruction::Instruction;
+use disassembly::disassemble::Disassembly;
 use std::fs;
 use std::thread::sleep;
 use std::time::Duration;
@@ -41,8 +42,8 @@ impl Emulator {
     pub fn cycle(&mut self, print_reg: bool) {
         let inst = self.memory.load_instruction();
         if print_reg {
-            let inst_str = Instruction::from_u8(inst[0] >> 4);
-            println!("{}: {}", inst_str, self.registers);
+            let dis = Disassembly::disassemble_inst(inst);
+            println!("{:2} {:17} {}", self.memory.get_pc(), dis, self.registers);
         }
 
         let inst_length = self.execute_instruction(inst);
@@ -54,7 +55,7 @@ impl Emulator {
         loop {
             if self.registers.is_halted() {
                 if print_reg {
-                    println!("HAL: {}", self.registers);
+                    println!("XX {:17} {}", "HAL", self.registers);
                 }
                 return;
             }

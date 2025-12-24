@@ -7,8 +7,14 @@ pub struct Memory {
 impl Default for Memory {
     fn default() -> Self {
         // this vec stuff is make sure the stack is not overflowed
-        let mem: Box<[u8]> = vec![0; 65536].into_boxed_slice();
+        let mut mem: Box<[u8]> = vec![0; 65536].into_boxed_slice();
         let bank_boxes = vec![vec![0; 16385]; 256].into_boxed_slice();
+
+        let sph = 0xFC;
+        let spl = 0x00;
+
+        mem[Self::SPH as usize] = sph;
+        mem[Self::SPL as usize] = spl;
 
         let banks = bank_boxes
             .iter()
@@ -30,8 +36,8 @@ impl Memory {
 
     pub const STACK_LOW: u16 = 0xFC00;
     pub const STACK_HIGH: u16 = 0xFEFF;
-    pub const SPL: u16 = 0xFFFC;
-    pub const SPH: u16 = 0xFFFD;
+    pub const SPH: u16 = 0xFFFC;
+    pub const SPL: u16 = 0xFFFD;
     pub const PCH: u16 = 0xFFFE;
     pub const PCL: u16 = 0xFFFF;
 
@@ -46,7 +52,7 @@ impl Memory {
     pub fn decrement_stack(&mut self) {
         let stack = self.get_stack() - 1;
         let lowbyte = stack as u8;
-        let highbyte = (stack << 8) as u8;
+        let highbyte = (stack >> 8) as u8;
 
         self[Self::SPL] = lowbyte;
         self[Self::SPH] = highbyte;
@@ -54,7 +60,7 @@ impl Memory {
     pub fn incriment_stack(&mut self) {
         let stack = self.get_stack() + 1;
         let lowbyte = stack as u8;
-        let highbyte = (stack << 8) as u8;
+        let highbyte = (stack >> 8) as u8;
 
         self[Self::SPL] = lowbyte;
         self[Self::SPH] = highbyte;

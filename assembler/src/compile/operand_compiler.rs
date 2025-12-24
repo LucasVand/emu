@@ -1,3 +1,5 @@
+use std::fmt::Binary;
+
 use crate::{
     compile::{
         compiled_token::CompiledToken, instruction_compiler::InstructionCompiler, operand::Operand,

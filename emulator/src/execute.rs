@@ -1,3 +1,5 @@
+use std::process::Output;
+
 use crate::emulator::Emulator;
 use common::instruction::Instruction;
 
@@ -31,9 +33,9 @@ impl Execute {
     pub fn execute_pop(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
         let reg1: u8 = Self::first_register(inst[0]);
 
+        emu.memory.decrement_stack();
         let sp = emu.memory.get_stack();
         emu.registers[reg1] = emu.memory[sp];
-        emu.memory.decrement_stack();
         return 1;
     }
     pub fn execute_push(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
@@ -49,9 +51,9 @@ impl Execute {
             value = emu.registers[reg];
             output = 1;
         }
-        emu.memory.incriment_stack();
         let sp = emu.memory.get_stack();
         emu.memory[sp] = value;
+        emu.memory.incriment_stack();
 
         return output;
     }
@@ -278,8 +280,27 @@ impl Execute {
         return 2;
     }
     pub fn execute_lda(emu: &mut Emulator, inst: [u8; 3]) -> u8 {
-        emu.registers.h = inst[1];
-        emu.registers.l = inst[2];
-        return 3;
+        let output;
+        let literal = Self::is_literal(inst[0]);
+        let addr_low: u8;
+        let addr_high: u8;
+        if literal {
+            addr_high = inst[1];
+            addr_low = inst[2];
+            output = 3;
+        } else {
+            let reg1 = inst[1] >> 3;
+            let reg2 = inst[1] & 0b00000111;
+            let value1 = emu.registers[reg1];
+            let value2 = emu.registers[reg2];
+
+            addr_high = value1;
+            addr_low = value2;
+
+            output = 2;
+        }
+        emu.registers.h = addr_high;
+        emu.registers.l = addr_low;
+        return output;
     }
 }

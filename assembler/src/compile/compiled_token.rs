@@ -79,6 +79,31 @@ impl CompiledToken {
             }
         }
     }
+    pub fn size(&self) -> usize {
+        match self {
+            CompiledToken::Label { name: _, info: _ } => {
+                return 2;
+            }
+            CompiledToken::Binary { byte: _, info: _ } => {
+                return 1;
+            }
+            CompiledToken::DoubleWord {
+                byte1: _,
+                byte2: _,
+                info: _,
+            } => {
+                return 2;
+            }
+            CompiledToken::Expression {
+                expr: _,
+                double_word,
+                info: _,
+            } => {
+                let size = if *double_word { 2 } else { 1 };
+                return size;
+            }
+        };
+    }
 }
 
 impl Display for CompiledToken {

@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "assembler",
-  "common",
+  "common", "disassembly",
   "emulator", "run"]
 resolver = "3"
 

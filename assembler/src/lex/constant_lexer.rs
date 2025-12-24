@@ -16,7 +16,7 @@ impl ConstantLexer {
     const HEX_REGEX: &'static str = r"^[-+]?0x[0-9abcdefABCDEF]+$";
     const BIN_REGEX: &'static str = r"^[-+]?0b[10]+$";
     const DEC_REGEX: &'static str = r"^[-+]?[0-9]+$";
-    const EXPRESSION_REGEX: &'static str = r"^\([0-9A-Za-z_. \+\-\*/<>\(\)]+\)$";
+    const EXPRESSION_REGEX: &'static str = r"^\([$0-9A-Za-z_. \+\-\*/<>\(\)]+\)$";
     const LABEL: &'static str = r"^[a-zA-Z0-9._]+$";
     const ADDRESS: &'static str = r"^\[.+\]$";
     const DOUBLE_REGISTER_ADDRESS: &'static str = r"^[abcdlhzf][abcdhlzf]$";

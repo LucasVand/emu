@@ -34,11 +34,19 @@ name = "common"
 version = "0.1.0"
 
 [[package]]
+name = "disassembly"
+version = "0.1.0"
+dependencies = [
+ "common",
+]
+
+[[package]]
 name = "emulator"
 version = "0.1.0"
 dependencies = [
  "assembler",
  "common",
+ "disassembly",
 ]
 
 [[package]]

@@ -30,29 +30,7 @@ impl LabelResolution {
     fn find_addr(compiled: &Vec<CompiledToken>) -> usize {
         let mut count = 0;
         for ele in compiled {
-            match ele {
-                CompiledToken::Label { name: _, info: _ } => {
-                    count += 2;
-                }
-                CompiledToken::Binary { byte: _, info: _ } => {
-                    count += 1;
-                }
-                CompiledToken::DoubleWord {
-                    byte1: _,
-                    byte2: _,
-                    info: _,
-                } => {
-                    count += 2;
-                }
-                CompiledToken::Expression {
-                    expr: _,
-                    double_word,
-                    info: _,
-                } => {
-                    let size = if *double_word { 2 } else { 1 };
-                    count += size;
-                }
-            };
+            count += ele.size();
         }
 
         return count;

@@ -25,6 +25,10 @@ mod emulator_tests {
 
         assert!(emu.registers.a == 0);
     }
+    #[test]
+    fn test_stack() {
+        test_file("stack_test");
+    }
 
     #[test]
     fn test_data() {
@@ -33,5 +37,9 @@ mod emulator_tests {
     #[test]
     fn test_arithmetic() {
         test_file("arithmetic_test");
+    }
+    #[test]
+    fn test_expression() {
+        test_file("expression_test");
     }
 }

@@ -72,7 +72,7 @@ impl InstructionCompiler {
     ) {
         let instruction: u8 = (Instruction::from_str(&inst_token.token) as u8) << 4;
 
-        let is_literal = false;
+        let is_literal = !(TokenType::DoubleRegister == operands[0].kind);
         let literal: u8 = (is_literal as u8) << 3;
 
         let byte1 = instruction | literal;
