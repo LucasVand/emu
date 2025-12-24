@@ -15,6 +15,7 @@ use crate::{
 pub struct ExpressionSolver {}
 
 impl ExpressionSolver {
+    // TODO: add logical operators and or xor
     pub fn sub_expressions<'a>(compiled: &mut Vec<CompiledToken>) {
         for token in compiled {
             if let CompiledToken::Expression {

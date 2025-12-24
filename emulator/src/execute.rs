@@ -1,5 +1,3 @@
-use std::process::Output;
-
 use crate::emulator::Emulator;
 use common::instruction::Instruction;
 
@@ -231,7 +229,6 @@ impl Execute {
         }
         let res = emu.registers[reg] & value;
         emu.registers[reg] = res;
-        emu.registers.update_zero_less(res);
         return 2;
     }
     pub fn execute_orr(emu: &mut Emulator, inst: [u8; 3]) -> u8 {

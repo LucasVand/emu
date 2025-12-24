@@ -43,7 +43,7 @@ impl Emulator {
         let inst = self.memory.load_instruction();
         if print_reg {
             let dis = Disassembly::disassemble_inst(inst);
-            println!("{:2} {:17} {}", self.memory.get_pc(), dis, self.registers);
+            println!("{:4} {:17} {}", self.memory.get_pc(), dis, self.registers);
         }
 
         let inst_length = self.execute_instruction(inst);

@@ -74,6 +74,15 @@ impl MacroExpansion {
         let mut is_valid = true;
         // loop over all the tokens
         exp.tokens.iter_mut().for_each(|def_token| {
+            // if token is expression
+            if def_token.kind == TokenType::Expression {
+                for index in 0..macro_def.parameters.len() {
+                    let param = &macro_def.parameters[index];
+                    def_token.token = def_token
+                        .token
+                        .replace(&param.token, &parameter_list[index].token);
+                }
+            }
             // if the token is a parameter
             if def_token.kind == TokenType::MacroParameter {
                 // find the token to swap with

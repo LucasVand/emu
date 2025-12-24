@@ -28,6 +28,11 @@ mov b, 10
 cmp a, b 
 ASSERT f, 0b01000000 ; test zero flag 5
 
+mov f, 0 
+mov a, 10 
+cmp a, 0
+ASSERT f, 0b00000000 ; test zero flag 
+ 
 mov f, 0
 mov a, 100
 mov b, 200 
