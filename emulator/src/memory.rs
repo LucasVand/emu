@@ -41,6 +41,10 @@ impl Memory {
     pub const PCH: u16 = 0xFFFE;
     pub const PCL: u16 = 0xFFFF;
 
+    pub fn graphics_iter(&self) -> impl Iterator<Item = &u8> {
+        return self.banks[1].iter();
+    }
+
     pub fn get_stack(&self) -> u16 {
         let lowbyte = self[Self::SPL];
         let highbyte = self[Self::SPH];
@@ -103,7 +107,8 @@ impl Index<u16> for Memory {
             if self.get_membank() == 0 {
                 return &self.memory[index as usize];
             } else {
-                return &self.banks[self.get_membank() as usize][index as usize];
+                let safe_index = index - 0x8000;
+                return &self.banks[self.get_membank() as usize][safe_index as usize];
             }
         }
         return &self.memory[index as usize];
@@ -115,7 +120,8 @@ impl IndexMut<u16> for Memory {
             if self.get_membank() == 0 {
                 return &mut self.memory[index as usize];
             } else {
-                return &mut self.banks[self.get_membank() as usize][index as usize];
+                let safe_index = index - 0x8000;
+                return &mut self.banks[self.get_membank() as usize][safe_index as usize];
             }
         }
         return &mut self.memory[index as usize];

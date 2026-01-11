@@ -112,7 +112,14 @@ impl Disassembly {
             let num = inst_full[1];
             ret.push_str(&num.to_string());
         } else {
+            if inst_full[1] > 7 {
+                println!(
+                    "unable to decode reg Inst: {:0>8b} {:0>8b}",
+                    inst_full[0], inst_full[1]
+                );
+            }
             let reg = Self::reg_to_string(inst_full[1]);
+
             ret.push_str(&reg);
         }
 

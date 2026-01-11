@@ -55,6 +55,7 @@ pub enum TokenType {
     WordDataDefineKeyword,
     DoubleWordDataDefineKeyword,
     StringDataDefineKeyword,
+    SpaceDataDefineKeyword,
 
     // Data Defining Types
     MacroParameter,
@@ -90,7 +91,8 @@ impl TokenType {
         TokenType::Decimal,
         TokenType::DoubleRegister,
     ];
-    pub const DATA_DEFINITIONS: [TokenType; 3] = [
+    pub const DATA_DEFINITIONS: [TokenType; 4] = [
+        TokenType::SpaceDataDefineKeyword,
         TokenType::WordDataDefineKeyword,
         TokenType::DoubleWordDataDefineKeyword,
         TokenType::StringDataDefineKeyword,

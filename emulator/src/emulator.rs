@@ -11,11 +11,21 @@ use std::time::Duration;
 pub struct Emulator {
     pub memory: Memory,
     pub registers: Registers,
+    pub speed: usize,
 }
 
 impl Emulator {
+    pub fn new_speed(speed: usize) -> Self {
+        Emulator {
+            speed: speed,
+            ..Default::default()
+        }
+    }
     pub fn new() -> Self {
-        Emulator::default()
+        Emulator {
+            speed: 0,
+            ..Default::default()
+        }
     }
     pub fn execute_instruction(&mut self, inst: [u8; 3]) -> u8 {
         let instruction = Execute::parse_mnemonic(inst);
@@ -41,15 +51,23 @@ impl Emulator {
     }
     pub fn cycle(&mut self, print_reg: bool) {
         let inst = self.memory.load_instruction();
+
         if print_reg {
             let dis = Disassembly::disassemble_inst(inst);
-            println!("{:4} {:17} {}", self.memory.get_pc(), dis, self.registers);
+            println!(
+                "{:4} {:17} {} {}",
+                self.memory.get_pc(),
+                dis,
+                self.registers,
+                self.memory.get_stack()
+            );
         }
 
         let inst_length = self.execute_instruction(inst);
 
         self.memory
             .set_pc(self.memory.get_pc() + inst_length as u16);
+        sleep(Duration::from_micros(self.speed as u64));
     }
     pub fn start(&mut self, print_reg: bool) {
         loop {
@@ -60,7 +78,6 @@ impl Emulator {
                 return;
             }
             self.cycle(print_reg);
-            sleep(Duration::from_millis(10));
         }
     }
     pub fn load_binary_vec(&mut self, bin: &Vec<u8>) -> bool {

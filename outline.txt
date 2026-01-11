@@ -21,7 +21,7 @@
 8: SUB  reg, imm8/reg   -> reg = reg - imm8/reg 
 9: ADD^ reg, imm8/reg   -> reg = reg + imm8/reg
 A: ADC^ reg, imm8/reg   -> reg = reg + imm8/reg + c
-B: AND^ reg, imm8/reg   -> reg = reg & imm8/reg
+B: AND reg, imm8/reg   -> reg = reg & imm8/reg
 C: OR   reg, imm8/reg   -> reg = reg | imm8/reg
 D: NOR  reg, imm8/reg   -> reg = ~(reg | imm8/reg)
 E: CMP^ reg, imm8/reg   -> f = compare reg, imm8/reg (see below)
@@ -86,9 +86,23 @@ Z: 3-bit register identifier of first register argument (see REGISTERS)
 0xFC00..0xFEFF: STACK (RECOMMENDED), else GP RAM
 0xFF00..0xFFF9: GENERAL PURPOSE RAM
 0xFFFA..0xFFFA: MB/(M)emory (B)ank
-0xFFFB..0xFFFB: UNUSED
+0xFFFB..0xFFFB: Controller IO
 0xFFFC..0xFFFD: SP/(S)tack (P)ointer
 0xFFFE..0xFFFF: PC/(P)rogram (C)ounter
+
+=== Controller  ===
+  Encoded as one byte as shown
+  ****(*****)(******)**
+  RLDU(Start)(Select)BA
+
+  0: Right
+  1: Left
+  2: Down
+  3: Up
+  4: Start
+  5: Select
+  6: B 
+  7: A
 
 === MEMORY BANKING ===
 0x8000..0xBFFF can be swapped using the MB register, where MB=0 indicates that

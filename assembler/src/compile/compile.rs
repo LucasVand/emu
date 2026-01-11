@@ -6,6 +6,7 @@ use crate::compile::instruction_compiler::InstructionCompiler;
 use crate::compile::label_compiler::LabelCompiler;
 use crate::compile::label_resolution::CompilerLabel;
 use crate::compile::label_resolution::LabelResolution;
+use crate::utils::logging::Logging;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
 
@@ -35,7 +36,14 @@ impl Compile {
                 }
                 if ele.kind == TokenType::LabelDefinition {
                     let res = LabelResolution::create_compiler_label(ele, &bytes);
-                    labels.push(res);
+                    let dup = labels.iter().find(|label| {
+                        return label.label == res.label;
+                    });
+                    if dup.is_some() {
+                        Logging::log_compiler_error_info("duplicate labels found", &ele.token_info);
+                    } else {
+                        labels.push(res);
+                    }
                 }
             }
         }

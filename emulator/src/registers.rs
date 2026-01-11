@@ -113,7 +113,7 @@ impl Display for Registers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "a: {:<4}  b: {:<4}  c: {:<4}  d: {:<4}  h: {:<4}  l: {:<4}  z: {:<4}  f: {:<4}  less: {}  zero: {}  carry: {}  borrow: {}  overflow: {}  ab: {:<6}  bc: {:<6}",
+            "a: {:<4}  b: {:<4}  c: {:<4}  d: {:<4}  h: {:<4}  l: {:<4}  z: {:<4}  f: {:<4}  le: {}  ze: {}  c: {}  b: {}  ov: {}  ab: {:<6}  cd: {:<6} hl: {:<6}",
             self.a,
             self.b,
             self.c,
@@ -129,6 +129,7 @@ impl Display for Registers {
             self.get_overflow() as u8,
             self.get_16bit_pair(0, 1),
             self.get_16bit_pair(2, 3),
+            self.get_16bit_pair(4, 5)
         )
     }
 }

@@ -81,6 +81,7 @@ impl MacroExpansion {
                     def_token.token = def_token
                         .token
                         .replace(&param.token, &parameter_list[index].token);
+                    def_token.token_info.token = def_token.token.clone();
                 }
             }
             // if the token is a parameter

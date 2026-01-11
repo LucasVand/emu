@@ -69,6 +69,9 @@ impl Logging {
                     spaces.push_str("^");
                 }
                 println!("{}", spaces.red())
+            } else {
+                let tok_str = format!("\"{}\"", token).red();
+                println!("{}", tok_str);
             }
         }
 

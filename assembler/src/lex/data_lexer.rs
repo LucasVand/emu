@@ -8,7 +8,7 @@ use crate::{lex::constant_lexer::ConstantLexer, utils::logging::Logging};
 pub struct DataLexer {}
 
 impl DataLexer {
-    const REGEX_EXPRESSION: &'static str = r"^@d[bds] .+$";
+    const REGEX_EXPRESSION: &'static str = r"^@d[bdsw] .+$";
 
     pub fn check_line(line: &str) -> bool {
         return Regex::new(Self::REGEX_EXPRESSION).unwrap().is_match(line);
@@ -53,6 +53,7 @@ impl DataLexer {
             's' => TokenType::StringDataDefineKeyword,
             'b' => TokenType::WordDataDefineKeyword,
             'd' => TokenType::DoubleWordDataDefineKeyword,
+            'w' => TokenType::SpaceDataDefineKeyword,
             _ => panic!("Invalid data type"),
         }
     }

@@ -9,12 +9,33 @@ use crate::{
             expression_token::{ExpressionToken, ExpressionTokenType},
         },
     },
-    utils::logging::Logging,
+    utils::token::{Token, TokenType},
 };
 
 pub struct ExpressionSolver {}
 
 impl ExpressionSolver {
+    pub fn solve(token: &Token) -> isize {
+        if token.kind == TokenType::Expression {
+            let expr = &token.token;
+            let expr = expr
+                .strip_prefix("[")
+                .unwrap_or(&expr)
+                .strip_suffix("]")
+                .unwrap_or(&expr);
+
+            let tokens = ExpressionToken::tokenize_expression(expr, &token.token_info);
+            let ast = Self::parse_expression(&mut tokens.iter().peekable(), 0);
+            let sol = ast.solve();
+
+            return sol;
+        } else {
+            panic!(
+                "unable to solve this token because it is not an expression: {}",
+                token
+            );
+        }
+    }
     // TODO: add logical operators and or xor
     pub fn sub_expressions<'a>(compiled: &mut Vec<CompiledToken>) {
         for token in compiled {
@@ -35,21 +56,9 @@ impl ExpressionSolver {
                 let value = ast.solve();
 
                 if *double_word {
-                    if (u16::MAX as isize) < value {
-                        Logging::log_compiler_error_info(
-                            "This value is going to be truncated",
-                            info,
-                        );
-                    }
                     let double = value as u16;
                     *token = CompiledToken::create_double_word(double, info);
                 } else {
-                    if (u8::MAX as isize) < value {
-                        Logging::log_compiler_error_info(
-                            "This value is going to be truncated",
-                            info,
-                        );
-                    }
                     let single = value as u8;
                     *token = CompiledToken::create_word(single, info);
                 }

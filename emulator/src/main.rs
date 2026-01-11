@@ -1,6 +1,9 @@
-use std::env;
+use std::{env, usize};
 
-use emulator::emulator::Emulator;
+use emulator::{
+    emulator::Emulator,
+    graphics::{self, window::EmulatorWindow},
+};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -9,12 +12,27 @@ fn main() {
         println!("Please specifiy an input file");
         return;
     }
+
+    let speed_str = args.get(2);
+    let default_speed = "1".to_string();
+    let speed_str_un = speed_str.unwrap_or(&default_speed);
+    let speed = usize::from_str_radix(&speed_str_un, 10);
+    if speed.is_err() {
+        println!("Unable to parse speed");
+        return;
+    }
+    let speed = speed.unwrap();
+
     println!("Creating Emulator");
 
-    let mut emu = Emulator::new();
+    let mut emu = Emulator::new_speed(speed);
 
-    emu.load_binary(&format!("bin/{}", &args[1]));
-    emu.start(true);
+    let res = emu.load_binary(&format!("bin/{}", &args[1]));
+    if !res {
+        println!("Unable to load file: {}", args[1]);
+        return;
+    }
+    let _ = graphics::window::create_window(emu);
 
     println!("Finished");
 }
