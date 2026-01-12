@@ -19,7 +19,7 @@ impl DisassembleFile {
                 return byte.unwrap().clone();
             });
             let dis = Disassembly::disassemble_inst_length(inst);
-            print!("{:-4} {:20} ", index, dis.0);
+            print!("0x{:<4x} {:4} {:20} ", index, index, dis.0);
             for i in 0..(dis.1) {
                 print!("{:0>8b} ", inst[i]);
             }

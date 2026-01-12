@@ -18,7 +18,7 @@ impl Registers {
     pub fn get_16bit_pair(&self, first: u8, second: u8) -> u16 {
         let reg1 = self[first];
         let reg2 = self[second];
-        return (reg1 as u16) << 8 | (reg2 as u16);
+        return ((reg1 as u16) << 8) as u16 | (reg2 as u16);
     }
     pub fn get_hl(&self) -> u16 {
         return ((self.h as u16) << 8) | (self.l as u16);
@@ -129,7 +129,7 @@ impl Display for Registers {
             self.get_overflow() as u8,
             self.get_16bit_pair(0, 1),
             self.get_16bit_pair(2, 3),
-            self.get_16bit_pair(4, 5)
+            self.get_16bit_pair(5, 4)
         )
     }
 }

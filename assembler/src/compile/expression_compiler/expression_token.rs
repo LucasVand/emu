@@ -62,7 +62,10 @@ impl ExpressionToken {
             } else if !ch.is_whitespace() {
                 let mut new_info = info.clone();
                 new_info.token = ch.to_string();
-                Logging::log_compiler_error_info("found unexpected token", &new_info);
+                Logging::log_compiler_error_info(
+                    "found unexpected token while parsing expression",
+                    &new_info,
+                );
             }
         }
 

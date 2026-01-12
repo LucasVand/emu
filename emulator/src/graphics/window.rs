@@ -11,6 +11,7 @@ use eframe::egui;
 pub struct EmulatorWindow {
     pub buf: Arc<DoubleBuffer<Box<[u8]>>>,
     pub controller: Arc<ArcSwap<Controller>>,
+    pub mem: Arc<DoubleBuffer<Box<[u8]>>>,
 }
 impl EmulatorWindow {
     pub const SIZE: f32 = 125.0;
@@ -19,7 +20,12 @@ impl EmulatorWindow {
     pub fn new() -> Self {
         let buf1: Box<[u8]> = vec![0; 16385].into_boxed_slice();
         let buf2: Box<[u8]> = vec![0; 16385].into_boxed_slice();
+
+        let mem1: Box<[u8]> = vec![0; 65536].into_boxed_slice();
+        let mem2: Box<[u8]> = vec![0; 65536].into_boxed_slice();
+
         Self {
+            mem: Arc::new(DoubleBuffer::new(mem1, mem2)),
             buf: Arc::new(DoubleBuffer::new(buf1, buf2)),
             controller: Arc::new(ArcSwap::from_pointee(Controller::new(Buttons::new()))),
         }
@@ -68,7 +74,7 @@ impl eframe::App for EmulatorWindow {
         ctx.request_repaint_after(Duration::from_millis(16));
 
         egui::Window::new("VRAM")
-            .default_pos((800.0, 20.0))
+            .default_pos((1000.0, 20.0))
             .show(ctx, |ui| {
                 let row_height = ui.text_style_height(&egui::TextStyle::Monospace);
                 let bytes_per_row = 16;
@@ -100,18 +106,56 @@ impl eframe::App for EmulatorWindow {
                     },
                 );
             });
+
+        egui::Window::new("MEM")
+            .default_pos((1000.0, 20.0))
+            .show(ctx, |ui| {
+                let row_height = ui.text_style_height(&egui::TextStyle::Monospace);
+                let bytes_per_row = 16;
+                let memory = self.mem.read();
+
+                egui::ScrollArea::vertical().show_rows(
+                    ui,
+                    row_height,
+                    memory.len() / bytes_per_row + 1,
+                    |ui, row_range| {
+                        for row in row_range {
+                            let base = row * bytes_per_row;
+
+                            ui.horizontal(|ui| {
+                                ui.monospace(format!("{:04X}:", base));
+
+                                for col in 0..bytes_per_row {
+                                    let i = base + col;
+                                    if i < memory.len() {
+                                        ui.label(
+                                            egui::RichText::new(format!("{:02X}", memory[i]))
+                                                .monospace()
+                                                .color(egui::Color32::from_rgb(200, 200, 200)),
+                                        );
+                                    }
+                                }
+                            });
+                        }
+                    },
+                );
+            });
     }
 }
 
 pub fn create_window(mut emu: Emulator) -> eframe::Result {
     let app = EmulatorWindow::new();
     let buf_clone = Arc::clone(&app.buf);
+    let mem_clone = Arc::clone(&app.mem);
     let controller_clone = Arc::clone(&app.controller);
     thread::spawn(move || {
         loop {
-            emu.cycle(false);
+            emu.cycle(true);
             buf_clone.write(|f| {
                 f.copy_from_slice(&mut emu.memory.banks[1]);
+            });
+            mem_clone.write(|f| {
+                f.copy_from_slice(&mut emu.memory.memory);
             });
             let contr = controller_clone.load_full();
             emu.memory[0xFFFB] = contr.byte;
