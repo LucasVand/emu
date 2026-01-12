@@ -49,18 +49,29 @@ impl Emulator {
             Instruction::PUSH => Execute::execute_push(self, inst),
         }
     }
+    pub fn print_regs(&self, inst: [u8; 3]) {
+        let dis = Disassembly::disassemble_inst(inst);
+        println!(
+            "{:4} {:17} {} {}",
+            self.memory.get_pc(),
+            dis,
+            self.registers,
+            self.memory.get_stack()
+        );
+    }
     pub fn cycle(&mut self, print_reg: bool) {
         let inst = self.memory.load_instruction();
 
+        // prints the regs if the debug flag
+        if self.memory[0xFFF8] != 0 {
+            let value = self.memory[0xFFF8];
+            self.memory[0xFFF8] = 0;
+            println!("PRINT COMMAND, LINE: {}", value);
+            self.print_regs(inst);
+        }
+
         if print_reg {
-            let dis = Disassembly::disassemble_inst(inst);
-            println!(
-                "{:4} {:17} {} {}",
-                self.memory.get_pc(),
-                dis,
-                self.registers,
-                self.memory.get_stack()
-            );
+            self.print_regs(inst);
         }
 
         let inst_length = self.execute_instruction(inst);

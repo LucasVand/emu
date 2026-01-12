@@ -8,6 +8,7 @@
 mov a, 1 ; set a 1
 str a, [Membank] ; set the membank to the vram
 
+
 CALL [set_body]
 
 
@@ -74,6 +75,7 @@ draw_snake_body_data:
     sub b, 1 ; sub counter
     lda [draw_loop] ; load the addr of jump
     jnz b ; jump if still
+
   POP4 a, b, c, d
   RET
 
@@ -175,21 +177,24 @@ draw:
   LDAR c, d, 0x8000 ; load the vram into cd
   ADD16_REG c, d, a ; add the x coord
 
-  lda [mul] ; load mul into hl
-  ; repeatedly add Width to the coord
-  mul: 
-    ADD16_REG c, d, Width ; add Width to coord
-    sub b, 1 ; sub counter
-    jnz b ; jump if still going
+  ;lda [mul] ; load mul into hl
+   ;repeatedly add Width to the coord
+  ;mul: 
+  ;  ADD16_REG c, d, Width ; add Width to coord
+  ;  sub b, 1 ; sub counter
+  ;  jnz b ; jump if still going
+  
 
 
-  ;push c ; push 16 high
-  ;push d ; push 16 low
-  ;push b ; push 8bit
-  ;CALL [multiply] ; multiply call
-  ;pop z ; discard 8bit
-  ;pop d ; get 16 low
-  ;pop c ; get 16 high
+  PRINT 189
+  push c ; push 16 high
+  push d ; push 16 low
+  push b ; push 8bit
+  CALL [multiply] ; multiply call
+  pop z ; discard 8bit
+  pop d ; get 16 low
+  pop c ; get 16 high
+
 
   pop a  ; get the color from the stack
   str a, [cd] ; set the pixel color
@@ -316,6 +321,10 @@ old_snake_end:
 ; this is where the move direction is saved
 move_direction:
   @db 0b10000000, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66
+@macro
+HALT:
+  orr f, 1
+@end
 
 @macro
 LDR_FP %r1, %i0:
@@ -381,6 +390,12 @@ POP_HL:
 ADD16 %r0, %r1, %i2:
   add %r1, (%i2)
   adc %r0, (%i2 >> 8)
+@end
+
+@macro
+PRINT %i0:
+  mov z, %i0
+  str z, [0xFFF8]
 @end
 
 @macro

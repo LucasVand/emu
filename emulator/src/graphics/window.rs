@@ -1,4 +1,4 @@
-use std::sync::atomic::AtomicBool;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
 use std::{sync::Arc, time::Duration};
 
@@ -10,7 +10,7 @@ use crate::graphics::keyboard_inputs::KeyboardInputs;
 use crate::graphics::memory_window::MemoryWindow;
 use crate::graphics::pixel_paint_mode::PixelPaintMode;
 use arc_swap::ArcSwap;
-use eframe::egui;
+use eframe::egui::{self, Vec2};
 
 pub struct EmulatorWindow {
     pub vram: Arc<DoubleBuffer<Box<[u8]>>>,
@@ -46,9 +46,39 @@ impl eframe::App for EmulatorWindow {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             let buf = self.vram.read();
-            let painter = ui.painter();
 
-            PixelPaintMode::paint_pixels(painter, buf, Self::SCALE, Self::SIZE, None);
+            // this is the hiding and showing button ui
+            ui.horizontal_top(|ui| {
+                let vram_shown = self.vram_window_open.load(Ordering::Relaxed);
+                if vram_shown {
+                    if ui.button("Hide VRAM").clicked() {
+                        self.vram_window_open.store(false, Ordering::Relaxed);
+                    }
+                } else {
+                    if ui.button("Show VRAM").clicked() {
+                        self.vram_window_open.store(true, Ordering::Relaxed);
+                    }
+                }
+                let mem_shown = self.mem_window_open.load(Ordering::Relaxed);
+                if mem_shown {
+                    if ui.button("Hide Memory").clicked() {
+                        self.mem_window_open.store(false, Ordering::Relaxed);
+                    }
+                } else {
+                    if ui.button("Show Memory").clicked() {
+                        self.mem_window_open.store(true, Ordering::Relaxed);
+                    }
+                }
+            });
+
+            let painter = ui.painter();
+            PixelPaintMode::paint_pixels(
+                painter,
+                buf,
+                Self::SCALE,
+                Self::SIZE,
+                Some(Vec2::new(0.0, 35.0)),
+            );
         });
 
         let buttons = KeyboardInputs::controller_buttons(ctx);

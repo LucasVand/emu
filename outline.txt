@@ -47,7 +47,7 @@ H (5): GP register/(H)igh index register
 Z (6): GP register
 F (7): flags (LSB to MSB)
     
- outline: LZCBNNNH
+ outline: LZCBONNH
 
     LESS
     ZERO
@@ -55,7 +55,7 @@ F (7): flags (LSB to MSB)
     BORROW
     OVERFLOW
     N 
-    N 
+    N
     HALT
 
 * Calling convention
@@ -84,7 +84,8 @@ Z: 3-bit register identifier of first register argument (see REGISTERS)
 0x8000..0xBFFF: GENERAL PURPOSE RAM (BANKED)
 0xC000..0xFDFF: GENERAL PURPOSE RAM
 0xFC00..0xFEFF: STACK (RECOMMENDED), else GP RAM
-0xFF00..0xFFF9: GENERAL PURPOSE RAM
+0xFF00..0xFFF7: GENERAL PURPOSE RAM
+0xFFF9..0xFFF8: Debug location
 0xFFFA..0xFFFA: MB/(M)emory (B)ank
 0xFFFB..0xFFFB: Controller IO
 0xFFFC..0xFFFD: SP/(S)tack (P)ointer
