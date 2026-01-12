@@ -67,7 +67,9 @@ impl Emulator {
 
         self.memory
             .set_pc(self.memory.get_pc() + inst_length as u16);
-        sleep(Duration::from_micros(self.speed as u64));
+        if self.speed != 0 {
+            sleep(Duration::from_micros(self.speed as u64));
+        }
     }
     pub fn start(&mut self, print_reg: bool) {
         loop {

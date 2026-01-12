@@ -1,17 +1,17 @@
-use crate::controller::buttons::Buttons;
+use crate::controller::buttons::ControllerButtons;
 
 pub struct Controller {
     pub byte: u8,
 }
 
 impl Controller {
-    pub fn new(b: Buttons) -> Self {
+    pub fn new(b: ControllerButtons) -> Self {
         let byte = Self::buttons_to_byte(b);
         Self { byte: byte }
     }
 
     /// Called by your input system (keyboard, gamepad, etc.)
-    pub fn buttons_to_byte(b: Buttons) -> u8 {
+    pub fn buttons_to_byte(b: ControllerButtons) -> u8 {
         return (b.a as u8) << 0
             | (b.b as u8) << 1
             | (b.select as u8) << 2

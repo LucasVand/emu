@@ -1,5 +1,5 @@
 #[derive(Copy, Clone, Default)]
-pub struct Buttons {
+pub struct ControllerButtons {
     pub a: bool,
     pub b: bool,
     pub select: bool,
@@ -9,9 +9,9 @@ pub struct Buttons {
     pub left: bool,
     pub right: bool,
 }
-impl Buttons {
-    pub fn new() -> Buttons {
-        Buttons {
+impl ControllerButtons {
+    pub fn new() -> ControllerButtons {
+        ControllerButtons {
             a: false,
             b: false,
             select: false,

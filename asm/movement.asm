@@ -175,14 +175,22 @@ draw:
   LDAR c, d, 0x8000 ; load the vram into cd
   ADD16_REG c, d, a ; add the x coord
 
-  push c ; push 16 high
-  push d ; push 16 low
-  push b ; push 8bit
-  CALL [multiply] ; multiply call
-  pop z ; discard 8bit
-  pop d ; get 16 low
-  pop c ; get 16 high
-  
+  lda [mul] ; load mul into hl
+  ; repeatedly add Width to the coord
+  mul: 
+    ADD16_REG c, d, Width ; add Width to coord
+    sub b, 1 ; sub counter
+    jnz b ; jump if still going
+
+
+  ;push c ; push 16 high
+  ;push d ; push 16 low
+  ;push b ; push 8bit
+  ;CALL [multiply] ; multiply call
+  ;pop z ; discard 8bit
+  ;pop d ; get 16 low
+  ;pop c ; get 16 high
+
   pop a  ; get the color from the stack
   str a, [cd] ; set the pixel color
  
