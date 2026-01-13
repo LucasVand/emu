@@ -1,20 +1,11 @@
-lda [main]
-jnz 1 
-
-
-orr f, 1 
-
-
-main: 
-  mov a, 100
-  lda [store]
-  str a, [hl]
-
+@macro 
+HALT:
   orr f, 1
+@end
 
 
-str:
-  @ds "this", "is"
+mov a, 2
 
-store:
+HALT
 
+and a, 5

@@ -5,6 +5,9 @@ use crate::utils::token_info::TokenInfo;
 pub struct Logging {}
 
 impl Logging {
+    pub fn log_import_error(message: &str, line_num: usize, line: &str) {
+        Self::log_error_internal("Import", message, line_num, line, None);
+    }
     pub fn log_compiler_error_info(message: &str, info: &TokenInfo) {
         Self::log_error_internal(
             "Compiler",

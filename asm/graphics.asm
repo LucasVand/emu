@@ -83,7 +83,7 @@ ADD16 %r0, %r1, %i2:
   add %r1, (%i2)
   adc %r0, (%i2 >> 8)
 @end
-@macro
+macro
 LDAR %r0, %r1, %i2:
   mov %r1, (%i2)
   mov %r0, (%i2 >> 8)

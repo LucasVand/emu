@@ -1,6 +1,7 @@
 use std::fs;
 use std::io;
 
+use crate::includes::includes::Includes;
 use crate::{
     compile::compile::Compile, lex::lexer::Lexer, preprocessor::preprocessor::Preprocessor,
 };
@@ -11,7 +12,10 @@ impl Assembler {
     pub fn assemble_file_to_vec(filename: &str) -> Result<Vec<u8>, io::Error> {
         let contents = fs::read_to_string(filename)?;
 
-        let lexed = Lexer::parse_str(&contents);
+        let imports_resolved = Includes::resolve_imports(contents);
+        println!("{}", imports_resolved);
+
+        let lexed = Lexer::parse_str(&imports_resolved);
 
         // for ele in &lexed {
         //     println!("{}", ele);

@@ -1,5 +1,14 @@
-ldr a, [data]
-orr f, 1
+mov a, 25
 
-data:
-  @dw 2, 2
+BOTH a
+BOTH 100
+
+
+pop a
+pop b
+
+orr f, 1
+@macro
+BOTH %x0: 
+  push %x0
+@end

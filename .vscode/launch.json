@@ -8,9 +8,9 @@
             "type": "lldb-dap",
             "request": "launch",
             "name": "Debug",
-            "program": "${workspaceRoot}/target/debug/emulator",
+            "program": "${workspaceRoot}/target/debug/run",
             "args": [
-                "simple.bin"
+                "import_test.asm"
             ],
             "env": [],
             "cwd": "${workspaceRoot}"

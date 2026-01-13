@@ -16,13 +16,6 @@ impl Lexer {
         let lines = file_string.split("\n");
         let mut line_num = 0;
 
-        let mut num = 0;
-        for line in lines.clone().into_iter() {
-            num += 1;
-            println!("Line {}: {}", num, line.trim());
-        }
-        println!("");
-
         for line in lines {
             // remove comments
             let mut spl = line.split(";");
