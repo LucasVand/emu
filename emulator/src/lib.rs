@@ -28,6 +28,10 @@ mod emulator_tests {
         assert!(emu.registers.a == 0);
     }
     #[test]
+    fn test_macros() {
+        test_file("macro_test");
+    }
+    #[test]
     fn test_stack() {
         test_file("stack_test");
     }

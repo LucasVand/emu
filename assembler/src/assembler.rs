@@ -13,7 +13,6 @@ impl Assembler {
         let contents = fs::read_to_string(filename)?;
 
         let imports_resolved = Includes::resolve_imports(contents);
-        println!("{}", imports_resolved);
 
         let lexed = Lexer::parse_str(&imports_resolved);
 
