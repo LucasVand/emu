@@ -8,6 +8,9 @@ THING c
 
 TEST 10 
 
+BOTH a 
+BOTH 10
+
 HALT 
 
 mov b, 55

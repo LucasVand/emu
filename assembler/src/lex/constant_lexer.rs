@@ -10,7 +10,7 @@ pub struct ConstantLexer {}
 impl ConstantLexer {
     const REGISTER_LIST: [&'static str; 8] = ["a", "b", "c", "d", "l", "h", "z", "f"];
 
-    const MACRO_PARAMETER_REGEX: &'static str = r"^(%[ri]\d+|\[%[ri]\d+\])$";
+    const MACRO_PARAMETER_REGEX: &'static str = r"^(%[rix]\d+|\[%[rix]\d+\])$";
     const CHARACTER_REGEX: &'static str = r"^'[\x00-\x7F]'$";
     const STRING_REGEX: &'static str = "^\"([\x00-\x7F])*\"$";
     const HEX_REGEX: &'static str = r"^[-+]?0x[0-9abcdefABCDEF]+$";

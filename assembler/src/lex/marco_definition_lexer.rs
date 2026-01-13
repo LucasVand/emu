@@ -8,10 +8,9 @@ pub struct MacroDefinitionLexer {}
 
 impl MacroDefinitionLexer {
     const REGEX_EXPRESSION: &'static str =
-        r"^[a-zA-Z0-9_.]+\s?((%[ri]\d+|\[%[ri]\d+\])\s*,\s*)*(%[ri]\d+|\[%[ri]\d+\])?:$";
+        r"^[a-zA-Z0-9_.]+\s?((%[rix]\d+|\[%[rix]\d+\])\s*,\s*)*(%[rix]\d+|\[%[rix]\d+\])?:$";
 
-    const MACRO_OPERAND_REGEX: &'static str = r"^(%[ri]\d+|\[%[ri]\d+\])$";
-    // TODO: added d for 16-bit word and x for both register and 8-bit literal
+    const MACRO_OPERAND_REGEX: &'static str = r"^(%[rix]\d+|\[%[rix]\d+\])$";
 
     pub fn check_line(line: &str, parsed_tokens: &mut Vec<Token>) -> bool {
         // marco defintion
