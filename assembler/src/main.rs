@@ -10,7 +10,11 @@ fn main() {
         return;
     }
 
-    let res = Assembler::assemble_file(&format!("asm/{}", &args[1]), &format!("bin/{}", &args[2]));
+    let res = Assembler::assemble_file(
+        &format!("asm/{}", &args[1]),
+        &format!("bin/{}", &args[2]),
+        "./asm/std",
+    );
 
     if res.is_err() {
         println!("File was not assembled");

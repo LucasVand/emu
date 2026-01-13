@@ -9,10 +9,10 @@ use crate::{
 pub struct Assembler {}
 
 impl Assembler {
-    pub fn assemble_file_to_vec(filename: &str) -> Result<Vec<u8>, io::Error> {
+    pub fn assemble_file_to_vec(filename: &str, path_to_std: &str) -> Result<Vec<u8>, io::Error> {
         let contents = fs::read_to_string(filename)?;
 
-        let imports_resolved = Includes::resolve_imports(contents);
+        let imports_resolved = Includes::resolve_imports(contents, path_to_std);
 
         let lexed = Lexer::parse_str(&imports_resolved);
 
@@ -41,8 +41,8 @@ impl Assembler {
 
         return Ok(bin);
     }
-    pub fn assemble_file(filename: &str, output: &str) -> Result<(), io::Error> {
-        let bin = Self::assemble_file_to_vec(filename)?;
+    pub fn assemble_file(filename: &str, output: &str, path_to_std: &str) -> Result<(), io::Error> {
+        let bin = Self::assemble_file_to_vec(filename, path_to_std)?;
         return Ok(Self::write_file(&bin, output)?);
     }
     fn write_file(binary: &Vec<u8>, output: &str) -> Result<(), io::Error> {

@@ -13,7 +13,9 @@ mod emulator_tests {
     use crate::emulator::Emulator;
 
     fn test_file(file: &str) {
-        let bin = Assembler::assemble_file_to_vec(&format!("../asm/tests/{}.asm", file));
+        let bin =
+            Assembler::assemble_file_to_vec(&format!("../asm/tests/{}.asm", file), "../asm/std");
+
         if bin.is_err() {
             panic!("unable to assemble file, Error: {}", bin.unwrap_err());
         }

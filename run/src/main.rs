@@ -11,7 +11,7 @@ fn main() {
     }
 
     println!("Assembling File");
-    let bin = Assembler::assemble_file_to_vec(&format!("asm/{}", &args[1]));
+    let bin = Assembler::assemble_file_to_vec(&format!("asm/{}", &args[1]), "./asm/std");
     if bin.is_err() {
         println!("Something went wrong");
         return;

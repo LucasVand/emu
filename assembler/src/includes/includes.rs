@@ -9,14 +9,20 @@ pub struct Includes {}
 impl Includes {
     const IMPORT_EXPRESSION: &'static str = r#"^@include\s["<].*[">]"#;
     const STD_EXPRESSION: &'static str = r"<.*>";
-    pub fn resolve_imports(contents: String) -> String {
+    pub fn resolve_imports(contents: String, path_to_std: &str) -> String {
         let mut resolved_imports: Vec<String> = Vec::new();
         let mut new_contents = contents.clone();
         let lines = contents.split("\n");
         for (index, line) in lines.enumerate() {
             // if the line is an import
             if Regex::new(Self::IMPORT_EXPRESSION).unwrap().is_match(&line) {
-                Self::resolve_import(line, index, &mut resolved_imports, &mut new_contents);
+                Self::resolve_import(
+                    line,
+                    index,
+                    &mut resolved_imports,
+                    &mut new_contents,
+                    path_to_std,
+                );
             }
         }
 
@@ -28,6 +34,7 @@ impl Includes {
         line_num: usize,
         resolved_imports: &mut Vec<String>,
         contents: &mut String,
+        path_to_std: &str,
     ) {
         let mut parts = line.splitn(2, " ");
         parts.next();
@@ -49,7 +56,7 @@ impl Includes {
                 .strip_suffix(">")
                 .unwrap_or(path);
 
-            import_replacement = Self::std_import(trimmed_path);
+            import_replacement = Self::std_import(trimmed_path, path_to_std);
         } else {
             let trimmed_path = path
                 .strip_prefix("\"")
@@ -70,8 +77,8 @@ impl Includes {
         resolved_imports.push(path.to_string());
     }
 
-    fn std_import(path: &str) -> Option<String> {
-        let file = fs::read_to_string(format!("./asm/std/{}", path));
+    fn std_import(path: &str, path_to_std: &str) -> Option<String> {
+        let file = fs::read_to_string(format!("{}/{}", path_to_std, path));
 
         return file.ok();
     }

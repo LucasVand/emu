@@ -2,7 +2,7 @@ use std::{env, usize};
 
 use emulator::{
     emulator::Emulator,
-    graphics::{self, window::EmulatorWindow},
+    graphics::{self},
 };
 
 fn main() {

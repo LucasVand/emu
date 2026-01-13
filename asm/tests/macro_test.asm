@@ -1,3 +1,8 @@
+lda [main]
+jnz 1
+
+@include <tests.asm>
+
 @macro
 TEST1 %r0, %i1:
    mov %r0, %i1
@@ -13,6 +18,9 @@ TEST3 %r0, %x1:
    mov %r0, %x1
 @end
 
+; main entry point
+main: 
+
 TEST1 a, 10
 ASSERT a, 10
 
@@ -27,26 +35,7 @@ ASSERT a, 30
 TEST3 a, 100
 ASSERT a, 100
 
+COMPLETE_TESTS
 
-END_TESTS
 
-@macro
-END_TESTS:
-  mov a, 0
-  orr f, 1
-@end 
 
-@macro
-ASSERT %r0, %i1:
-  cmp %r0, %i1
-  mov z, f 
-  nor z, z
-  and z, 0x40
-  lda [fail]
-  jnz z 
-  add d, 1
-@end
-
-fail:
-  mov a, 1
-  orr f, 1 
