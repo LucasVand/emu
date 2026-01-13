@@ -26,6 +26,11 @@ impl Includes {
             }
         }
 
+        // if we have an import then we must have a main entry point
+        if resolved_imports.len() > 0 {
+            new_contents.insert_str(0, "lda [main]\njnz 1\n");
+        }
+
         return new_contents;
     }
 

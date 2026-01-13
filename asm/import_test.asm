@@ -2,6 +2,7 @@
 
 @include "user_import.asm"
 
+main:
 mov a, test_value
 
 THING c
