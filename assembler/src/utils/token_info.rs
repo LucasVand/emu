@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct TokenInfo {
     pub line_num: usize,
     pub line: String,

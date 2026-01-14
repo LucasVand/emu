@@ -1,14 +1,12 @@
-mov a, 25
+@include <16bit_arithmetic.asm>
 
-BOTH a
-BOTH 100
+main:
+t
+ADD16 a, b, 10
+ADD16 c, d, 20
 
+ADD16 a, b, c, d
 
-pop a
-pop b
 
 orr f, 1
-@macro
-BOTH %x0: 
-  push %x0
-@end
+

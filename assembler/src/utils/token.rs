@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::utils::token_info::TokenInfo;
 
-#[derive(Clone, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Token {
     pub token: String,
     pub is_addr: bool,

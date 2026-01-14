@@ -90,7 +90,6 @@ impl ExpressionToken {
         new_info.token = token.clone();
 
         match token.as_str() {
-            //TODO: add the shift op
             "<<" => {
                 let tok = ExpressionToken {
                     info: new_info,

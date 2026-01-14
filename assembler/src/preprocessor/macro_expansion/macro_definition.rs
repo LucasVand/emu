@@ -32,6 +32,7 @@ impl MacroDefinition {
                 Self::parse_macro(ele, &mut iter, &mut macro_list);
             }
         }
+        // TODO: add nested macros
 
         return macro_list;
     }
@@ -48,18 +49,6 @@ impl MacroDefinition {
         }
 
         let macro_def = macro_def.unwrap();
-
-        let is_taken = macro_list
-            .iter()
-            .find(|mac| return mac.label == macro_def.token);
-
-        if is_taken.is_some() {
-            Logging::log_preprocessor_error_info(
-                "a macro with this name already exists",
-                &macro_def.token_info,
-            );
-            return false;
-        }
 
         if macro_def.kind != TokenType::MacroDefinitionMnemonic {
             Logging::log_preprocessor_error_info(
@@ -84,6 +73,22 @@ impl MacroDefinition {
             if current.kind == TokenType::MacroDefinitionParameter {
                 macro_obj.parameters.push(current.clone());
             } else if current.kind == TokenType::EndKeyword {
+                // find any macros with the same name and same params
+                let is_taken = macro_list.iter().find(|mac| {
+                    let macro_obj_iter = macro_obj.parameters.iter();
+                    let params_equal = mac.parameters.iter().eq(macro_obj_iter);
+
+                    return mac.label == macro_obj.label && params_equal;
+                });
+
+                if is_taken.is_some() {
+                    Logging::log_preprocessor_error_info(
+                        "a macro with this macro definition already exists",
+                        &macro_def.token_info,
+                    );
+                    return false;
+                }
+
                 macro_list.push(macro_obj);
                 return true;
             } else {

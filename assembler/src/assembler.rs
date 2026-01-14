@@ -12,7 +12,11 @@ impl Assembler {
     pub fn assemble_file_to_vec(filename: &str, path_to_std: &str) -> Result<Vec<u8>, io::Error> {
         let contents = fs::read_to_string(filename)?;
 
-        let imports_resolved = Includes::resolve_imports(contents, path_to_std);
+        let (imports_resolved, errors) = Includes::resolve_imports(contents, path_to_std);
+
+        for er in errors {
+            println!("{}", er);
+        }
 
         let lexed = Lexer::parse_str(&imports_resolved);
 

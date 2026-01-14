@@ -1,7 +1,9 @@
 use crate::preprocessor::macro_expansion::macro_definition::MacroDefinition;
+use crate::preprocessor::macro_expansion::macro_parameters::TypedMacroParameter;
 use crate::utils::logging::Logging;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
+use std::any::type_name;
 use std::{fmt::Display, iter::Peekable};
 
 #[derive(Debug)]
@@ -26,20 +28,6 @@ impl MacroExpansion {
     ) -> Option<MacroExpansion> {
         let inital_index: usize = *index;
         // find the macro definition for the macro token found
-        let macro_def = macro_list.iter().find(|macro_def| {
-            return macro_def.label == inital_token.token;
-        });
-
-        // if we cant find it log error and return
-        if macro_def.is_none() {
-            Logging::log_preprocessor_error_info(
-                "unable to find macro definition",
-                &inital_token.token_info,
-            );
-            return None;
-        }
-        // we know it exists unwrap it
-        let macro_def = macro_def.unwrap();
 
         let mut parameter_list: Vec<Token> = Vec::new();
 
@@ -53,6 +41,36 @@ impl MacroExpansion {
                 break;
             }
         }
+
+        let macro_def = macro_list.iter().find(|macro_def| {
+            let same_name = macro_def.label == inital_token.token;
+            if !same_name {
+                return false;
+            }
+            if parameter_list.len() != macro_def.parameters.len() {
+                return false;
+            }
+            for (index, param) in parameter_list.iter().enumerate() {
+                let typed_inst = TypedMacroParameter::type_inst_parameter(param);
+                let typed_param =
+                    TypedMacroParameter::type_macro_parameter(&macro_def.parameters[index]);
+                if !typed_inst.is_equal(typed_param) {
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        // if we cant find it log error and return
+        if macro_def.is_none() {
+            Logging::log_preprocessor_error_info(
+                "unable to find macro definition",
+                &inital_token.token_info,
+            );
+            return None;
+        }
+        // we know it exists unwrap it
+        let macro_def = macro_def.unwrap();
 
         // if we have an incorrect number of parameters
         if parameter_list.len() != macro_def.parameters.len() {

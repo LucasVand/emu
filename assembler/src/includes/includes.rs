@@ -1,59 +1,92 @@
-use std::{env, fs};
+use std::{fs, io::ErrorKind};
 
 use regex::Regex;
 
-use crate::utils::logging::Logging;
+use crate::{
+    includes::include_error::{IncludeError, IncludeErrorType},
+    utils::{syntax_error::AssemblerError, token_info::TokenInfo},
+};
 
 pub struct Includes {}
 
 impl Includes {
-    const IMPORT_EXPRESSION: &'static str = r#"^@include\s["<].*[">]"#;
+    const IMPORT_EXPRESSION: &'static str = r#"^@include\s*["<].*[">]\s*$"#;
     const STD_EXPRESSION: &'static str = r"<.*>";
-    pub fn resolve_imports(contents: String, path_to_std: &str) -> String {
+    // resolves all imports and returns a new string along with all the errors that occurred
+    pub fn resolve_imports(
+        contents: String,
+        path_to_std: &str,
+    ) -> (String, Vec<Box<dyn AssemblerError>>) {
+        // import paths that have already been resolved
         let mut resolved_imports: Vec<String> = Vec::new();
+        // vec of errors
+        let mut errors: Vec<IncludeError> = Vec::new();
+        // the new contents
         let mut new_contents = contents.clone();
+        // do we have at least one import
+        let mut require_entry_point = false;
         let lines = contents.split("\n");
+
         for (index, line) in lines.enumerate() {
             // if the line is an import
             if Regex::new(Self::IMPORT_EXPRESSION).unwrap().is_match(&line) {
-                Self::resolve_import(
-                    line,
-                    index,
-                    &mut resolved_imports,
-                    &mut new_contents,
-                    path_to_std,
-                );
+                // get the import
+                let resolved_import = Self::resolve_import(line, index, path_to_std);
+                // if its an error add to errors
+                match resolved_import {
+                    Ok((import_value, path)) => {
+                        // if the import has already been resolved
+                        if resolved_imports.contains(&path) {
+                            let info = TokenInfo::new(line, &path, index, "Import");
+
+                            errors
+                                .push(IncludeError::new(info, IncludeErrorType::DuplicateImports));
+                        } else {
+                            require_entry_point = true;
+                            new_contents = new_contents.replacen(line, &import_value, 1);
+                            resolved_imports.push(path);
+                        }
+                    }
+                    Err(err) => {
+                        // remove the line
+                        new_contents = new_contents.replacen(line, "", 1);
+                        errors.push(err)
+                    }
+                }
             }
         }
 
         // if we have an import then we must have a main entry point
-        if resolved_imports.len() > 0 {
+        if require_entry_point {
             new_contents.insert_str(0, "lda [main]\njnz 1\n");
         }
 
-        return new_contents;
+        let mapped_err = errors
+            .iter()
+            .map(|err| return Box::<dyn AssemblerError>::from(err))
+            .collect();
+
+        return (new_contents, mapped_err);
     }
 
+    // finds the value of an import
     fn resolve_import(
         line: &str,
         line_num: usize,
-        resolved_imports: &mut Vec<String>,
-        contents: &mut String,
         path_to_std: &str,
-    ) {
+    ) -> Result<(String, String), IncludeError> {
+        // split the line
         let mut parts = line.splitn(2, " ");
         parts.next();
+        // this is the import path
         let path = parts.next().unwrap().trim();
 
-        if resolved_imports.contains(&path.to_string()) {
-            *contents = contents.replacen(line, "", 1);
-            Logging::log_import_error("Duplicate imports found", line_num, line);
-            return;
-        }
-
+        // is this a std import
         let is_std = Regex::new(Self::STD_EXPRESSION).unwrap().is_match(path);
 
-        let import_replacement: Option<String>;
+        // create the debugging token info
+        let info = TokenInfo::new(line, path, line_num, "Include");
+
         if is_std {
             let trimmed_path = path
                 .strip_prefix("<")
@@ -61,7 +94,10 @@ impl Includes {
                 .strip_suffix(">")
                 .unwrap_or(path);
 
-            import_replacement = Self::std_import(trimmed_path, path_to_std);
+            return Ok((
+                Self::std_import(trimmed_path, path_to_std, info)?,
+                trimmed_path.to_string(),
+            ));
         } else {
             let trimmed_path = path
                 .strip_prefix("\"")
@@ -69,26 +105,41 @@ impl Includes {
                 .strip_suffix("\"")
                 .unwrap_or(path);
 
-            import_replacement = Self::custom_import(trimmed_path);
+            return Ok((
+                Self::custom_import(trimmed_path, info)?,
+                trimmed_path.to_string(),
+            ));
         }
-
-        if import_replacement.is_none() {
-            Logging::log_import_error("Unable to resolve import", line_num, line);
-            return;
-        }
-        let import_replacement = import_replacement.unwrap();
-
-        *contents = contents.replacen(line, &import_replacement, 1);
-        resolved_imports.push(path.to_string());
     }
 
-    fn std_import(path: &str, path_to_std: &str) -> Option<String> {
+    fn std_import(path: &str, path_to_std: &str, info: TokenInfo) -> Result<String, IncludeError> {
         let file = fs::read_to_string(format!("{}/{}", path_to_std, path));
 
-        return file.ok();
+        if let Err(err) = file {
+            return Err(IncludeError::new(
+                info,
+                match err.kind() {
+                    ErrorKind::NotFound => IncludeErrorType::NoSTDImportFound {
+                        path_to_std: path_to_std.to_string(),
+                    },
+                    _ => IncludeErrorType::UnableToOpenFile,
+                },
+            ));
+        }
+        return Ok(file.unwrap());
     }
-    fn custom_import(path: &str) -> Option<String> {
+    fn custom_import(path: &str, info: TokenInfo) -> Result<String, IncludeError> {
         let file = fs::read_to_string(format!("./asm/{}", path));
-        return file.ok();
+
+        if let Err(err) = file {
+            return Err(IncludeError::new(
+                info,
+                match err.kind() {
+                    ErrorKind::NotFound => IncludeErrorType::NoUserImportFound,
+                    _ => IncludeErrorType::UnableToOpenFile,
+                },
+            ));
+        }
+        return Ok(file.unwrap());
     }
 }

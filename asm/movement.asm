@@ -186,7 +186,6 @@ draw:
   
 
 
-  PRINT 189
   push c ; push 16 high
   push d ; push 16 low
   push b ; push 8bit

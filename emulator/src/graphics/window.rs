@@ -110,7 +110,7 @@ pub fn create_window(mut emu: Emulator) -> eframe::Result {
     let controller_clone = Arc::clone(&app.controller);
     thread::spawn(move || {
         loop {
-            emu.cycle(false);
+            emu.cycle(true);
             buf_clone.write(|f| {
                 f.copy_from_slice(&mut emu.memory.banks[1]);
             });

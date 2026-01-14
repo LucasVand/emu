@@ -1,18 +1,11 @@
 @include <test.asm>
+@include <testing.asm>
 
 @include "user_import.asm"
 
 main:
 mov a, test_value
 
-THING c
-
-TEST 10 
-
-BOTH a 
-BOTH 10
-
-HALT 
 
 mov b, 55
 
