@@ -1,9 +1,9 @@
+use crate::lex::lexer_error::LexerError;
+use crate::lex::lexer_error::LexerErrorType;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
 use crate::utils::token_info::TokenInfo;
 use regex::Regex;
-
-use crate::utils::logging::Logging;
 
 pub struct ConstantLexer {}
 
@@ -24,27 +24,24 @@ impl ConstantLexer {
     pub fn parse_constant_data(
         constant: &str,
         line: &str,
-        parsed_tokens: &mut Vec<Token>,
         line_num: usize,
-    ) -> bool {
-        return Self::parse_constant(constant, line, parsed_tokens, line_num, true);
+    ) -> Result<Token, LexerError> {
+        return Self::parse_constant(constant, line, line_num, true);
     }
     pub fn parse_instruction_operand(
         constant: &str,
         line: &str,
-        parsed_tokens: &mut Vec<Token>,
         line_num: usize,
-    ) -> bool {
-        return Self::parse_constant(constant, line, parsed_tokens, line_num, false);
+    ) -> Result<Token, LexerError> {
+        return Self::parse_constant(constant, line, line_num, false);
     }
 
     fn parse_constant(
         constant: &str,
         line: &str,
-        parsed_tokens: &mut Vec<Token>,
         line_num: usize,
         is_data: bool,
-    ) -> bool {
+    ) -> Result<Token, LexerError> {
         let trimmed = constant.trim();
 
         let is_addr = Self::check_expression(Self::ADDRESS, trimmed);
@@ -83,8 +80,7 @@ impl ConstantLexer {
         } else if Self::check_expression(Self::LABEL, constant_trimmed) {
             token_type = TokenType::Label;
         } else {
-            Logging::log_lexer_error_info("unable to parse constant", &info);
-            return false;
+            return Err(LexerError::new(info, LexerErrorType::UnableToParseConstant));
         }
 
         // we use trimmed here because we want to keep the [] around the constant
@@ -94,9 +90,7 @@ impl ConstantLexer {
             Token::new(trimmed, token_type, info)
         };
 
-        parsed_tokens.push(token);
-
-        return true;
+        return Ok(token);
     }
     fn check_expression(exp: &str, value: &str) -> bool {
         return Regex::new(exp).unwrap().is_match(value);

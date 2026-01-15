@@ -3,7 +3,6 @@ use crate::preprocessor::macro_expansion::macro_parameters::TypedMacroParameter;
 use crate::utils::logging::Logging;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
-use std::any::type_name;
 use std::{fmt::Display, iter::Peekable};
 
 #[derive(Debug)]

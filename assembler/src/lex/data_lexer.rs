@@ -1,9 +1,11 @@
+use crate::lex::lexer_error::LexerError;
+use crate::lex::lexer_error::LexerErrorType;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
 use crate::utils::token_info::TokenInfo;
 use regex::Regex;
 
-use crate::{lex::constant_lexer::ConstantLexer, utils::logging::Logging};
+use crate::lex::constant_lexer::ConstantLexer;
 
 pub struct DataLexer {}
 
@@ -13,7 +15,8 @@ impl DataLexer {
     pub fn check_line(line: &str) -> bool {
         return Regex::new(Self::REGEX_EXPRESSION).unwrap().is_match(line);
     }
-    pub fn parse_line(line: &str, parsed_tokens: &mut Vec<Token>, line_num: usize) -> bool {
+    pub fn parse_line(line: &str, line_num: usize) -> Result<Vec<Token>, LexerError> {
+        let mut token_list = Vec::new();
         let str_sections = line.to_string();
         let mut sections = str_sections.splitn(2, " ");
 
@@ -21,12 +24,16 @@ impl DataLexer {
         let second_section = sections.next();
 
         if first_section.is_none() {
-            Logging::log_lexer_error("expected data type defintion", line_num, line);
-            return false;
+            return Err(LexerError::new(
+                TokenInfo::new(line, line, line_num, "data_lexer"),
+                LexerErrorType::ExpectedDataTypeDefinition,
+            ));
         }
         if second_section.is_none() {
-            Logging::log_lexer_error("expected data definition", line_num, line);
-            return false;
+            return Err(LexerError::new(
+                TokenInfo::new(line, line, line_num, "data_lexer"),
+                LexerErrorType::ExpectedDataDefinition,
+            ));
         }
 
         let first_section = first_section.unwrap();
@@ -39,14 +46,15 @@ impl DataLexer {
         let data_keyword_token =
             Token::new(first_section, first_token_type.clone(), data_keyword_info);
 
-        parsed_tokens.push(data_keyword_token);
+        token_list.push(data_keyword_token);
 
         let data = second_section.split(",");
 
         for ele in data {
-            ConstantLexer::parse_constant_data(ele, line, parsed_tokens, line_num);
+            let data_token = ConstantLexer::parse_constant_data(ele, line, line_num)?;
+            token_list.push(data_token);
         }
-        return true;
+        return Ok(token_list);
     }
     pub fn token_type_from_char(letter: char) -> TokenType {
         match letter {

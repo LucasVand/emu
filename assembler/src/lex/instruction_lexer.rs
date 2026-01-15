@@ -1,5 +1,6 @@
 use crate::lex::constant_lexer::ConstantLexer;
-use crate::utils::logging::Logging;
+use crate::lex::lexer_error::LexerError;
+use crate::lex::lexer_error::LexerErrorType;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
 use crate::utils::token_info::TokenInfo;
@@ -15,14 +16,17 @@ impl InstructionLexer {
         return Regex::new(Self::REGEX_EXPRESSION).unwrap().is_match(line);
     }
 
-    pub fn parse_line(line: &str, parsed_tokens: &mut Vec<Token>, line_num: usize) -> bool {
+    pub fn parse_line(line: &str, line_num: usize) -> Result<Vec<Token>, LexerError> {
+        let mut token_list: Vec<Token> = Vec::new();
         let line = line.trim_start();
         let mut sections = line.splitn(2, " ");
         let first = sections.next();
 
         if first.is_none() {
-            Logging::log_lexer_error("expected instruction mnemonic", line_num, line);
-            return false;
+            return Err(LexerError::new(
+                TokenInfo::new(line, line, line_num, "instruction_lexer"),
+                LexerErrorType::ExpectedInstructionMnemonic,
+            ));
         }
 
         let first = first.unwrap().trim();
@@ -36,26 +40,24 @@ impl InstructionLexer {
 
         let info = TokenInfo::new(line, first, line_num, "instruction_lexer");
         let mnemonic_token = Token::new(first, mnemonic_type, info);
-        parsed_tokens.push(mnemonic_token);
+        token_list.push(mnemonic_token);
 
         let operands = sections.next();
         if operands.is_none() {
-            return true;
+            return Ok(token_list);
         }
 
         let operands = operands.unwrap().trim();
         if operands.is_empty() {
-            return true;
+            return Ok(token_list);
         }
         let operand_list = operands.split(",");
 
         for ele in operand_list {
-            let ret = ConstantLexer::parse_instruction_operand(ele, line, parsed_tokens, line_num);
-            if !ret {
-                return false;
-            }
+            let token = ConstantLexer::parse_instruction_operand(ele, line, line_num)?;
+            token_list.push(token);
         }
 
-        return true;
+        return Ok(token_list);
     }
 }

@@ -4,5 +4,6 @@ pub mod define_lexer;
 pub mod instruction_lexer;
 pub mod label_lexer;
 pub mod lexer;
+pub mod lexer_error;
 pub mod macro_lexer;
 pub mod marco_definition_lexer;

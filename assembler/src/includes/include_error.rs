@@ -77,8 +77,8 @@ impl AssemblerError for IncludeError {
     fn error(&self) -> Box<dyn Error> {
         return Box::new(self.error.clone());
     }
-    fn info(&self) -> TokenInfo {
-        return self.info.clone();
+    fn info(&self) -> &TokenInfo {
+        return &self.info;
     }
     fn stage(&self) -> AssemblerStage {
         return AssemblerStage::Imports;

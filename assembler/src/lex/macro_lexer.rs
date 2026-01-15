@@ -1,4 +1,5 @@
-use crate::utils::logging::Logging;
+use crate::lex::lexer_error::LexerError;
+use crate::lex::lexer_error::LexerErrorType;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
 use crate::utils::token_info::TokenInfo;
@@ -17,11 +18,13 @@ impl MacroLexer {
                 .is_match(line);
     }
 
-    pub fn parse_line(line: &str, parsed_tokens: &mut Vec<Token>, line_num: usize) -> bool {
+    pub fn parse_line(line: &str, line_num: usize) -> Result<Vec<Token>, LexerError> {
         // checks if its a @macro or @end line
         if line != "@macro" && line != "@end" {
-            Logging::log_lexer_error("expected @marco", line_num, line);
-            return false;
+            return Err(LexerError::new(
+                TokenInfo::new(line, line, line_num, "none"),
+                LexerErrorType::ExpectedMacroDefineKeyword,
+            ));
         }
         // gets the token type for it
         let token_type = if line != "@macro" {
@@ -32,8 +35,7 @@ impl MacroLexer {
 
         let info = TokenInfo::new(line, line, line_num, "macro_lexer");
         let token = Token::new(line, token_type, info);
-        parsed_tokens.push(token);
 
-        return true;
+        return Ok(vec![token]);
     }
 }

@@ -25,7 +25,7 @@ impl Display for AssemblerStage {
 
 pub trait AssemblerError {
     fn stage(&self) -> AssemblerStage;
-    fn info(&self) -> TokenInfo;
+    fn info(&self) -> &TokenInfo;
     fn error(&self) -> Box<dyn Error>;
     fn fix(&self) -> Option<String>;
 }
