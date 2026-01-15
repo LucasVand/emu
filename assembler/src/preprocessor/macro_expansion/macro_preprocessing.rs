@@ -1,49 +1,38 @@
 use crate::preprocessor::macro_expansion::macro_definition::MacroDefinition;
 use crate::preprocessor::macro_expansion::macro_expansion::MacroExpansion;
+use crate::preprocessor::preprocessor_error::PreprocessorError;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
 
 pub struct MacroPreprocessing {}
 
 impl MacroPreprocessing {
-    pub fn expand_macros(tokens: &mut Vec<Token>) {
+    pub fn expand_macros(tokens: Vec<Token>) -> (Vec<Token>, Vec<PreprocessorError>) {
         // TODO: allow for labels in macros by prepending the macro name and the invocation number
         // so that all the labels are unique after expassion
 
-        // this is the master macro list
-        let macro_list = MacroDefinition::create_macro_list(tokens);
+        let mut error_list = Vec::new();
+        let mut new_token_list = Vec::new();
 
-        let mut iter = tokens.iter().peekable();
-        // the list of expanded macros
-        let mut expansion_list: Vec<MacroExpansion> = Vec::new();
-        let mut index = 0;
+        // this is the master macro list
+        let (macro_list, tokens_without_macros, mut errors) =
+            MacroDefinition::create_macro_list(tokens);
+        error_list.append(&mut errors);
+
+        let mut iter = tokens_without_macros.into_iter().peekable();
 
         while let Some(token) = iter.next() {
             // if macro then we need to expand
             if token.kind == TokenType::MacroMnemonic {
-                let exp = MacroExpansion::expand_macro(&mut iter, token, &macro_list, &mut index);
-                if exp.is_some() {
-                    expansion_list.push(exp.unwrap());
+                let expansion = MacroExpansion::expand_macro(&mut iter, &token, &macro_list);
+                match expansion {
+                    Ok(mut expand) => new_token_list.append(&mut expand),
+                    Err(err) => error_list.push(err),
                 }
+            } else {
+                new_token_list.push(token);
             }
-            index += 1;
         }
-        let mut index_offset: isize = 0;
-        expansion_list.sort_by(|u, v| u.index.cmp(&v.index));
-
-        for expansion in expansion_list {
-            let index: isize = index_offset + (expansion.index as isize);
-            // insert the expansions into the token list
-            tokens.remove(index as usize);
-            index_offset -= 1;
-            for _ in 0..expansion.parameter_count {
-                tokens.remove(index as usize);
-                index_offset -= 1;
-            }
-            expansion.tokens.iter().rev().for_each(|insert_token| {
-                tokens.insert(index as usize, insert_token.clone());
-                index_offset += 1;
-            });
-        }
+        return (new_token_list, error_list);
     }
 }

@@ -11,7 +11,7 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(token: &str, kind: TokenType, info: TokenInfo) -> Token {
+    pub fn new(token: String, kind: TokenType, info: TokenInfo) -> Token {
         Token {
             is_addr: false,
             token: token.to_string(),
@@ -19,7 +19,7 @@ impl Token {
             token_info: info,
         }
     }
-    pub fn new_address(token: &str, kind: TokenType, info: TokenInfo) -> Token {
+    pub fn new_address(token: String, kind: TokenType, info: TokenInfo) -> Token {
         Token {
             is_addr: true,
             token: token.to_string(),

@@ -1,13 +1,38 @@
-use crate::utils::logging::Logging;
+use crate::preprocessor::preprocessor_error::PreprocessorError;
+use crate::preprocessor::preprocessor_error::PreprocessorErrorType;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
 use std::fmt::Display;
+use std::vec;
 
 #[derive(Debug)]
 pub struct MacroDefinition {
     pub label: String,
     pub parameters: Vec<Token>,
     pub value: Vec<Token>,
+}
+impl PartialEq for MacroDefinition {
+    fn eq(&self, other: &Self) -> bool {
+        if !(self.label == other.label) {
+            return false;
+        }
+        let mut params1 = self.parameters.iter();
+        let mut params2 = other.parameters.iter();
+        if params1.len() != params2.len() {
+            return false;
+        }
+
+        for _ in 0..params1.len() {
+            let token1 = params1.next().unwrap();
+            let token2 = params2.next().unwrap();
+
+            if token1.token != token2.token {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 impl Display for MacroDefinition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -23,74 +48,76 @@ impl MacroDefinition {
         }
     }
 
-    pub fn create_macro_list(token_list: &Vec<Token>) -> Vec<MacroDefinition> {
-        let mut iter = token_list.iter();
+    pub fn create_macro_list(
+        token_list: Vec<Token>,
+    ) -> (Vec<MacroDefinition>, Vec<Token>, Vec<PreprocessorError>) {
+        let mut iter = token_list.into_iter();
+        let mut error_list = Vec::new();
         let mut macro_list: Vec<MacroDefinition> = Vec::new();
+        let mut new_token_list: Vec<Token> = Vec::new();
 
         while let Some(ele) = iter.next() {
+            let info = ele.token_info.clone();
             if ele.kind == TokenType::MacroKeyword {
-                Self::parse_macro(ele, &mut iter, &mut macro_list);
+                let macro_def = Self::create_macro_definition(ele, &mut iter);
+                match macro_def {
+                    Ok(def) => {
+                        if macro_list.contains(&def) {
+                            error_list.push(PreprocessorError::new(
+                                info,
+                                PreprocessorErrorType::DuplicateDefinitionsFound,
+                            ));
+                        } else {
+                            macro_list.push(def);
+                        }
+                    }
+                    Err(err) => error_list.push(err),
+                }
+            } else {
+                new_token_list.push(ele);
             }
         }
         // TODO: add nested macros
 
-        return macro_list;
+        return (macro_list, new_token_list, error_list);
     }
-    pub fn parse_macro<'a>(
-        token: &Token,
-        iter: &mut impl Iterator<Item = &'a Token>,
-        macro_list: &mut Vec<MacroDefinition>,
-    ) -> bool {
+    pub fn create_macro_definition(
+        token: Token,
+        iter: &mut vec::IntoIter<Token>,
+    ) -> Result<MacroDefinition, PreprocessorError> {
         let macro_def = iter.next();
 
         if macro_def.is_none() {
-            Logging::log_preprocessor_error_info("expected macro definition", &token.token_info);
-            return false;
+            return Err(PreprocessorError::new(
+                token.token_info.clone(),
+                PreprocessorErrorType::ExpectedMacroDefinitinMnemonic,
+            ));
         }
 
         let macro_def = macro_def.unwrap();
 
         if macro_def.kind != TokenType::MacroDefinitionMnemonic {
-            Logging::log_preprocessor_error_info(
-                "expected macro definition",
-                &macro_def.token_info,
-            );
-            return false;
+            return Err(PreprocessorError::new(
+                token.token_info.clone(),
+                PreprocessorErrorType::ExpectedMacroDefinitinMnemonic,
+            ));
         }
 
         let mut macro_obj = MacroDefinition::new(&macro_def.token);
         loop {
             let current = iter.next();
             if current.is_none() {
-                Logging::log_preprocessor_error_info(
-                    "missing the end of a macro definition",
-                    &token.token_info,
-                );
-                return false;
+                return Err(PreprocessorError::new(
+                    token.token_info.clone(),
+                    PreprocessorErrorType::MissingMacroEndKeyword,
+                ));
             }
             let current = current.unwrap();
 
             if current.kind == TokenType::MacroDefinitionParameter {
                 macro_obj.parameters.push(current.clone());
             } else if current.kind == TokenType::EndKeyword {
-                // find any macros with the same name and same params
-                let is_taken = macro_list.iter().find(|mac| {
-                    let macro_obj_iter = macro_obj.parameters.iter();
-                    let params_equal = mac.parameters.iter().eq(macro_obj_iter);
-
-                    return mac.label == macro_obj.label && params_equal;
-                });
-
-                if is_taken.is_some() {
-                    Logging::log_preprocessor_error_info(
-                        "a macro with this macro definition already exists",
-                        &macro_def.token_info,
-                    );
-                    return false;
-                }
-
-                macro_list.push(macro_obj);
-                return true;
+                return Ok(macro_obj);
             } else {
                 macro_obj.value.push(current.clone());
             }

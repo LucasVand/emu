@@ -26,7 +26,7 @@ impl LabelLexer {
         let remove_end = remove_end.unwrap();
 
         let info = TokenInfo::new(line, remove_end, line_num, "label_lexer");
-        let token = Token::new(remove_end, TokenType::LabelDefinition, info);
+        let token = Token::new(remove_end.to_string(), TokenType::LabelDefinition, info);
 
         return Ok(vec![token]);
     }

@@ -85,9 +85,9 @@ impl ConstantLexer {
 
         // we use trimmed here because we want to keep the [] around the constant
         let token = if is_addr {
-            Token::new_address(trimmed, token_type, info)
+            Token::new_address(trimmed.to_string(), token_type, info)
         } else {
-            Token::new(trimmed, token_type, info)
+            Token::new(trimmed.to_string(), token_type, info)
         };
 
         return Ok(token);

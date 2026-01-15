@@ -1,7 +1,7 @@
 lda [main]
 jnz 1
 
-@include <tests.asm>
+@include <testing.asm>
 
 @macro
 TEST1 %r0, %i1:

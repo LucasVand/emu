@@ -43,8 +43,11 @@ impl DataLexer {
         let first_token_type = Self::token_type_from_char(data_char);
 
         let data_keyword_info = TokenInfo::new(line, first_section, line_num, "data_lexer");
-        let data_keyword_token =
-            Token::new(first_section, first_token_type.clone(), data_keyword_info);
+        let data_keyword_token = Token::new(
+            first_section.to_string(),
+            first_token_type.clone(),
+            data_keyword_info,
+        );
 
         token_list.push(data_keyword_token);
 

@@ -22,14 +22,12 @@ impl Assembler {
         error_list.append(&mut lexer_errors);
 
         // for ele in &lexed {
-        //     println!("{}", ele);
+        // println!("{}", ele);
         // }
 
-        let preprocessed = Preprocessor::preprocess_tokens(&lexed);
+        let (preprocessed, mut preprocessor_errors) = Preprocessor::preprocess_tokens(lexed);
 
-        // for ele in &preprocessed {
-        //     println!("{}", ele);
-        // }
+        error_list.append(&mut preprocessor_errors);
 
         let compiled = Compile::compile(&preprocessed);
 

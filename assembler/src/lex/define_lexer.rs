@@ -52,9 +52,13 @@ impl DefineLexer {
         let label = label.unwrap().trim();
 
         let info_keyword = TokenInfo::new(line, keyword, line_num, "define_lexer");
-        let keyword_token = Token::new(keyword, TokenType::UnDefineKeyword, info_keyword);
+        let keyword_token = Token::new(
+            keyword.to_string(),
+            TokenType::UnDefineKeyword,
+            info_keyword,
+        );
         let info_label = TokenInfo::new(line, label, line_num, "define_lexer");
-        let label_token = Token::new(label, TokenType::Label, info_label.clone());
+        let label_token = Token::new(label.to_string(), TokenType::Label, info_label.clone());
 
         if !Self::check_regex(Self::LABEL_EXPRESSION, label) {
             return Err(LexerError::new(
@@ -98,9 +102,13 @@ impl DefineLexer {
         let label = label.unwrap().trim();
 
         let info_keyword = TokenInfo::new(line, keyword, line_num, "define_lexer");
-        let keyword_token = Token::new(keyword, TokenType::DefineKeyword, info_keyword);
+        let keyword_token = Token::new(keyword.to_string(), TokenType::DefineKeyword, info_keyword);
         let info_label = TokenInfo::new(line, label, line_num, "define_lexer");
-        let label_token = Token::new(label, TokenType::DefineDefinitionLabel, info_label.clone());
+        let label_token = Token::new(
+            label.to_string(),
+            TokenType::DefineDefinitionLabel,
+            info_label.clone(),
+        );
 
         if !Self::check_regex(Self::LABEL_EXPRESSION, label) {
             return Err(LexerError::new(

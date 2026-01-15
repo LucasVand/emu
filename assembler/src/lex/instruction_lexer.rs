@@ -39,7 +39,7 @@ impl InstructionLexer {
         };
 
         let info = TokenInfo::new(line, first, line_num, "instruction_lexer");
-        let mnemonic_token = Token::new(first, mnemonic_type, info);
+        let mnemonic_token = Token::new(first.to_string(), mnemonic_type, info);
         token_list.push(mnemonic_token);
 
         let operands = sections.next();

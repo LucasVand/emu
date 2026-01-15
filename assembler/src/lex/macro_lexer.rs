@@ -34,7 +34,7 @@ impl MacroLexer {
         };
 
         let info = TokenInfo::new(line, line, line_num, "macro_lexer");
-        let token = Token::new(line, token_type, info);
+        let token = Token::new(line.to_string(), token_type, info);
 
         return Ok(vec![token]);
     }

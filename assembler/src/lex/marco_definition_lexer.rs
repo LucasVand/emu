@@ -42,7 +42,11 @@ impl MacroDefinitionLexer {
         let operation = &operation.unwrap().replace(":", "");
 
         let info = TokenInfo::new(line, &operation, line_num, "macro_definition_lexer");
-        let operation_token = Token::new(operation, TokenType::MacroDefinitionMnemonic, info);
+        let operation_token = Token::new(
+            operation.to_string(),
+            TokenType::MacroDefinitionMnemonic,
+            info,
+        );
         token_list.push(operation_token);
 
         if operands.is_none() {
@@ -61,7 +65,11 @@ impl MacroDefinitionLexer {
                 .unwrap()
                 .is_match(trimmed)
             {
-                let token = Token::new(trimmed, TokenType::MacroDefinitionParameter, info);
+                let token = Token::new(
+                    trimmed.to_string(),
+                    TokenType::MacroDefinitionParameter,
+                    info,
+                );
                 token_list.push(token);
             } else {
                 return Err(LexerError::new(

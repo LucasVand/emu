@@ -30,6 +30,10 @@ mod emulator_tests {
         assert!(emu.registers.a == 0);
     }
     #[test]
+    fn test_define() {
+        test_file("define_test");
+    }
+    #[test]
     fn test_macros() {
         test_file("macro_test");
     }
