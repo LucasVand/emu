@@ -2,6 +2,7 @@ use crate::preprocessor::preprocessor_error::PreprocessorError;
 use crate::preprocessor::preprocessor_error::PreprocessorErrorType;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
+use crate::utils::token_info::TokenInfo;
 use std::fmt::Display;
 use std::vec;
 
@@ -10,6 +11,7 @@ pub struct MacroDefinition {
     pub label: String,
     pub parameters: Vec<Token>,
     pub value: Vec<Token>,
+    pub info: TokenInfo,
 }
 impl PartialEq for MacroDefinition {
     fn eq(&self, other: &Self) -> bool {
@@ -40,11 +42,12 @@ impl Display for MacroDefinition {
     }
 }
 impl MacroDefinition {
-    pub fn new(label: &str) -> Self {
+    pub fn new(label: &str, info: TokenInfo) -> Self {
         MacroDefinition {
             label: label.to_string(),
             parameters: Vec::new(),
             value: Vec::new(),
+            info: info,
         }
     }
 
@@ -57,14 +60,13 @@ impl MacroDefinition {
         let mut new_token_list: Vec<Token> = Vec::new();
 
         while let Some(ele) = iter.next() {
-            let info = ele.token_info.clone();
             if ele.kind == TokenType::MacroKeyword {
                 let macro_def = Self::create_macro_definition(ele, &mut iter);
                 match macro_def {
                     Ok(def) => {
                         if macro_list.contains(&def) {
                             error_list.push(PreprocessorError::new(
-                                info,
+                                def.info.clone(),
                                 PreprocessorErrorType::DuplicateDefinitionsFound,
                             ));
                         } else {
@@ -103,7 +105,7 @@ impl MacroDefinition {
             ));
         }
 
-        let mut macro_obj = MacroDefinition::new(&macro_def.token);
+        let mut macro_obj = MacroDefinition::new(&macro_def.token, macro_def.token_info.clone());
         loop {
             let current = iter.next();
             if current.is_none() {

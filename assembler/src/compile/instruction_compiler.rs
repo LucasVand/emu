@@ -146,10 +146,10 @@ impl InstructionCompiler {
             return compiled;
         } else {
             byte2 = Self::register_to_u8(&operands[1]);
-            return vec![CompiledToken::create_word(
-                byte2,
-                operands[1].token_info.clone(),
-            )];
+            return vec![
+                compiled1,
+                CompiledToken::create_word(byte2, operands[1].token_info.clone()),
+            ];
         }
     }
 

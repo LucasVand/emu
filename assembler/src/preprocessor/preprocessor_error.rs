@@ -22,6 +22,7 @@ pub enum PreprocessorErrorType {
     MissingMacroEndKeyword,
     UnableToFindMacroDefinition,
     UnableToFindMacroParameter,
+    InfiniteRecursionMacro,
 }
 
 impl Error for PreprocessorErrorType {}
@@ -41,6 +42,7 @@ impl Display for PreprocessorErrorType {
             Self::MissingMacroEndKeyword => "Missing end keyword in macro",
             Self::UnableToFindMacroDefinition => "Unable to find macro definition",
             Self::UnableToFindMacroParameter => "Unable to find macro parameter",
+            Self::InfiniteRecursionMacro => "Cannot call a macro from in itself",
         };
 
         write!(f, "{}", msg)

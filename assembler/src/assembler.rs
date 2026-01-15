@@ -1,5 +1,6 @@
 use std::fs;
 use std::io;
+use std::io::Error;
 
 use crate::includes::includes::Includes;
 use crate::utils::syntax_error::AssemblerError;
@@ -32,10 +33,9 @@ impl Assembler {
 
         error_list.append(&mut preprocessor_errors);
 
-        for ele in &preprocessed {
-            println!("{}", ele);
-        }
-
+        // for ele in &preprocessed {
+        // println!("{}", ele);
+        // }
         let (compiled, mut compiler_errors) = Compile::compile(preprocessed);
 
         error_list.append(&mut compiler_errors);
@@ -44,20 +44,26 @@ impl Assembler {
         // println!("{}", ele);
         // }
 
-        println!("Compiled Length: {}", compiled.len());
+        // println!("Compiled Length: {}", compiled.len());
 
         let mut bin: Vec<u8> = Vec::new();
         for token in compiled {
             token.compile_btyes(&mut bin);
-        }
-        for err in &error_list {
-            println!("{}", err);
         }
 
         return Ok((bin, error_list));
     }
     pub fn assemble_file(filename: &str, output: &str, path_to_std: &str) -> Result<(), io::Error> {
         let bin = Self::assemble_file_to_vec(filename, path_to_std)?;
+        if bin.1.len() != 0 {
+            for err in bin.1 {
+                println!("{}", err);
+            }
+            return Err(Error::new(
+                io::ErrorKind::Other,
+                "File contains errors so cannot assemble",
+            ));
+        }
         return Ok(Self::write_file(bin.0, output)?);
     }
     fn write_file(binary: Vec<u8>, output: &str) -> Result<(), io::Error> {

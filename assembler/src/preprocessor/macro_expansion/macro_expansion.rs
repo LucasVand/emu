@@ -12,7 +12,7 @@ pub struct MacroExpansion {}
 impl MacroExpansion {
     pub fn expand_macro(
         iter: &mut Peekable<vec::IntoIter<Token>>,
-        inital_token: &Token,
+        inital_token: Token,
         macro_list: &Vec<MacroDefinition>,
     ) -> Result<Vec<Token>, PreprocessorError> {
         let mut parameter_list: Vec<Token> = Vec::new();
@@ -61,10 +61,21 @@ impl MacroExpansion {
         let macro_def = macro_def.unwrap();
 
         // create the expansion
-        let expansion_tokens = macro_def.value.clone();
+        let mut expansion_tokens = macro_def.value.clone().into_iter().peekable();
 
-        for token in expansion_tokens {
-            if token.kind == TokenType::Expression {
+        while let Some(token) = expansion_tokens.next() {
+            if token.kind == TokenType::MacroMnemonic {
+                if token.token == macro_def.label {
+                    return Err(PreprocessorError::new(
+                        token.token_info,
+                        PreprocessorErrorType::InfiniteRecursionMacro,
+                    ));
+                } else {
+                    let mut expansion =
+                        Self::expand_macro(&mut expansion_tokens, token, &macro_list)?;
+                    new_token_list.append(&mut expansion)
+                }
+            } else if token.kind == TokenType::Expression {
                 let mut new_token = token;
                 for index in 0..macro_def.parameters.len() {
                     let param = &macro_def.parameters[index];

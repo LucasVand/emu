@@ -17,12 +17,20 @@ fn main() {
         println!("Something went wrong");
         return;
     }
+    let bin = bin.unwrap();
+
+    if bin.1.len() != 0 {
+        for err in bin.1 {
+            println!("{}", err);
+        }
+        return;
+    }
 
     println!("Creating Emulator");
     let mut emu = Emulator::new();
 
     println!("Loading Binary");
-    emu.load_binary_vec(&bin.unwrap().0);
+    emu.load_binary_vec(&bin.0);
 
     println!("Running");
     emu.start(true);

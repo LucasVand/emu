@@ -44,17 +44,27 @@ impl Display for dyn AssemblerError {
         let message = self.error();
         let info = self.info();
 
+        // get the line number string
+        let line_num_str = info.line_num.to_string();
+        // get the prefix for all lines
+        let mut prefix: String = "|".blue().to_string();
+        for _ in 0..(line_num_str.len() + 1) {
+            prefix.insert(0, ' ');
+        }
+
         let type_str = error_type.to_string().red();
         let message_str = message.to_string();
         writeln!(f, "{}: {}", type_str, message_str)?;
 
         // second line
         let line_str = format!("-> Line: {}", info.line_num).red();
-        writeln!(f, "  | {}", line_str)?;
+        writeln!(f, "{} {}", prefix, line_str)?;
 
-        writeln!(f, "  |")?;
+        writeln!(f, "{}", prefix)?;
         //third
-        writeln!(f, "{} | {}", info.line_num, info.line)?;
+        let mut line_num_blue_str = line_num_str;
+        line_num_blue_str.push_str(" |");
+        writeln!(f, "{} {}", &line_num_blue_str.blue(), info.line)?;
 
         //forth
         if let Some(index) = info.line.find(&info.token) {
@@ -67,14 +77,14 @@ impl Display for dyn AssemblerError {
             }
             spot_str.push_str(&format!("\"{}\"", &info.token));
 
-            writeln!(f, "  | {}", spot_str.red())?;
+            writeln!(f, "{} {}", prefix, spot_str.red())?;
         }
-        writeln!(f, "  | ")?;
+        writeln!(f, "{}", prefix)?;
 
         if let Some(fix) = self.fix() {
             // fifth
             let fix_str = format!("Fix: {}", &fix).green();
-            writeln!(f, "  | {}", fix_str)?;
+            writeln!(f, "{} {}", prefix, fix_str)?;
         }
 
         return Ok(());

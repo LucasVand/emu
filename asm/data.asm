@@ -1,14 +1,17 @@
-@define thing 
-@define 10
 @macro 
 HALT:
   orr f, 1
 @end
 
-mov y, 2
 
-mov a, 2
+mov b, 100
 
-HALT
+MOV_HALT
 
-and a, 5
+
+@macro
+MOV_HALT:
+  mov a, 10
+  MOV_HALT
+  HALT
+@end

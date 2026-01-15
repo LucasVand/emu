@@ -24,7 +24,7 @@ impl MacroPreprocessing {
         while let Some(token) = iter.next() {
             // if macro then we need to expand
             if token.kind == TokenType::MacroMnemonic {
-                let expansion = MacroExpansion::expand_macro(&mut iter, &token, &macro_list);
+                let expansion = MacroExpansion::expand_macro(&mut iter, token, &macro_list);
                 match expansion {
                     Ok(mut expand) => new_token_list.append(&mut expand),
                     Err(err) => error_list.push(err),
