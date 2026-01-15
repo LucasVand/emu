@@ -1,21 +1,20 @@
+use crate::compile::compile_error::CompilerError;
+use crate::compile::compile_error::CompilerErrorType;
 use crate::compile::expression_compiler::expression_solver::ExpressionSolver;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
 use std::iter::Peekable;
+use std::vec;
 
-use crate::{
-    compile::{compiled_token::CompiledToken, parse_literal::ParseLiteral},
-    utils::logging::Logging,
-};
+use crate::compile::{compiled_token::CompiledToken, parse_literal::ParseLiteral};
 
 pub struct DataCompiler {}
 
 impl DataCompiler {
-    pub fn compile_data<'a>(
-        iter: &mut Peekable<impl Iterator<Item = &'a Token>>,
-        inital_token: &Token,
-        compiled: &mut Vec<CompiledToken>,
-    ) {
+    pub fn compile_data(
+        iter: &mut Peekable<vec::IntoIter<Token>>,
+        inital_token: Token,
+    ) -> (Vec<CompiledToken>, Vec<CompilerError>) {
         let mut data_items: Vec<Token> = Vec::new();
 
         while let Some(curr) = iter.peek() {
@@ -27,41 +26,50 @@ impl DataCompiler {
         }
 
         if inital_token.kind == TokenType::WordDataDefineKeyword {
-            Self::compile_word(compiled, &data_items);
-            return;
+            return Self::compile_word(data_items);
         }
         if inital_token.kind == TokenType::DoubleWordDataDefineKeyword {
-            Self::compile_double_word(compiled, &data_items);
-            return;
+            return Self::compile_double_word(data_items);
         }
         if inital_token.kind == TokenType::StringDataDefineKeyword {
-            Self::compile_string(compiled, &data_items);
-            return;
+            return Self::compile_string(data_items);
         }
         if inital_token.kind == TokenType::SpaceDataDefineKeyword {
-            Self::compile_space(compiled, &data_items);
-            return;
+            return Self::compile_space(data_items);
         }
-        Logging::log_compiler_error_info("expected a data definition", &inital_token.token_info);
+        return (
+            Vec::new(),
+            vec![CompilerError::new(
+                inital_token.token_info,
+                CompilerErrorType::ExpectedDataDefinition,
+            )],
+        );
     }
-    fn compile_space(compiled: &mut Vec<CompiledToken>, data_items: &Vec<Token>) {
+
+    fn compile_space(data_items: Vec<Token>) -> (Vec<CompiledToken>, Vec<CompilerError>) {
         let mut size = 0;
-        let info = &data_items[0].token_info;
+        let mut compiled = Vec::new();
+        let info = data_items[0].token_info.clone();
+
         for item in data_items {
             let lit;
             if item.kind == TokenType::Expression {
-                lit = ExpressionSolver::solve(item) as usize as u16;
+                lit = ExpressionSolver::solve(&item) as usize as u16;
             } else {
-                lit = ParseLiteral::parse_u16(item);
+                lit = ParseLiteral::parse_u16(&item);
             }
             size += lit;
         }
 
         for _ in 0..size {
-            compiled.push(CompiledToken::create_word(0, info));
+            compiled.push(CompiledToken::create_word(0, info.clone()));
         }
+        return (compiled, Vec::new());
     }
-    fn compile_string(compiled: &mut Vec<CompiledToken>, data_items: &Vec<Token>) {
+    fn compile_string(data_items: Vec<Token>) -> (Vec<CompiledToken>, Vec<CompilerError>) {
+        let mut compiled = Vec::new();
+        let mut error_list = Vec::new();
+
         for ele in data_items {
             if TokenType::String == ele.kind {
                 let quotes = &ele.token;
@@ -71,8 +79,17 @@ impl DataCompiler {
                     .strip_suffix("\"")
                     .unwrap();
                 for ch in remove_quotes.chars() {
-                    let lit = ch as u8;
-                    compiled.push(CompiledToken::create_word(lit, &ele.token_info));
+                    let mut info = ele.token_info.clone();
+                    info.token = ch.to_string();
+                    if ch as usize > 255 {
+                        error_list.push(CompilerError::new(
+                            info,
+                            CompilerErrorType::CharacterIsNotValidASCII,
+                        ))
+                    } else {
+                        let lit = ch as u8;
+                        compiled.push(CompiledToken::create_word(lit, info));
+                    }
                 }
 
                 // look at the last added byte
@@ -80,65 +97,76 @@ impl DataCompiler {
                     if let CompiledToken::Binary { byte, info } = last {
                         let ch = *byte as char;
                         if ch != '\0' {
-                            compiled.push(CompiledToken::create_word('\0' as u8, &info));
+                            compiled.push(CompiledToken::create_word('\0' as u8, info.clone()));
                         }
                     }
                 }
             } else {
-                Logging::log_compiler_error_info("expected a string", &ele.token_info);
+                error_list.push(CompilerError::new(
+                    ele.token_info,
+                    CompilerErrorType::ExpectedString,
+                ));
             }
         }
+        return (compiled, error_list);
     }
-    fn compile_double_word(compiled: &mut Vec<CompiledToken>, data_items: &Vec<Token>) {
+    fn compile_double_word(data_items: Vec<Token>) -> (Vec<CompiledToken>, Vec<CompilerError>) {
+        let mut compiled = Vec::new();
+        let mut error_list = Vec::new();
         for ele in data_items {
             if TokenType::Label == ele.kind {
-                compiled.push(CompiledToken::create_label(&ele.token, &ele.token_info));
+                compiled.push(CompiledToken::create_label(ele.token, ele.token_info));
             } else if TokenType::LITERALS.contains(&ele.kind)
                 && ![TokenType::String].contains(&ele.kind)
             {
                 if TokenType::Expression == ele.kind {
                     compiled.push(CompiledToken::create_expression(
-                        &ele.token,
+                        ele.token,
                         true,
-                        &ele.token_info,
+                        ele.token_info,
                     ));
                 } else {
                     let doubleword = ParseLiteral::parse_u16(&ele);
-                    let byte3 = doubleword as u8;
-                    let byte2 = (doubleword >> 8) as u8;
-
-                    compiled.push(CompiledToken::create_word(byte2, &ele.token_info));
-                    compiled.push(CompiledToken::create_word(byte3, &ele.token_info));
+                    compiled.push(CompiledToken::create_double_word(
+                        doubleword,
+                        ele.token_info,
+                    ));
                 }
             } else {
-                Logging::log_compiler_error_info(
-                    "unable to parse double word this data item",
-                    &ele.token_info,
-                );
+                error_list.push(CompilerError::new(
+                    ele.token_info,
+                    CompilerErrorType::CannotParseIntoWord,
+                ));
             }
         }
+        return (compiled, error_list);
     }
-    fn compile_word(compiled: &mut Vec<CompiledToken>, data_items: &Vec<Token>) {
+    fn compile_word(data_items: Vec<Token>) -> (Vec<CompiledToken>, Vec<CompilerError>) {
+        let mut compiled = Vec::new();
+        let mut errors = Vec::new();
+
         for ele in data_items {
+            // is a literal but not a string or label
             if TokenType::LITERALS.contains(&ele.kind)
                 && ![TokenType::Label, TokenType::String].contains(&ele.kind)
             {
                 if TokenType::Expression == ele.kind {
                     compiled.push(CompiledToken::create_expression(
-                        &ele.token,
+                        ele.token,
                         false,
-                        &ele.token_info,
+                        ele.token_info,
                     ));
                 } else {
-                    let byte = ParseLiteral::parse_u8(ele);
-                    compiled.push(CompiledToken::create_word(byte, &ele.token_info));
+                    let byte = ParseLiteral::parse_u8(&ele);
+                    compiled.push(CompiledToken::create_word(byte, ele.token_info));
                 }
             } else {
-                Logging::log_compiler_error_info(
-                    "unable to parse this word data item",
-                    &ele.token_info,
-                );
+                errors.push(CompilerError::new(
+                    ele.token_info,
+                    CompilerErrorType::CannotParseIntoWord,
+                ));
             }
         }
+        return (compiled, errors);
     }
 }

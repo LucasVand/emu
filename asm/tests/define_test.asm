@@ -12,10 +12,10 @@ ASSERT a, num_test
 mov a, hex_test
 ASSERT a, hex_test
 
-mob a, bin_test
+mov a, bin_test
 ASSERT a, bin_test
 
-mob a, char_test
+mov a, char_test
 ASSERT a, char_test
 
 COMPLETE_TESTS

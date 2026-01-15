@@ -3,6 +3,7 @@ use std::iter::Peekable;
 
 use crate::{
     compile::{
+        compile_error::CompilerError,
         compiled_token::CompiledToken,
         expression_compiler::{
             ast_node::{ASTBinary, ASTBinaryOp, ASTLiteral, ASTNode, ASTUnary, ASTUnaryOp},
@@ -37,7 +38,12 @@ impl ExpressionSolver {
         }
     }
     // TODO: add logical operators and or xor
-    pub fn sub_expressions<'a>(compiled: &mut Vec<CompiledToken>) {
+    // migrate to its own lib and its own error system
+    pub fn sub_expressions(
+        compiled: Vec<CompiledToken>,
+    ) -> (Vec<CompiledToken>, Vec<CompilerError>) {
+        let error_list = Vec::new();
+        let mut new_token_list = Vec::new();
         for token in compiled {
             if let CompiledToken::Expression {
                 expr,
@@ -47,23 +53,27 @@ impl ExpressionSolver {
             {
                 let expr = expr
                     .strip_prefix("[")
-                    .unwrap_or(expr)
+                    .unwrap_or(&expr)
                     .strip_suffix("]")
-                    .unwrap_or(expr);
+                    .unwrap_or(&expr);
 
-                let tokens = ExpressionToken::tokenize_expression(expr, info);
+                let tokens = ExpressionToken::tokenize_expression(expr, &info);
                 let ast = Self::parse_expression(&mut tokens.iter().peekable(), 0);
                 let value = ast.solve();
 
-                if *double_word {
+                if double_word {
                     let double = value as u16;
-                    *token = CompiledToken::create_double_word(double, info);
+                    new_token_list.push(CompiledToken::create_double_word(double, info));
                 } else {
                     let single = value as u8;
-                    *token = CompiledToken::create_word(single, info);
+                    new_token_list.push(CompiledToken::create_word(single, info));
                 }
+            } else {
+                new_token_list.push(token);
             }
         }
+
+        return (new_token_list, error_list);
     }
     pub fn parse_expression<'a>(
         tokens: &mut Peekable<impl Iterator<Item = &'a ExpressionToken>>,

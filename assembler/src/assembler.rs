@@ -10,7 +10,10 @@ use crate::{
 pub struct Assembler {}
 
 impl Assembler {
-    pub fn assemble_file_to_vec(filename: &str, path_to_std: &str) -> Result<Vec<u8>, io::Error> {
+    pub fn assemble_file_to_vec(
+        filename: &str,
+        path_to_std: &str,
+    ) -> Result<(Vec<u8>, Vec<Box<dyn AssemblerError>>), io::Error> {
         let contents = fs::read_to_string(filename)?;
         let mut error_list: Vec<Box<dyn AssemblerError>> = Vec::new();
 
@@ -29,10 +32,16 @@ impl Assembler {
 
         error_list.append(&mut preprocessor_errors);
 
-        let compiled = Compile::compile(&preprocessed);
+        for ele in &preprocessed {
+            println!("{}", ele);
+        }
+
+        let (compiled, mut compiler_errors) = Compile::compile(preprocessed);
+
+        error_list.append(&mut compiler_errors);
 
         // for ele in &compiled {
-        //     println!("{}", ele);
+        // println!("{}", ele);
         // }
 
         println!("Compiled Length: {}", compiled.len());
@@ -41,17 +50,17 @@ impl Assembler {
         for token in compiled {
             token.compile_btyes(&mut bin);
         }
-        for err in error_list {
+        for err in &error_list {
             println!("{}", err);
         }
 
-        return Ok(bin);
+        return Ok((bin, error_list));
     }
     pub fn assemble_file(filename: &str, output: &str, path_to_std: &str) -> Result<(), io::Error> {
         let bin = Self::assemble_file_to_vec(filename, path_to_std)?;
-        return Ok(Self::write_file(&bin, output)?);
+        return Ok(Self::write_file(bin.0, output)?);
     }
-    fn write_file(binary: &Vec<u8>, output: &str) -> Result<(), io::Error> {
+    fn write_file(binary: Vec<u8>, output: &str) -> Result<(), io::Error> {
         fs::write(output, binary)
     }
 }

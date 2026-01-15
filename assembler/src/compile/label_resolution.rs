@@ -17,14 +17,14 @@ impl Display for CompilerLabel {
 
 impl LabelResolution {
     pub fn create_compiler_label(
-        inital_token: &Token,
+        inital_token: Token,
         compiled: &Vec<CompiledToken>,
     ) -> CompilerLabel {
         let value = Self::find_addr(compiled);
 
         CompilerLabel {
             value: value as u16,
-            label: inital_token.token.to_string(),
+            label: inital_token.token,
         }
     }
     fn find_addr(compiled: &Vec<CompiledToken>) -> usize {

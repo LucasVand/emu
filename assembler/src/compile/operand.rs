@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
-use crate::utils::logging::Logging;
+use crate::compile::compile_error::CompilerError;
+use crate::compile::compile_error::CompilerErrorType;
 use crate::utils::token::Token;
 use crate::utils::token::TokenType;
 use common::instruction::Instruction;
@@ -12,7 +13,7 @@ pub enum Operand {
     Register { is_addr: bool },
 }
 impl Operand {
-    pub fn check_operands(inst_token: &Token, operands: &Vec<Token>) -> bool {
+    pub fn check_operands(inst_token: &Token, operands: &Vec<Token>) -> Result<(), CompilerError> {
         let operands_vec: Vec<Operand> = operands
             .iter()
             .map(|token| {
@@ -22,27 +23,27 @@ impl Operand {
         let requirements = Self::inst_requirements(&inst_token);
 
         if operands_vec.len() != requirements.len() {
-            Logging::log_compiler_error_info(
-                &format!(
-                    "incorrect number of operands, expected {} but found {}",
-                    requirements.len(),
-                    operands_vec.len()
-                ),
-                &inst_token.token_info,
-            );
-            return false;
+            return Err(CompilerError::new(
+                inst_token.token_info.clone(),
+                CompilerErrorType::IncorrectNumberOfOperands {
+                    found: operands_vec.len(),
+                    expected: requirements.len(),
+                },
+            ));
         }
 
         for i in 0..requirements.len() {
             if !requirements[i].equivalent(&operands_vec[i]) {
-                Logging::log_compiler_error_info(
-                    "incorrect operand found",
-                    &operands[i].token_info,
-                );
-                return false;
+                return Err(CompilerError::new(
+                    operands[i].token_info.clone(),
+                    CompilerErrorType::IncorrectOperandFound {
+                        found: operands_vec[i].clone(),
+                        expected: requirements[i].clone(),
+                    },
+                ));
             }
         }
-        return true;
+        return Ok(());
     }
     pub fn token_to_operand(token: &Token) -> Operand {
         if TokenType::Register == token.kind {
@@ -180,7 +181,6 @@ impl Operand {
             return true;
         }
 
-        println!("False Self: {}, Other: {}", self, other);
         return false;
     }
     pub fn is_addr(&self) -> bool {
@@ -199,6 +199,30 @@ impl Operand {
 }
 impl Display for Operand {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        let msg: &str = match self {
+            Self::Both { is_addr } => {
+                if *is_addr {
+                    "Register Pair or Literal Address"
+                } else {
+                    "Register or Literal"
+                }
+            }
+            Self::Literal { is_addr } => {
+                if *is_addr {
+                    "Literal Address"
+                } else {
+                    "Literal"
+                }
+            }
+            Self::Register { is_addr } => {
+                if *is_addr {
+                    "Register Pair"
+                } else {
+                    "Register"
+                }
+            }
+        };
+
+        write!(f, "{}", msg)
     }
 }

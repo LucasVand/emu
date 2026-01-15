@@ -22,7 +22,7 @@ fn main() {
     let mut emu = Emulator::new();
 
     println!("Loading Binary");
-    emu.load_binary_vec(&bin.unwrap());
+    emu.load_binary_vec(&bin.unwrap().0);
 
     println!("Running");
     emu.start(true);

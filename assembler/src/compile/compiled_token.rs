@@ -25,33 +25,33 @@ pub enum CompiledToken {
 }
 impl CompiledToken {
     pub fn create_expression(
-        expression: &str,
+        expression: String,
         double_word: bool,
-        info: &TokenInfo,
+        info: TokenInfo,
     ) -> CompiledToken {
         CompiledToken::Expression {
-            expr: expression.to_string(),
-            info: info.clone(),
+            expr: expression,
+            info: info,
             double_word: double_word,
         }
     }
-    pub fn create_label(label: &str, info: &TokenInfo) -> CompiledToken {
+    pub fn create_label(label: String, info: TokenInfo) -> CompiledToken {
         CompiledToken::Label {
-            name: label.to_string(),
-            info: info.clone(),
+            name: label,
+            info: info,
         }
     }
-    pub fn create_word(value: u8, info: &TokenInfo) -> CompiledToken {
+    pub fn create_word(value: u8, info: TokenInfo) -> CompiledToken {
         CompiledToken::Binary {
             byte: value,
-            info: info.clone(),
+            info: info,
         }
     }
-    pub fn create_double_word(value: u16, info: &TokenInfo) -> CompiledToken {
+    pub fn create_double_word(value: u16, info: TokenInfo) -> CompiledToken {
         CompiledToken::DoubleWord {
             byte1: (value >> 8) as u8,
             byte2: (value as u8),
-            info: info.clone(),
+            info: info,
         }
     }
     pub fn compile_btyes(&self, bytes: &mut Vec<u8>) {

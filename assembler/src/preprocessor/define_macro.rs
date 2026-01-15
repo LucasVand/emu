@@ -117,7 +117,8 @@ impl DefineMacro {
             definition.value.clone()
         };
 
-        return Ok(Token::new(new_value, token.kind, token.token_info));
+        let new_token = Token::new(new_value, definition.value_kind.clone(), token.token_info);
+        return Ok(new_token);
     }
     fn remove_definition<'a>(
         iter: &mut Peekable<vec::IntoIter<Token>>,

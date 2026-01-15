@@ -1,6 +1,3 @@
-lda [main]
-jnz 1
-
 @include <testing.asm>
 
 @macro

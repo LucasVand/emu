@@ -13,15 +13,24 @@ mod emulator_tests {
     use crate::emulator::Emulator;
 
     fn test_file(file: &str) {
-        let bin =
+        let binary =
             Assembler::assemble_file_to_vec(&format!("../asm/tests/{}.asm", file), "../asm/std");
 
-        if bin.is_err() {
-            panic!("unable to assemble file, Error: {}", bin.unwrap_err());
+        if binary.is_err() {
+            let err = binary.err().unwrap();
+            panic!("unable to assemble file, Error: {}", err);
         }
+        let binary = binary.unwrap();
+        if binary.1.len() != 0 {
+            for err in binary.1 {
+                println!("{}", err);
+            }
+            panic!("Could not test because file contains errors");
+        }
+
         let mut emu = Emulator::new();
 
-        let res = emu.load_binary_vec(&bin.unwrap());
+        let res = emu.load_binary_vec(&binary.0);
         if !res {
             panic!("unable to load data_test");
         }

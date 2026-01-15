@@ -62,7 +62,7 @@ impl PreprocessorError {
 }
 impl AssemblerError for PreprocessorError {
     fn stage(&self) -> AssemblerStage {
-        return AssemblerStage::Lexer;
+        return AssemblerStage::Preprocessor;
     }
     fn fix(&self) -> Option<String> {
         return None;

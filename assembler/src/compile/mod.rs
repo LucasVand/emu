@@ -1,4 +1,5 @@
 pub mod compile;
+pub mod compile_error;
 pub mod compiled_token;
 pub mod data_compiler;
 pub mod expression_compiler;
