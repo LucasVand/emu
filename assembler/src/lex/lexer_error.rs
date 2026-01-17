@@ -7,6 +7,7 @@ use crate::utils::{
 
 #[derive(Debug, Clone)]
 pub enum LexerErrorType {
+    TokenDoesNotMatch,
     LineDoesNotMatch,
     ExpectedMacroDefineKeyword,
     ExpectedMacroLabel,
@@ -30,6 +31,7 @@ impl Error for LexerErrorType {}
 impl Display for LexerErrorType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let msg = match self {
+            Self::TokenDoesNotMatch => "Token does not match",
             Self::LineDoesNotMatch => "Line does not match any known expression",
             Self::ExpectedMacroDefineKeyword => "Expected macro define keyword",
             Self::ExpectedMacroLabel => "Expected macro label",

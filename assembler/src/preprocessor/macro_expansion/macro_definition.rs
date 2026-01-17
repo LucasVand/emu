@@ -86,16 +86,16 @@ impl MacroDefinition {
         token: Token,
         iter: &mut vec::IntoIter<Token>,
     ) -> Result<MacroDefinition, PreprocessorError> {
-        let macro_def = iter.next();
+        let macro_mnemonic = iter.next();
 
-        if macro_def.is_none() {
+        if macro_mnemonic.is_none() {
             return Err(PreprocessorError::new(
                 token.token_info.clone(),
                 PreprocessorErrorType::ExpectedMacroDefinitinMnemonic,
             ));
         }
 
-        let macro_def = macro_def.unwrap();
+        let macro_def = macro_mnemonic.unwrap();
 
         if macro_def.kind != TokenType::MacroDefinitionMnemonic {
             return Err(PreprocessorError::new(

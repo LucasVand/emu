@@ -1,41 +1,37 @@
-use crate::lex::lexer_error::LexerError;
-use crate::lex::lexer_error::LexerErrorType;
-use crate::utils::token::Token;
-use crate::utils::token::TokenType;
-use crate::utils::token_info::TokenInfo;
-use regex::Regex;
+use crate::{
+    lex::lexer::Lexer,
+    utils::token::{Token, TokenType},
+};
 
 pub struct MacroLexer {}
 
 impl MacroLexer {
-    const REGEX_EXPRESSION: &'static str = r"^@macro\s*$";
-    const END_REGEX_EXPRESSION: &'static str = r"^@end\s*$";
-
-    pub fn check_line(line: &str) -> bool {
-        return Regex::new(Self::REGEX_EXPRESSION).unwrap().is_match(line)
-            || Regex::new(Self::END_REGEX_EXPRESSION)
-                .unwrap()
-                .is_match(line);
-    }
-
-    pub fn parse_line(line: &str, line_num: usize) -> Result<Vec<Token>, LexerError> {
-        // checks if its a @macro or @end line
-        if line != "@macro" && line != "@end" {
-            return Err(LexerError::new(
-                TokenInfo::new(line, line, line_num, "none"),
-                LexerErrorType::ExpectedMacroDefineKeyword,
-            ));
+    const MACRO_PARAMETER: &'static str = r"^%[xri][0-9]*$";
+    pub fn parse(
+        token: &str,
+        next: char,
+        _line_num: usize,
+        parsed_tokens: &Vec<Token>,
+    ) -> Option<TokenType> {
+        let token = token.trim();
+        if !Lexer::SEPERATOR_CHARS.contains(next) {
+            return None;
         }
-        // gets the token type for it
-        let token_type = if line != "@macro" {
-            TokenType::EndKeyword
-        } else {
-            TokenType::MacroKeyword
-        };
 
-        let info = TokenInfo::new(line, line, line_num, "macro_lexer");
-        let token = Token::new(line.to_string(), token_type, info);
+        if Lexer::regex_match(Self::MACRO_PARAMETER, Lexer::remove_square_brackets(token)) {
+            if let Some(last) = parsed_tokens.last() {
+                return match last.kind {
+                    TokenType::MacroDefinitionParameter => {
+                        Some(TokenType::MacroDefinitionParameter)
+                    }
+                    TokenType::MacroDefinitionMnemonic => Some(TokenType::MacroDefinitionParameter),
+                    _ => Some(TokenType::MacroParameter),
+                };
+            } else {
+                return Some(TokenType::MacroParameter);
+            }
+        }
 
-        return Ok(vec![token]);
+        return None;
     }
 }

@@ -1,9 +1,10 @@
+pub mod comment_lexer;
 pub mod constant_lexer;
-pub mod data_lexer;
-pub mod define_lexer;
-pub mod instruction_lexer;
-pub mod label_lexer;
+pub mod expression_lexer;
+pub mod identifier_lexer;
+pub mod keyword_lexer;
 pub mod lexer;
 pub mod lexer_error;
 pub mod macro_lexer;
-pub mod marco_definition_lexer;
+pub mod register_lexer;
+pub mod single_lexer;

@@ -8,8 +8,10 @@ pub mod registers;
 #[cfg(test)]
 mod emulator_tests {
 
+    // TODO: create script that will generate all the tests, like it modifies this file
+    // and adds all the test functions based on the file system
     use std::{
-        fs::{self, FileType},
+        fs::{self},
         io,
     };
 
@@ -33,7 +35,9 @@ mod emulator_tests {
                         if file_type.is_dir() {
                             test_all(path)?;
                         } else {
-                            test_file(path);
+                            if path.ends_with(".asm") {
+                                test_file(path);
+                            }
                         }
                     }
                 }

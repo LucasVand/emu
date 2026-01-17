@@ -36,7 +36,7 @@ impl Includes {
                     Ok((import_value, path)) => {
                         // if the import has already been resolved
                         if resolved_imports.contains(&path) {
-                            let info = TokenInfo::new(line, &path, index, "Import");
+                            let info = TokenInfo::new(line, &path, index, "Import", false);
 
                             errors
                                 .push(IncludeError::new(info, IncludeErrorType::DuplicateImports));
@@ -78,7 +78,7 @@ impl Includes {
         let is_std = Regex::new(Self::STD_EXPRESSION).unwrap().is_match(path);
 
         // create the debugging token info
-        let info = TokenInfo::new(line, path, line_num, "Include");
+        let info = TokenInfo::new(line, path, line_num, "Include", false);
 
         if is_std {
             let trimmed_path = path

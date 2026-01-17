@@ -36,6 +36,13 @@ impl Display for Token {
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum TokenType {
+    EOF,
+    SingleChar,
+    Comment,
+
+    IncludeKeyword,
+    STDImportPath,
+
     Mnemonic,
     MacroMnemonic,
     Register,

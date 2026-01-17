@@ -6,16 +6,19 @@
 @define char_test 'c'
 
 main:
-mov a, num_test
-ASSERT a, num_test
+mov a, num_test ; a
+ASSERT a, num_test ; b
 
-mov a, hex_test
-ASSERT a, hex_test
+mov a, hex_test ; c
+ASSERT a, hex_test ; d
 
-mov a, bin_test
-ASSERT a, bin_test
+mov a, bin_test ; e
+ASSERT a, bin_test ; f
 
-mov a, char_test
-ASSERT a, char_test
+mov a, char_test ; h
+ASSERT a, char_test ; i
+
+
+
 
 COMPLETE_TESTS

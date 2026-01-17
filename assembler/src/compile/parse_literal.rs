@@ -48,12 +48,14 @@ impl ParseLiteral {
             value = Some(char as u64);
         } else if token.kind == TokenType::Hex {
             let hex = token_str.strip_prefix("0x").unwrap_or(token_str);
-            let base64 = u64::from_str_radix(hex, 16).expect("this should be valid");
+            let base64 = u64::from_str_radix(hex, 16)
+                .expect(&format!("This should be valid Hex: {}", &token));
 
             value = Some(base64 as u64);
         } else if token.kind == TokenType::Binary {
             let bin = token_str.strip_prefix("0b").unwrap_or(token_str);
-            let base64 = u64::from_str_radix(bin, 2).expect("this should be valid");
+            let base64 = u64::from_str_radix(bin, 2)
+                .expect(&format!("This should be valid Binary: {}", &token));
 
             value = Some(base64);
         } else {
