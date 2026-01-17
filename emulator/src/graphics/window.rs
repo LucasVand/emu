@@ -103,14 +103,14 @@ impl eframe::App for EmulatorWindow {
     }
 }
 
-pub fn create_window(mut emu: Emulator) -> eframe::Result {
+pub fn create_window(mut emu: Emulator, print_regs: bool) -> eframe::Result {
     let app = EmulatorWindow::new();
     let buf_clone = Arc::clone(&app.vram);
     let mem_clone = Arc::clone(&app.mem);
     let controller_clone = Arc::clone(&app.controller);
     thread::spawn(move || {
         loop {
-            emu.cycle(true);
+            emu.cycle(print_regs);
             buf_clone.write(|f| {
                 f.copy_from_slice(&mut emu.memory.banks[1]);
             });
@@ -120,7 +120,7 @@ pub fn create_window(mut emu: Emulator) -> eframe::Result {
             let contr = controller_clone.load_full();
             emu.memory[0xFFFB] = contr.byte;
 
-            if emu.registers.is_halted() {
+            if emu.memory.is_halted() {
                 break;
             }
         }

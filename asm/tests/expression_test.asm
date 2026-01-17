@@ -1,10 +1,14 @@
+@include <testing.asm>
+@define start_address 15
+
+main:
 mov a, ($) ; 2 bytes
 mov b, ($) ; 2 bytes
 ldr d, [0x0000] ; 3 bytes
 mov c, ($) ; 2 bytes
-ASSERT a, 0
-ASSERT b, 2
-ASSERT c, 7
+ASSERT a, (0+start_address)
+ASSERT b, (2+start_address)
+ASSERT c, (7+start_address)
 
 
 mov a, (10 + 10)
@@ -43,25 +47,7 @@ ASSERT a, -24
 mov a, (-20 - -4)
 ASSERT a, -16
 
-
-
-mov a, 0
-
-orr f, 1
+COMPLETE_TESTS
 
 
 
-@macro
-ASSERT %r0, %i1:
-  cmp %r0, %i1
-  mov z, f 
-  nor z, z
-  and z, 0x40
-  lda [fail]
-  jnz z 
-  add d, 1
-@end
-
-fail:
-  mov a, 1
-  orr f, 1 

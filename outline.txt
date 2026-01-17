@@ -56,7 +56,7 @@ F (7): flags (LSB to MSB)
     OVERFLOW
     N 
     N
-    HALT
+    N
 
 * Calling convention
     * A, B, C, D, Z for arguments
@@ -84,12 +84,23 @@ Z: 3-bit register identifier of first register argument (see REGISTERS)
 0x8000..0xBFFF: GENERAL PURPOSE RAM (BANKED)
 0xC000..0xFDFF: GENERAL PURPOSE RAM
 0xFC00..0xFEFF: STACK (RECOMMENDED), else GP RAM
-0xFF00..0xFFF7: GENERAL PURPOSE RAM
-0xFFF9..0xFFF8: Debug location
+0xFF00..0xFFF8: GENERAL PURPOSE RAM
+0xFFF9..0xFFF9: Additional Flags 
 0xFFFA..0xFFFA: MB/(M)emory (B)ank
 0xFFFB..0xFFFB: Controller IO
 0xFFFC..0xFFFD: SP/(S)tack (P)ointer
 0xFFFE..0xFFFF: PC/(P)rogram (C)ounter
+
+=== Additional Flags ===
+
+  N 
+  N 
+  N 
+  N 
+  N 
+  N 
+  N 
+  Halt - stopping the cpu
 
 === Controller  ===
   Encoded as one byte as shown

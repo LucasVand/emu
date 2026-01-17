@@ -1,3 +1,6 @@
+@include <testing.asm>
+main:
+
 ldr h, [0xFFFC] ; load stack pointer
 ldr l, [0xFFFD]
 push 6 ; push to stack
@@ -24,21 +27,6 @@ push 2
 pop a 
 ASSERT a, 2
 
+COMPLETE_TESTS
 
 
-mov a, 0
-orr f, 1
-@macro
-ASSERT %r0, %i1:
-  cmp %r0, %i1
-  mov z, f 
-  nor z, z
-  and z, 0x40
-  lda [fail]
-  jnz z 
-  add d, 1
-@end
-
-fail:
-  mov a, 1
-  orr f, 1 

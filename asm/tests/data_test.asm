@@ -24,7 +24,7 @@ ASSERT c, 1  ; test loading from different registers
 
 ldr a, [double_word]
 ldr b, [(double_word + 1)]
-ASSERT_DOUBLE a, b, 300
+ASSERT16 a, b, 300
 
 COMPLETE_TESTS
 

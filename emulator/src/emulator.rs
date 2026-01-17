@@ -62,14 +62,6 @@ impl Emulator {
     pub fn cycle(&mut self, print_reg: bool) {
         let inst = self.memory.load_instruction();
 
-        // prints the regs if the debug flag
-        if self.memory[0xFFF8] != 0 {
-            let value = self.memory[0xFFF8];
-            self.memory[0xFFF8] = 0;
-            println!("PRINT COMMAND, LINE: {}", value);
-            self.print_regs(inst);
-        }
-
         if print_reg {
             self.print_regs(inst);
         }
@@ -84,7 +76,7 @@ impl Emulator {
     }
     pub fn start(&mut self, print_reg: bool) {
         loop {
-            if self.registers.is_halted() {
+            if self.memory.is_halted() {
                 if print_reg {
                     println!("XX {:17} {}", "HAL", self.registers);
                 }

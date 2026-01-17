@@ -8,13 +8,45 @@ pub mod registers;
 #[cfg(test)]
 mod emulator_tests {
 
+    use std::{
+        fs::{self, FileType},
+        io,
+    };
+
     use assembler::assembler::Assembler;
 
     use crate::emulator::Emulator;
 
-    fn test_file(file: &str) {
-        let binary =
-            Assembler::assemble_file_to_vec(&format!("../asm/tests/{}.asm", file), "../asm/std");
+    #[test]
+    fn test_everything() -> Result<(), io::Error> {
+        test_all("../asm/tests")?;
+        return Ok(());
+    }
+
+    fn test_all(dir: &str) -> Result<(), io::Error> {
+        let dir = fs::read_dir(dir)?;
+
+        for item in dir {
+            if let Ok(file) = item {
+                if let Some(path) = file.path().to_str() {
+                    if let Ok(file_type) = file.file_type() {
+                        if file_type.is_dir() {
+                            test_all(path)?;
+                        } else {
+                            test_file(path);
+                        }
+                    }
+                }
+            }
+        }
+
+        return Ok(());
+    }
+
+    fn test_file(path: &str) {
+        println!("------------- Compiling ---------");
+        println!("{}", path);
+        let binary = Assembler::assemble_file_to_vec(path, "../asm/std");
 
         if binary.is_err() {
             let err = binary.err().unwrap();
@@ -27,7 +59,7 @@ mod emulator_tests {
             }
             panic!("Could not test because file contains errors");
         }
-
+        println!("------------- Compiling Complete ---------");
         let mut emu = Emulator::new();
 
         let res = emu.load_binary_vec(&binary.0);
@@ -37,30 +69,5 @@ mod emulator_tests {
         emu.start(false);
 
         assert!(emu.registers.a == 0);
-    }
-    #[test]
-    fn test_define() {
-        test_file("define_test");
-    }
-    #[test]
-    fn test_macros() {
-        test_file("macro_test");
-    }
-    #[test]
-    fn test_stack() {
-        test_file("stack_test");
-    }
-
-    #[test]
-    fn test_data() {
-        test_file("data_test");
-    }
-    #[test]
-    fn test_arithmetic() {
-        test_file("arithmetic_test");
-    }
-    #[test]
-    fn test_expression() {
-        test_file("expression_test");
     }
 }

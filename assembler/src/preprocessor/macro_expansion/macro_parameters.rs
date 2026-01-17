@@ -1,8 +1,9 @@
+use std::fmt::Display;
 use regex::Regex;
 
 use crate::utils::token::{Token, TokenType};
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Debug)]
 pub enum TypedMacroParameter {
     Register,
     Literal,
@@ -10,11 +11,11 @@ pub enum TypedMacroParameter {
 }
 
 impl TypedMacroParameter {
-    pub fn is_equal(self, other: TypedMacroParameter) -> bool {
-        if self == TypedMacroParameter::Both || other == TypedMacroParameter::Both {
+    pub fn is_equal(&self, other: &TypedMacroParameter) -> bool {
+        if *self == TypedMacroParameter::Both || *other == TypedMacroParameter::Both {
             return true;
         }
-        return self == other;
+        return *self == *other;
     }
     const REGISTER_PARAM_EXPRESSION: &'static str = r"%r[0-9]*";
     const BOTH_PARAM_EXPRESSION: &'static str = r"%x[0-9]*";
@@ -56,3 +57,15 @@ impl TypedMacroParameter {
         return Regex::new(expr).unwrap().is_match(haystack);
     }
 }
+impl Display for TypedMacroParameter {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            let msg = match self {
+        
+                Self::Register => "(Register)",
+            Self::Literal => "(Literal)",
+            Self::Both => "(Register or Literal)"
+        };
+
+        write!(f, "{}", msg)
+        }
+    }

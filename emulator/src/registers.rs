@@ -23,9 +23,6 @@ impl Registers {
     pub fn get_hl(&self) -> u16 {
         return ((self.h as u16) << 8) | (self.l as u16);
     }
-    pub fn is_halted(&self) -> bool {
-        return (self.f & 0b00000001) != 0;
-    }
     pub fn update_zero_less(&mut self, value: u8) {
         let signed = value as i8;
         self.set_zero(value == 0);
@@ -51,12 +48,13 @@ impl Registers {
             let overflow = value1_sign == value2_sign && value1_sign != total_sign;
             self.set_overflow(overflow);
         } else {
-            let (value2_carry, _) = value2.overflowing_add(1);
+            let (value2_carry, _) = value2.overflowing_add(carry);
             // if value1 is less then value2 + c then we underflow
             let res = value1 < value2_carry;
+            self.set_borrow(res);
+
             let (neg, _) = (!value2).overflowing_add(1 - carry);
             let (total, _) = value1.overflowing_add(neg);
-            self.set_borrow(res);
 
             let value1_sign = value1 >> 7;
             let value2_sign = value2 >> 7;

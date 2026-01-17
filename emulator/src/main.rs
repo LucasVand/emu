@@ -24,6 +24,7 @@ fn main() {
     let speed = speed.unwrap();
 
     println!("Creating Emulator");
+    let print_regs = args.contains(&"-p".to_string());
 
     let mut emu = Emulator::new_speed(speed);
 
@@ -32,7 +33,11 @@ fn main() {
         println!("Unable to load file: {}", args[1]);
         return;
     }
-    let _ = graphics::window::create_window(emu);
+    if args.contains(&"-g".to_string()) {
+        let _ = graphics::window::create_window(emu, print_regs);
+    } else {
+        emu.start(print_regs);
+    }
 
     println!("Finished");
 }

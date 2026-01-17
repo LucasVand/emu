@@ -41,6 +41,8 @@ impl Memory {
     pub const PCH: u16 = 0xFFFE;
     pub const PCL: u16 = 0xFFFF;
 
+    pub const ADDITIONAL_FLAG: u16 = 0xFFF9;
+
     pub fn graphics_iter(&self) -> impl Iterator<Item = &u8> {
         return self.banks[1].iter();
     }
@@ -52,6 +54,9 @@ impl Memory {
         let value = ((highbyte as u16) << 8) | (lowbyte as u16);
 
         return value;
+    }
+    pub fn is_halted(&self) -> bool {
+        return self[Self::ADDITIONAL_FLAG] & 1 != 0;
     }
     pub fn decrement_stack(&mut self) {
         let stack = self.get_stack() - 1;

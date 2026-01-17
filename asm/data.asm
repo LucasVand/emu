@@ -1,17 +1,9 @@
-@macro 
-HALT:
-  orr f, 1
-@end
 
+main:
 
-mov b, 100
+mov a, 245
+add a, 245
 
-MOV_HALT
+add b, 255
 
-
-@macro
-MOV_HALT:
-  mov a, 10
-  MOV_HALT
-  HALT
-@end
+HALT

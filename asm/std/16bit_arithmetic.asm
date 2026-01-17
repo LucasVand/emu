@@ -1,9 +1,26 @@
+@macro ; decriment a 16 bit number
+DEC16 %r0, %r1:
+  SUB16 %r0, %r1, 1
+@end
+
+@macro ; deciment a 16 bit number
+INC16 %r0, %r1:
+  ADD16 %r0, %r1, 1
+@end
+
 ; add a literal to 16 bit registers
 @macro
 ADD16 %r0, %r1, %i2:
   add %r1, (%i2)
   adc %r0, (%i2 >> 8)
 @end
+
+@macro
+ADD16 %r0, %r1, %r2:
+  add %r1, %r2
+  adc %r0, 0 
+@end
+
  
 ; add 2 16 bit numbers stored in registers
 @macro
@@ -14,7 +31,7 @@ ADD16 %r0, %r1, %r2, %r3:
 
 ; sub a literal to 16 bit number
 @macro
-SUB16_IMM %r0, %r1, %i2:
+SUB16 %r0, %r1, %i2:
   sub %r1, (%i2)
   sbb %r0, (%i2 >> 8)
 @end
@@ -25,6 +42,12 @@ SUB16 %r0, %r1, %r2, %r3:
   sub %r1, %r3
   sbb %r0, %r2 
 @end
+@macro
+SUB16 %r0, %r1, %r2:
+  sub %r1, %r3
+  sbb %r0, 0 
+@end
+
 
 ; not a 16 bit number
 @macro
@@ -42,7 +65,7 @@ AND16 %r0, %r1, %r2, %r3:
 
 ; and a 16 bit number with a literal
 @macro
-AND16_IMM %r0, %r1, %i2:
+AND16 %r0, %r1, %i2:
   and %r0, (%i2)
   and %r1, (%i2 >> 8)
 @end

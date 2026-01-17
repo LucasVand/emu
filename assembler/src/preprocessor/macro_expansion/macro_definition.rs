@@ -6,7 +6,7 @@ use crate::utils::token_info::TokenInfo;
 use std::fmt::Display;
 use std::vec;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MacroDefinition {
     pub label: String,
     pub parameters: Vec<Token>,
@@ -79,7 +79,6 @@ impl MacroDefinition {
                 new_token_list.push(ele);
             }
         }
-        // TODO: add nested macros
 
         return (macro_list, new_token_list, error_list);
     }
@@ -115,8 +114,12 @@ impl MacroDefinition {
                 ));
             }
             let current = current.unwrap();
-
-            if current.kind == TokenType::MacroDefinitionParameter {
+            if current.kind == TokenType::MacroKeyword {
+                return Err(PreprocessorError::new(
+                    current.token_info,
+                    PreprocessorErrorType::NestedMacros,
+                ));
+            } else if current.kind == TokenType::MacroDefinitionParameter {
                 macro_obj.parameters.push(current.clone());
             } else if current.kind == TokenType::EndKeyword {
                 return Ok(macro_obj);

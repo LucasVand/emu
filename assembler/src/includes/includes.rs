@@ -24,7 +24,6 @@ impl Includes {
         // the new contents
         let mut new_contents = contents.clone();
         // do we have at least one import
-        let mut require_entry_point = false;
         let lines = contents.split("\n");
 
         for (index, line) in lines.enumerate() {
@@ -42,7 +41,6 @@ impl Includes {
                             errors
                                 .push(IncludeError::new(info, IncludeErrorType::DuplicateImports));
                         } else {
-                            require_entry_point = true;
                             new_contents = new_contents.replacen(line, &import_value, 1);
                             resolved_imports.push(path);
                         }
@@ -54,11 +52,6 @@ impl Includes {
                     }
                 }
             }
-        }
-
-        // if we have an import then we must have a main entry point
-        if require_entry_point {
-            new_contents.insert_str(0, "lda [main]\njnz 1\n");
         }
 
         let mapped_err = errors

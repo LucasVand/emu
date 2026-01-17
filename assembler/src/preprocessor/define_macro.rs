@@ -117,7 +117,13 @@ impl DefineMacro {
             definition.value.clone()
         };
 
-        let new_token = Token::new(new_value, definition.value_kind.clone(), token.token_info);
+        let info = token.token_info;
+        let new_token = if token.is_addr {
+            Token::new_address(new_value, definition.value_kind.clone(), info)
+        } else {
+            Token::new(new_value, definition.value_kind.clone(), info)
+        };
+
         return Ok(new_token);
     }
     fn remove_definition<'a>(

@@ -15,12 +15,27 @@ impl Assembler {
         filename: &str,
         path_to_std: &str,
     ) -> Result<(Vec<u8>, Vec<Box<dyn AssemblerError>>), io::Error> {
-        let contents = fs::read_to_string(filename)?;
+        let mut contents = fs::read_to_string(filename)?;
         let mut error_list: Vec<Box<dyn AssemblerError>> = Vec::new();
 
-        let (imports_resolved, mut import_errors) =
+        // if we have an import then we must have a main entry point
+        contents.insert_str(0, "@include <always.asm>\n");
+        contents.insert_str(0, "lda [main]\njnz 1\n");
+
+        let (mut imports_resolved, mut import_errors) =
             Includes::resolve_imports(contents, path_to_std);
         error_list.append(&mut import_errors);
+        while imports_resolved.contains("@include") {
+            let (new_imports, mut new_errors) =
+                Includes::resolve_imports(imports_resolved, path_to_std);
+            imports_resolved = new_imports;
+            error_list.append(&mut new_errors);
+        }
+
+        // let split = imports_resolved.split("\n");
+        // for (index, line) in split.enumerate() {
+        //     println!("Line: {} {}", index, line)
+        // }
 
         let (lexed, mut lexer_errors) = Lexer::parse_str(imports_resolved);
         error_list.append(&mut lexer_errors);
