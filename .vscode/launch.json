@@ -8,9 +8,10 @@
             "type": "lldb-dap",
             "request": "launch",
             "name": "Debug",
-            "program": "${workspaceRoot}/target/debug/run",
+            "program": "${workspaceRoot}/target/debug/assembler",
             "args": [
-                "import_test.asm"
+                "tests/define_test.asm",
+                "def.bin"
             ],
             "env": [],
             "cwd": "${workspaceRoot}"

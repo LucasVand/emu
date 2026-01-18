@@ -56,7 +56,7 @@ impl AssemblerError for IncludeError {
                 return match files {
                     Ok(dir) => {
                         // finds the std that is the closest in spelling
-                        let mut lowest: (usize, String) = (1000, "".to_string());
+                        let mut lowest: (f32, String) = (1000.0, "".to_string());
                         // look over all the std entries
                         for file_name in dir {
                             let dist = LevenshteinDistance::distance(&file_name, &lowest.1);

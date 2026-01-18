@@ -1,4 +1,4 @@
-use std::{fs, io::ErrorKind};
+use std::{fs, io::ErrorKind, sync::LazyLock};
 
 use regex::Regex;
 
@@ -9,9 +9,9 @@ use crate::{
 
 pub struct Includes {}
 
+const IMPORT_EXPRESSION: &'static str = r#"^@include\s*["<].*[">]\s*$"#;
+const STD_EXPRESSION: &'static str = r"<.*>";
 impl Includes {
-    const IMPORT_EXPRESSION: &'static str = r#"^@include\s*["<].*[">]\s*$"#;
-    const STD_EXPRESSION: &'static str = r"<.*>";
     // resolves all imports and returns a new string along with all the errors that occurred
     pub fn resolve_imports(
         contents: String,
@@ -28,7 +28,9 @@ impl Includes {
 
         for (index, line) in lines.enumerate() {
             // if the line is an import
-            if Regex::new(Self::IMPORT_EXPRESSION).unwrap().is_match(&line) {
+            static IMPORT_REGEX: LazyLock<Regex> =
+                LazyLock::new(|| Regex::new(IMPORT_EXPRESSION).unwrap());
+            if IMPORT_REGEX.is_match(&line) {
                 // get the import
                 let resolved_import = Self::resolve_import(line, index, path_to_std);
                 // if its an error add to errors
@@ -75,7 +77,8 @@ impl Includes {
         let path = parts.next().unwrap().trim();
 
         // is this a std import
-        let is_std = Regex::new(Self::STD_EXPRESSION).unwrap().is_match(path);
+        static STD_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(STD_EXPRESSION).unwrap());
+        let is_std = STD_REGEX.is_match(path);
 
         // create the debugging token info
         let info = TokenInfo::new(line, path, line_num, "Include", false);

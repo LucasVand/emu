@@ -48,10 +48,10 @@ impl PreprocessorErrorType {
         def_list: &Vec<MacroDefinition>,
     ) -> PreprocessorErrorType {
         let mut closest_list = Vec::new();
-        let mut smallest = 1000;
+        let mut smallest = 1000.0;
         for def in def_list {
-            let dist = LevenshteinDistance::distance(&def.label, search);
-            if dist == smallest {
+            let dist = LevenshteinDistance::distance_no_case(&def.label, search);
+            if dist == smallest && !closest_list.contains(&def.label) {
                 closest_list.push(def.label.to_string());
             } else if dist < smallest {
                 smallest = dist;
@@ -59,6 +59,7 @@ impl PreprocessorErrorType {
                 closest_list.push(def.label.to_string());
             }
         }
+
         return PreprocessorErrorType::UnableToFindMacroDefinition {
             closest: closest_list,
         };

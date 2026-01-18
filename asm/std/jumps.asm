@@ -12,6 +12,23 @@ JZE %r0:
   JEQ %r0, 0 
 @end
 
+@macro ; jump if zero 16 bit, trashes 
+JZE16 %r0, %r1
+  cmp %r0, 0
+  mov z, f
+  cmp %r1, 0
+  and f, z
+  and f, 0b01000000
+  jnz f
+@end
+
+@macro ; jump if not zero
+JNZ16 %r0, %r1:
+  jnz %r0
+  jnz %r1
+@end
+
+
 @macro ; jump not equal
 JNE %r0, %x1:
   cmp %r0, %x1 

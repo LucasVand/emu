@@ -23,7 +23,8 @@ impl LabelCompiler {
                     .strip_suffix("]")
                     .unwrap_or(&name)
                     .strip_prefix("[")
-                    .unwrap_or(&name);
+                    .unwrap_or(&name)
+                    .trim();
 
                 let label = labels.iter().find(|lab| {
                     return lab.label == unbracketed;

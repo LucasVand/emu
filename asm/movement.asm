@@ -54,7 +54,7 @@ main_loop:
 
 ; draws the whole snake body 
 draw_snake_body_data:
-  PUSH4 a, b, c, d
+  PUSHM a, b, c, d
   LDAR c, d, snake_body_data ; load pointer to body
   mov b, (Snake_Length + 1) ; set the counter
   draw_loop:
@@ -77,12 +77,12 @@ draw_snake_body_data:
     lda [draw_loop] ; load the addr of jump
     jnz b ; jump if still
 
-  POP4 a, b, c, d
+  POPM a, b, c, d
   RET
 
 ; set snake, sets the snake body to the correct pos
 set_body:
-  PUSH4 a, b, c, d ; save regs
+  PUSHM a, b, c, d ; save regs
   LDAR a, b, snake_body_data ; load the snake body
   ADD16 a, b, (Snake_Length * 2) ; point to the end of the snake
   ADD16 a, b, (-2) ; point to the first x to modify
@@ -101,7 +101,7 @@ set_body:
     sub d, 1 ; sub counter
     jnz d ; jump if still looping
   
-  POP4 a, b, c, d
+  POPM a, b, c, d
   RET
 
 save_move_direction:
@@ -121,7 +121,7 @@ save_move_direction:
 
 ; gets the current inputs and updates the position
 move:
-  PUSH4 a, b, c, d
+  PUSHM a, b, c, d
   ldr c, [snake_head_data] ; load snake x
   ldr d, [(snake_head_data + 1)] ; load snake y
   ldr a, [move_direction] ; load the controller
@@ -161,7 +161,7 @@ move:
   str c, [snake_head_data]
   str d, [(snake_head_data + 1)]
  
-  POP4 a, b, c, d
+  POPM a, b, c, d
   RET
 ; end of move function 
   
@@ -170,13 +170,13 @@ move:
 ; color, x, y
 draw:
   SET_FP
-  PUSH4 a, b, c, d ; push regs
+  PUSHM a, b, c, d ; push regs
   LDR_FP a, -5 ; load the color
   push a ; push color on the stack
   LDR_FP a, -4 ; load the x
   LDR_FP b, -3 ; load the y
   LDAR c, d, 0x8000 ; load the vram into cd
-  ADD16_REG c, d, a ; add the x coord
+  ADD16 c, d, a ; add the x coord
 
   lda [mul] ; load mul into hl
    ;repeatedly add Width to the coord
@@ -199,7 +199,7 @@ draw:
   pop a  ; get the color from the stack
   str a, [cd] ; set the pixel color
  
-  POP4 a, b, c ,d ; pop regs
+  POPM a, b, c ,d ; pop regs
   RET
     
 ; wipe
@@ -207,11 +207,11 @@ draw:
 ; x, y
 wipe:
   SET_FP
-  PUSH4 a, b, c, d
+  PUSHM a, b, c, d
   LDR_FP a, -4 ; load the x
   LDR_FP b, -3 ; load the y
   LDAR c, d, 0x8000 ; load the vram into cd
-  ADD16_REG c, d, a ; add the x coord
+  ADD16 c, d, a ; add the x coord
   lda [wipe_mul] ; load mul into hl
   ; repeatedly add Width to the coord
   wipe_mul: 
@@ -222,12 +222,12 @@ wipe:
   mov a, 0 
   str a, [cd]
  
-  POP4 a, b, c ,d ; pop regs
+  POPM a, b, c ,d ; pop regs
   RET
 
 ; sets a body pixel to the next one
 propagate_movement: 
-  PUSH4 a, b, c, d ; save the values
+  PUSHM a, b, c, d ; save the values
   mov z, (Snake_Length) ; set the counter
   LDAR a, b, snake_body_data ; set the pointer to the snake data
   
@@ -253,7 +253,7 @@ propagate_movement:
     sub z, 1 ; sub counter
     jnz z ; jump
 
-  POP4 a, b, c, d ; pop values
+  POPM a, b, c, d ; pop values
   RET ; return
 
 ; multiplies a 16 bit number with an 8 bit, updates the stack params
@@ -262,7 +262,7 @@ propagate_movement:
 multiply:
   SET_FP
   push 0 ; make room for local var c which is 8bit param
-  PUSH4 a, b, c, d
+  PUSHM a, b, c, d
   
   LDR_FP a, -5 ; load 16 bit high
   LDR_FP b, -4 ; load 16 bit low
@@ -302,7 +302,7 @@ multiply:
   STR_FP c, -5 ; save the multiplied value
   STR_FP d, -4 ; save the multiplied value
   
-  POP4 a, b, c, d
+  POPM a, b, c, d
   pop z ; collapse local var
   RET
 
@@ -322,30 +322,6 @@ old_snake_end:
 move_direction:
   @db 0b10000000, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66
 
-@macro
-LDR_FP %r1, %i0:
-  add l, (%i0)
-  adc h, (%i0 >> 8)
-  ldr %r1, [hl]
-  sub l, (%i0)
-  sbb h, (%i0 >> 8)
-@end
-
-@macro
-STR_FP %r1, %i0:
-  add l, (%i0)
-  adc h, (%i0 >> 8)
-  str %r1, [hl]
-  sub l, (%i0)
-  sbb h, (%i0 >> 8)
-@end
-
-
-@macro
-SET_FP:
-  ldr h, [0xFFFC]
-  ldr l, [0xFFFD]
-@end
 
 
 @macro
@@ -354,20 +330,6 @@ LDAR %r0, %r1, %i2:
   mov %r0, (%i2 >> 8)
 @end
 
-@macro
-CALL [%i0]:
-  push (($ + 9) >> 8)  ; 2 bytes h
-  push (($ + 7))    ; 2 bytes l
-  lda [%i0] ; 3 bytes
-  jnz 1 ; 2 bytes
-@end
-
-@macro 
-RET:
-  pop l 
-  pop h
-  jnz 1
-@end
 
 
 @macro
@@ -382,39 +344,7 @@ POP_HL:
   pop h 
 @end
 
-@macro
-ADD16 %r0, %r1, %i2:
-  add %r1, (%i2)
-  adc %r0, (%i2 >> 8)
-@end
 
-@macro
-PRINT %i0:
-  mov z, %i0
-  str z, [0xFFF8]
-@end
-
-@macro
-ADD16_REG %r0, %r1, %r2:
-  add %r1, %r2 
-  adc %r0, 0 
-@end
-
-@macro
-PUSH4 %r0, %r1, %r2, %r3:
-  push %r0 
-  push %r1 
-  push %r2
-  push %r3
-@end
-
-@macro
-POP4 %r0, %r1, %r2, %r3:
-  pop %r3
-  pop %r2 
-  pop %r1
-  pop %r0
-@end
 @macro 
 JNZ_16 %r0, %r1:
   cmp %r0, 0 

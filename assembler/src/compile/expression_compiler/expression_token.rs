@@ -48,7 +48,9 @@ impl ExpressionToken {
 
     pub fn tokenize_expression(expr: &str, info: &TokenInfo) -> Vec<ExpressionToken> {
         let mut tokens: Vec<ExpressionToken> = Vec::new();
-        let mut chs = expr.chars().peekable();
+
+        let stripped = Self::remove_square_brackets(expr);
+        let mut chs = stripped.chars().peekable();
 
         while let Some(ch) = chs.next() {
             if Self::SINGLE_CHAR_TOKEN.contains(ch) {
@@ -205,5 +207,13 @@ impl ExpressionToken {
             let num = usize::from_str_radix(token, 10);
             return num.ok();
         }
+    }
+    fn remove_square_brackets(token: &str) -> &str {
+        return token
+            .strip_prefix("[")
+            .unwrap_or(token)
+            .strip_suffix("]")
+            .unwrap_or(token)
+            .trim();
     }
 }

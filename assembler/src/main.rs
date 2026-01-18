@@ -6,7 +6,10 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 3 {
-        println!("Please specify an input file and output file");
+        println!(
+            "Please specify an input file and output file, Args: {}",
+            args.len()
+        );
         return;
     }
 

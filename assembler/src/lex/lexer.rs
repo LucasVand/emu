@@ -1,5 +1,6 @@
 use std::iter::Peekable;
 use std::str::Chars;
+use std::sync::LazyLock;
 
 use regex::Regex;
 
@@ -42,7 +43,7 @@ impl Lexer {
 
         while char_iter.peek().is_some() {
             let new_token = Self::next_token(&mut char_iter, &parsed_tokens, &mut line_num, &lines);
-            match new_token {
+            match new_token.0 {
                 Ok(token) => {
                     // we dont want add single char tokens
                     if [TokenType::SingleChar, TokenType::Comment].contains(&token.kind) {
@@ -94,12 +95,13 @@ impl Lexer {
         return (parsed_tokens, mappped_error);
     }
 
+    // returns a the resulting token and the number of chars consumed
     fn next_token(
         iter: &mut Peekable<Chars>,
         parsed_tokens: &Vec<Token>,
         line_num: &mut usize,
         lines: &Vec<&str>,
-    ) -> Result<Token, LexerError> {
+    ) -> (Result<Token, LexerError>, usize) {
         let mut token = String::new();
         while let Some(ch) = iter.peek() {
             let trimmed_token = token.trim();
@@ -124,25 +126,29 @@ impl Lexer {
                     } else {
                         Token::new(token_str.to_string(), token_type, token_info)
                     };
-                    return Ok(new_token);
+                    return (Ok(new_token), token.len());
                 }
             }
             if Lexer::SEPERATOR_CHARS.contains(*ch)
                 && token != ""
                 && !token.contains(";")
                 && Self::check_brackets('(', ')', &token)
+                && Self::check_brackets('[', ']', &token)
             {
                 // println!("Crash Line Num: {}, Line: {}", line_num, lines[*line_num]);
-                return Err(LexerError::new(
-                    TokenInfo::new(
-                        lines[*line_num],
-                        &token,
-                        *line_num,
-                        "unknown",
-                        Self::is_address(trimmed_token),
-                    ),
-                    LexerErrorType::TokenDoesNotMatch,
-                ));
+                return (
+                    Err(LexerError::new(
+                        TokenInfo::new(
+                            lines[*line_num],
+                            &token,
+                            *line_num,
+                            "unknown",
+                            Self::is_address(trimmed_token),
+                        ),
+                        LexerErrorType::TokenDoesNotMatch,
+                    )),
+                    token.len(),
+                );
             }
             if *ch == '\n' {
                 // println!("Token: {:?}, Line: {}", trimmed_token, lines[*line_num]);
@@ -155,11 +161,14 @@ impl Lexer {
             );
         }
 
-        return Ok(Token::new(
-            token.clone(),
-            TokenType::EOF,
-            TokenInfo::new(lines[*line_num], &token, *line_num, "unknown", false),
-        ));
+        return (
+            Ok(Token::new(
+                token.clone(),
+                TokenType::EOF,
+                TokenInfo::new(lines[*line_num], &token, *line_num, "unknown", false),
+            )),
+            token.len(),
+        );
     }
     pub fn check_brackets(start: char, end: char, token: &str) -> bool {
         let mut start_count = 0;
@@ -170,11 +179,10 @@ impl Lexer {
         }
         return start_count == end_count;
     }
-    pub fn regex_match(expr: &str, haystack: &str) -> bool {
-        return Regex::new(expr).unwrap().is_match(haystack);
-    }
     pub fn is_address(token: &str) -> bool {
-        return Self::regex_match(r"^\[.*\]$", token);
+        static ADDRESS_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^\[.*\]$").unwrap());
+
+        return ADDRESS_REGEX.is_match(token);
     }
     pub fn remove_square_brackets(token: &str) -> &str {
         return token

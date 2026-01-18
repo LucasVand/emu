@@ -56,4 +56,29 @@ mov a, 40
 lda [fail]
 JGT a, 20
 
+mov a, 0
+mov b, 0
+lda [z16_skip]
+JZE16 a, b
+FAIL
+z16_skip:
+
+mov a, 0
+mov b, 4
+lda [fail]
+JZE16 a, b
+
+mov a, 0
+mov b, 1
+lda [nz16_skip]
+JNZ16 a, b
+FAIL
+nz16_skip:
+
+mov a, 0
+mov b, 0
+lda [fail]
+JNZ16 a, b
+
+
 COMPLETE_TESTS

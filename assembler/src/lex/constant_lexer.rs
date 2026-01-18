@@ -1,3 +1,6 @@
+use regex::Regex;
+use std::sync::LazyLock;
+
 use crate::{
     lex::lexer::Lexer,
     utils::token::{Token, TokenType},
@@ -6,14 +9,6 @@ use crate::{
 pub struct ConstantLexer {}
 
 impl ConstantLexer {
-    const CONSTANT_TYPES: [(&'static str, TokenType); 6] = [
-        (r"^0x[0-9A-Fa-f]+$", TokenType::Hex),
-        (r"^0b[10]+$", TokenType::Binary),
-        (r"^[\-+0-9]+$", TokenType::Decimal),
-        (r"^'.'$", TokenType::Character),
-        (r#"^".*"$"#, TokenType::String),
-        (r"^<.*>$", TokenType::STDImportPath),
-    ];
     pub fn parse(
         token: &str,
         next: char,
@@ -24,10 +19,36 @@ impl ConstantLexer {
         if !Lexer::SEPERATOR_CHARS.contains(next) {
             return None;
         }
+        static CONSTANT_TYPES: [(LazyLock<Regex>, TokenType); 6] = [
+            (
+                LazyLock::new(|| Regex::new(r"^0x[0-9A-Fa-f]+$").unwrap()),
+                TokenType::Hex,
+            ),
+            (
+                LazyLock::new(|| Regex::new(r"^0b[10]+$").unwrap()),
+                TokenType::Binary,
+            ),
+            (
+                LazyLock::new(|| Regex::new(r"^[\-+0-9]+$").unwrap()),
+                TokenType::Decimal,
+            ),
+            (
+                LazyLock::new(|| Regex::new(r"^'.'$").unwrap()),
+                TokenType::Character,
+            ),
+            (
+                LazyLock::new(|| Regex::new(r#"^".*"$"#).unwrap()),
+                TokenType::String,
+            ),
+            (
+                LazyLock::new(|| Regex::new(r"^<.*>$").unwrap()),
+                TokenType::STDImportPath,
+            ),
+        ];
 
-        for (expr, token_type) in Self::CONSTANT_TYPES {
-            if Lexer::regex_match(expr, Lexer::remove_square_brackets(token)) {
-                return Some(token_type);
+        for (expr, token_type) in CONSTANT_TYPES.iter() {
+            if expr.is_match(Lexer::remove_square_brackets(token)) {
+                return Some(token_type.clone());
             }
         }
 

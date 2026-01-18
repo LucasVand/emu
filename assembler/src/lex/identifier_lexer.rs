@@ -1,4 +1,7 @@
+use std::sync::LazyLock;
+
 use common::instruction::Instruction;
+use regex::Regex;
 
 use crate::{
     lex::lexer::Lexer,
@@ -7,20 +10,25 @@ use crate::{
 
 pub struct IdentifierLexer {}
 
+const IDENTIFIER_EXPR: &'static str = r"^[A-Za-z_.][A-Za-z_.0-9]*$";
+
 impl IdentifierLexer {
-    const IDENTIFIER_EXPR: &'static str = r"^[A-Za-z_.][A-Za-z_.0-9]*$";
     pub fn parse(
         token: &str,
         next: char,
         line_num: usize,
         parsed_tokens: &Vec<Token>,
     ) -> Option<TokenType> {
+        static IDENTIFIER_REGEX: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(IDENTIFIER_EXPR).unwrap());
+
         let token = token.trim();
         if !Lexer::SEPERATOR_CHARS.contains(next) {
             return None;
         }
-        if !Lexer::regex_match(Self::IDENTIFIER_EXPR, token) {
-            if Lexer::regex_match(Self::IDENTIFIER_EXPR, Lexer::remove_square_brackets(token)) {
+        if !IDENTIFIER_REGEX.is_match(token) {
+            // trim because we could have spaces inside the brackets
+            if IDENTIFIER_REGEX.is_match(Lexer::remove_square_brackets(token).trim()) {
                 return Some(TokenType::Label);
             }
             return None;

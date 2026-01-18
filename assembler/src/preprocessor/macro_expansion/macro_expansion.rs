@@ -1,3 +1,4 @@
+use crate::lex::lexer::Lexer;
 use crate::preprocessor::macro_expansion::macro_definition::MacroDefinition;
 use crate::preprocessor::macro_expansion::macro_parameters::TypedMacroParameter;
 use crate::preprocessor::preprocessor_error::PreprocessorError;
@@ -29,10 +30,10 @@ impl MacroExpansion {
                 TokenType::Expression => {
                     let mut new_token = token;
                     for index in 0..macro_def.parameters.len() {
-                        let param = &macro_def.parameters[index];
-                        new_token.token = new_token
-                            .token
-                            .replace(&param.token, &operand_list[index].token);
+                        let param =
+                            Self::remove_square_brackets(&macro_def.parameters[index].token);
+                        let operand = Self::remove_square_brackets(&operand_list[index].token);
+                        new_token.token = new_token.token.replace(param, operand);
                     }
                     new_token_list.push(new_token);
                 }
@@ -166,6 +167,14 @@ impl MacroExpansion {
             }
         }
         return Ok(());
+    }
+    fn remove_square_brackets(token: &str) -> &str {
+        token
+            .strip_prefix("[")
+            .unwrap_or(token)
+            .strip_suffix("]")
+            .unwrap_or(token)
+            .trim()
     }
 }
 impl Display for MacroExpansion {
