@@ -46,13 +46,13 @@ FAIL
 lee_skip:
 
 
-mov a, 10
+mov a, 40
 lda [ge_skip]
 JGT a, 20
 FAIL
 ge_skip:
 
-mov a, 40
+mov a, 10
 lda [fail]
 JGT a, 20
 

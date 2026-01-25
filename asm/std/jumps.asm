@@ -54,6 +54,7 @@ JLE %r0, %x1:
 @macro ; jump less then
 JGT %r0, %x1:
   cmp %r0, %x1
+  not f
   and f, 0b10000000
   jnz f
 @end

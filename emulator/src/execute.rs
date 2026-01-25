@@ -95,6 +95,10 @@ impl Execute {
             addr = (value1 as u16) << 8 | value2 as u16;
             output = 2;
         }
+        // call all write callbacks
+        emu.write_callbacks
+            .iter_mut()
+            .for_each(|callback| callback(addr, emu.registers[reg], emu.memory.get_membank()));
 
         emu.memory[addr] = emu.registers[reg];
         return output;

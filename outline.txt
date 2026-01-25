@@ -99,8 +99,11 @@ Z: 3-bit register identifier of first register argument (see REGISTERS)
   N 
   N 
   N 
-  N 
+  Print regs - prints registers when set 
   Halt - stopping the cpu
+
+  Halt - this has no actual ties to the cpu but the emulator sees this halt and it stops
+  Print regs - this has no actual ties to the cpu but the emulator sees this and prints registers
 
 === Controller  ===
   Encoded as one byte as shown

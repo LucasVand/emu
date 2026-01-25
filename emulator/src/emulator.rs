@@ -12,9 +12,11 @@ pub struct Emulator {
     pub memory: Memory,
     pub registers: Registers,
     pub speed: usize,
+    pub write_callbacks: Vec<Box<dyn FnMut(u16, u8, u8) + Send>>,
 }
 
 impl Emulator {
+    // TODO: add print regs additional flags for debug
     pub fn new_speed(speed: usize) -> Self {
         Emulator {
             speed: speed,
@@ -36,6 +38,7 @@ impl Emulator {
             Instruction::STR => Execute::execute_str(self, inst),
             Instruction::JNZ => Execute::execute_jnz(self, inst),
             Instruction::ADD => Execute::execute_add(self, inst),
+
             Instruction::ADC => Execute::execute_adc(self, inst),
             Instruction::SUB => Execute::execute_sub(self, inst),
             Instruction::SBB => Execute::execute_sbb(self, inst),
@@ -48,6 +51,9 @@ impl Emulator {
             Instruction::POP => Execute::execute_pop(self, inst),
             Instruction::PUSH => Execute::execute_push(self, inst),
         }
+    }
+    pub fn register_callback<F: FnMut(u16, u8, u8) + Send + 'static>(&mut self, callback: F) {
+        self.write_callbacks.push(Box::new(callback));
     }
     pub fn print_regs(&self, inst: [u8; 3]) {
         let dis = Disassembly::disassemble_inst(inst);

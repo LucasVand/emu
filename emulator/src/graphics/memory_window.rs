@@ -1,18 +1,21 @@
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
+use std::{
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    },
+    time::Duration,
 };
 
 use eframe::egui::{self, CentralPanel, Context, Pos2, ViewportId};
 
-use crate::graphics::double_buffer::DoubleBuffer;
+use crate::graphics::shared_buffer::SharedBuffer;
 
 pub struct MemoryWindow {}
 
 impl MemoryWindow {
     pub fn show_memory(
         title: &str,
-        double_buf: Arc<DoubleBuffer<Box<[u8]>>>,
+        buf: Arc<SharedBuffer>,
         offset: usize,
         open: Arc<AtomicBool>,
         ctx: &Context,
@@ -35,11 +38,9 @@ impl MemoryWindow {
                     open.store(false, Ordering::Relaxed);
                 }
 
-                let buf = double_buf.read();
-
                 let row_height = ui.text_style_height(&egui::TextStyle::Monospace);
                 let bytes_per_row = 16;
-                let memory = &buf;
+                let memory = buf.read();
 
                 egui::ScrollArea::vertical()
                     .auto_shrink([false; 2])
@@ -68,6 +69,7 @@ impl MemoryWindow {
                             }
                         },
                     );
+                ctx.request_repaint_after(Duration::from_millis(16));
             });
         });
     }

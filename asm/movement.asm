@@ -1,8 +1,12 @@
+@include <multiply16.asm>
+@include <random.asm>
+
 @define IOAddr 0xFFFB
 @define VRAM 0x8000
 @define Membank 0xFFFA
 @define Width 125
 @define Color 255
+@define Apple_Color 160
 @define Snake_Length 20
 
 main:
@@ -12,6 +16,14 @@ str a, [Membank] ; set the membank to the vram
 
 CALL [set_body]
 
+; inital apple draw
+ldr16 a, b, [apple_data]
+push Apple_Color 
+push a
+push b
+CALL [draw]
+dec_sp 3
+
 
 ; main loop
 main_loop: 
@@ -20,23 +32,25 @@ main_loop:
 
   
 ; waste time here
-  push a 
-  push b
-  mov a, 0
-  mov b, 1
-  lda [time_waste]
-  time_waste:
-    ADD16 a, b, (-1)
-    JNZ_16 a, b
-  pop b 
-  pop a
+  ; push a 
+  ; push b
+  ; mov a, 0
+  ; mov b, 1
+  ; lda [time_waste]
+  ; time_waste:
+  ;   ADD16 a, b, (-1)
+  ;   JNZ_16 a, b
+  ; pop b 
+  ; pop a
   ; end of time waste 
+
 
   CALL [save_move_direction]
 
   CALL [propagate_movement]
 
   CALL [move]
+
 
   ; wipe old_snake_end
   ldr a, [old_snake_end]
@@ -48,9 +62,57 @@ main_loop:
   pop z ; remove params
   pop z ; remove params
 
-  
+  CALL [check_apple] ; check if we are on the apple
+
   lda [main_loop] ; jump back to main
   jnz 1
+
+check_apple:
+  
+  pushm a, b, c, d
+  ldr16 a, b, [apple_data] ; load snake x and y 
+  pushm a, b ; params set for wipe call <---
+
+
+  ldr16 c, d, [snake_head_data] ; load head x and y
+  cmp a, c ; compare high
+  mov z, f ; copy
+  cmp b, d ; compare low
+  and z, f ; and
+  and z, 0b01000000 ; mask zero flag
+  lda [change_apple_skip]
+  jze z ; jump if not equal
+
+  add a, 30
+  str16 a, b, [apple_data]
+
+  ; only redraw if the location changes
+    ; params were set before
+  CALL [wipe] ; wipe apple loc
+
+  push 160 ; push color
+
+  push 100
+  CALL [random]
+  dec_sp 1
+  push z ; push apple x
+
+  push 100
+  CALL [random]
+  dec_sp 1
+  push z ; push apple y
+
+  CALL [draw]
+  dec_sp 3 ; collapse params
+
+  change_apple_skip:
+  dec_sp 2 ; collapse params from the wipe function, this needs to happen every time
+
+  popm a, b, c, d
+  RET
+
+
+
 
 ; draws the whole snake body 
 draw_snake_body_data:
@@ -175,26 +237,18 @@ draw:
   push a ; push color on the stack
   LDR_FP a, -4 ; load the x
   LDR_FP b, -3 ; load the y
-  LDAR c, d, 0x8000 ; load the vram into cd
-  ADD16 c, d, a ; add the x coord
 
-  lda [mul] ; load mul into hl
-   ;repeatedly add Width to the coord
-  mul: 
-    ADD16 c, d, Width ; add Width to coord
-    sub b, 1 ; sub counter
-    jnz b ; jump if still going
-  
+  push 0 ; push y 16 high
+  push b ; push y 16 low
+  push 0 ; push width value
+  push Width ; push width 
+  CALL [multiply16] ; multiply call
+  dec_sp 2 ; dec 2 to collapse first param
+  pop d ; get 16 low
+  pop c ; get 16 high
 
-
-  ;push c ; push 16 high
-  ;push d ; push 16 low
-  ;push b ; push 8bit
-  ;CALL [multiply] ; multiply call
-  ;pop z ; discard 8bit
-  ;pop d ; get 16 low
-  ;pop c ; get 16 high
-
+  add16 c, d, 0x8000 ; add the num so its in the vram
+  add16 c, d, a ; add the x coord
 
   pop a  ; get the color from the stack
   str a, [cd] ; set the pixel color
@@ -256,55 +310,6 @@ propagate_movement:
   POPM a, b, c, d ; pop values
   RET ; return
 
-; multiplies a 16 bit number with an 8 bit, updates the stack params
-; params
-; 16h, 16l, 8bit
-multiply:
-  SET_FP
-  push 0 ; make room for local var c which is 8bit param
-  PUSHM a, b, c, d
-  
-  LDR_FP a, -5 ; load 16 bit high
-  LDR_FP b, -4 ; load 16 bit low
-  LDR_FP c, -3 ; load the 8bit
-  STR_FP c, 0 ; store the 8bit locally
-  mov c, 0 ; acc high
-  mov d, 0 ; acc low
-  mov z, 1
-  PUSH_HL
-  multiply_loop: 
-    POP_HL
-    push z
-
-    push c ; save c
-    LDR_FP c, 0 ; load the 8 bit
-    and z, c ; and mask with 8 bit 
-    pop c ; get back c
-
-    PUSH_HL
-    lda [multiply_if] ; load the if
-    JZE z ; jump if bit is zero
-    add d, b ; add lows
-    adc c, a ; add highs
-    multiply_if:
-    POP_HL
-
-    pop z
-    add z, z ; add to mask, par of left shift
-
-    add b, b ; double the number
-    adc a, a ; double the number
-         
-    PUSH_HL
-    lda [multiply_loop] ; load loop
-    jnz z ; jump
-  POP_HL
-  STR_FP c, -5 ; save the multiplied value
-  STR_FP d, -4 ; save the multiplied value
-  
-  POPM a, b, c, d
-  pop z ; collapse local var
-  RET
 
 ;snake body data (x, y) byte1 = x, byte2 = y
 snake_body_data:
@@ -320,7 +325,10 @@ old_snake_end:
 
 ; this is where the move direction is saved
 move_direction:
-  @db 0b10000000, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66
+  @db 0b10000000
+
+apple_data:
+  @db 30, 30
 
 
 
@@ -329,6 +337,7 @@ LDAR %r0, %r1, %i2:
   mov %r1, (%i2)
   mov %r0, (%i2 >> 8)
 @end
+
 
 
 

@@ -1,4 +1,3 @@
-use crate::lex::lexer::Lexer;
 use crate::preprocessor::macro_expansion::macro_definition::MacroDefinition;
 use crate::preprocessor::macro_expansion::macro_parameters::TypedMacroParameter;
 use crate::preprocessor::preprocessor_error::PreprocessorError;

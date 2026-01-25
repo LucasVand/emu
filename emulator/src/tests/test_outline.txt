@@ -1,0 +1,5 @@
+#[test]
+fn test_<%0>() -> Result<(), io::Error> {
+  EmulatorTestUtils::test_file("<%1>");
+  return Ok(());
+}
