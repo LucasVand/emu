@@ -33,7 +33,7 @@ fn main() {
     emu.load_binary_vec(&bin.0);
 
     println!("Running");
-    emu.start(true);
+    emu.start(args.contains(&"-p".to_string()));
 
     println!("Finished");
     return;

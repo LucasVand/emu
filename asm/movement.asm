@@ -1,4 +1,5 @@
 @include <multiply16.asm>
+@include <debug.asm>
 @include <random.asm>
 
 @define IOAddr 0xFFFB
@@ -75,6 +76,7 @@ check_apple:
 
 
   ldr16 c, d, [snake_head_data] ; load head x and y
+
   cmp a, c ; compare high
   mov z, f ; copy
   cmp b, d ; compare low
@@ -83,8 +85,6 @@ check_apple:
   lda [change_apple_skip]
   jze z ; jump if not equal
 
-  add a, 30
-  str16 a, b, [apple_data]
 
   ; only redraw if the location changes
     ; params were set before
@@ -92,15 +92,17 @@ check_apple:
 
   push 160 ; push color
 
-  push 100
+  push 100 ; max value
   CALL [random]
   dec_sp 1
   push z ; push apple x
+  str z, [apple_data] ; store the new apple x
 
-  push 100
+  push 100 ; max value
   CALL [random]
   dec_sp 1
   push z ; push apple y
+  str z, [(apple_data + 1)] ; store the new apple y
 
   CALL [draw]
   dec_sp 3 ; collapse params
@@ -167,7 +169,7 @@ set_body:
   RET
 
 save_move_direction:
-  push a
+  pushm a, b
   ldr a, [IOAddr] ; get the io 
   and a, 0b11110000 ; mask only the move controls
 
@@ -177,8 +179,13 @@ save_move_direction:
   jnz 1
   save_move_if:
     str a, [move_direction] ; save the io
+    ; randomize the random seed 
+    ldr b, [seed_addr]
+    xor b, a
+    str b, [seed_addr]
   save_move_else:
-  pop a
+
+  popm a, b
   RET
 
 ; gets the current inputs and updates the position
@@ -220,12 +227,45 @@ move:
   add c, 1 ; move 1 right 
   right_jump: 
 
-  str c, [snake_head_data]
-  str d, [(snake_head_data + 1)]
+
+  ; we need to make sure the numbers dont go past 125
+  ; see we remainder them before saving
+  push c
+  CALL [bounds_check] 
+  dec_sp 1
+  str z, [snake_head_data] ; save the x
+
+  push d
+  CALL [bounds_check]
+  dec_sp 1
+  str z, [(snake_head_data + 1)] ; save the y
  
   POPM a, b, c, d
   RET
 ; end of move function 
+
+; checks the bounds of a values 
+; must be 0 < value < 125
+; normalizes it to this range
+; params
+;   value
+; return 
+;   return value in z
+bounds_check:
+  SET_FP
+  LDR_FP z, -3 ; get the value
+  push z  ; push for rem call
+  push Width ; push for rem call
+  CALL [remainder]  ; rem call
+  dec_sp 2 ; collapse frame
+  
+  ; check if less then 0
+  lda [reset_skip]
+  jge z, 0
+  mov z, Width 
+  reset_skip:
+
+  RET
   
 ; draws a pixel
 ; params

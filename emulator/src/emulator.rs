@@ -76,6 +76,11 @@ impl Emulator {
 
         self.memory
             .set_pc(self.memory.get_pc() + inst_length as u16);
+
+        if self.memory.print_regs_flag() {
+            self.print_regs(inst);
+            self.memory[Memory::ADDITIONAL_FLAG] &= 0b11111101;
+        }
         if self.speed != 0 {
             sleep(Duration::from_micros(self.speed as u64));
         }

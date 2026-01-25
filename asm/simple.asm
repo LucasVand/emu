@@ -1,46 +1,20 @@
-CALL [func]
-
-orr f, 1
-
-func:
-  SET_FP
-  push 100 
-  push 50 
-  LDR_FP a, 0
-  LDR_FP b, 1
-  pop c 
-  pop c
-  RET
+@include <debug.asm>
+@include <random.asm>
 
 
+main:
+  mov b, 30
+  mov a, 3 
+  str a, [seed_addr]
 
-@macro
-CALL [%i0]:
-  push (($ + 9) >> 8)  ; 2 bytes
-  push (($ + 7))    ; 2 bytes
-  lda [%i0] ; 3 bytes
-  jnz 1 ; 2 bytes
-@end
+loop:
+  push 100
+  CALL [random]
+  dec_sp 1
+  PRINT a
+  lda [loop]
+  sub b, 1
+  jnz b
 
-@macro 
-RET:
-  pop l 
-  pop h
-  jnz 1
-@end
 
-@macro
-LDR_FP %r1,  %i0:
-  add l, %i0
-  adc h, 0
-  ldr %r1, [hl]
-  sub l, %i0
-  sbb h, 0
-@end
-
-@macro
-SET_FP:
-  ldr h, [0xFFFC]
-  ldr l, [0xFFFD]
-@end
-  
+  HALT

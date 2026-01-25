@@ -55,6 +55,9 @@ impl Memory {
 
         return value;
     }
+    pub fn print_regs_flag(&self) -> bool {
+        return self[Self::ADDITIONAL_FLAG] & 2 != 0;
+    }
     pub fn is_halted(&self) -> bool {
         return self[Self::ADDITIONAL_FLAG] & 1 != 0;
     }
