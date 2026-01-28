@@ -70,4 +70,20 @@ AND16 %r0, %r1, %i2:
   and %r1, (%i2 >> 8)
 @end
 
+@macro
+LDR16 %r0, %r1, [%i2]:
+  ldr %r0, [%i2]
+  ldr %r1, [(%i2 + 1)]
+@end
 
+@macro 
+STR16 %r0, %r1, [%i2]:
+  str %r0, [%i2]
+  str %r1, [(%i2 + 1)]
+@end
+
+@macro
+LDA16 %r0, %r1, %i2:
+  mov %r0, (%i2 >> 8)
+  mov %r1, (%i2)
+@end

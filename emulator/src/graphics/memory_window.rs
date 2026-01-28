@@ -39,36 +39,34 @@ impl MemoryWindow {
                 }
 
                 let row_height = ui.text_style_height(&egui::TextStyle::Monospace);
-                let bytes_per_row = 16;
+                let bytes_per_row = ((ui.min_size().x - 50.0) / 22.0) as usize;
                 let memory = buf.read();
 
-                egui::ScrollArea::vertical()
-                    .auto_shrink([false; 2])
-                    .show_rows(
-                        ui,
-                        row_height,
-                        memory.len() / bytes_per_row + 1,
-                        |ui, row_range| {
-                            for row in row_range {
-                                let base = row * bytes_per_row;
+                egui::ScrollArea::vertical().show_rows(
+                    ui,
+                    row_height,
+                    memory.len() / bytes_per_row + 1,
+                    |ui, row_range| {
+                        for row in row_range {
+                            let base = row * bytes_per_row;
 
-                                ui.horizontal(|ui| {
-                                    ui.monospace(format!("{:04X}:", base + offset));
+                            ui.horizontal(|ui| {
+                                ui.monospace(format!("{:04X}:", base + offset));
 
-                                    for col in 0..bytes_per_row {
-                                        let i = base + col;
-                                        if i < memory.len() {
-                                            ui.label(
-                                                egui::RichText::new(format!("{:02X}", memory[i]))
-                                                    .monospace()
-                                                    .color(egui::Color32::from_rgb(200, 200, 200)),
-                                            );
-                                        }
+                                for col in 0..bytes_per_row {
+                                    let i = base + col;
+                                    if i < memory.len() {
+                                        ui.label(
+                                            egui::RichText::new(format!("{:02X}", memory[i]))
+                                                .monospace()
+                                                .color(egui::Color32::from_rgb(200, 200, 200)),
+                                        );
                                     }
-                                });
-                            }
-                        },
-                    );
+                                }
+                            });
+                        }
+                    },
+                );
                 ctx.request_repaint_after(Duration::from_millis(16));
             });
         });

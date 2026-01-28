@@ -8,7 +8,7 @@ impl Default for Memory {
     fn default() -> Self {
         // this vec stuff is make sure the stack is not overflowed
         let mut mem: Box<[u8]> = vec![0; 65536].into_boxed_slice();
-        let bank_boxes = vec![vec![0; 16385]; 256].into_boxed_slice();
+        let bank_boxes = vec![vec![0; 16384]; 256].into_boxed_slice();
 
         let sph = 0xFC;
         let spl = 0x00;
@@ -42,9 +42,13 @@ impl Memory {
     pub const PCL: u16 = 0xFFFF;
 
     pub const ADDITIONAL_FLAG: u16 = 0xFFF9;
+    pub const GRAPHICS_MODE: u16 = 0xFFF8;
 
     pub fn graphics_iter(&self) -> impl Iterator<Item = &u8> {
         return self.banks[1].iter();
+    }
+    pub fn get_graphics_mode(&self) -> u8 {
+        return self[Self::GRAPHICS_MODE];
     }
 
     pub fn get_stack(&self) -> u16 {

@@ -84,7 +84,8 @@ Z: 3-bit register identifier of first register argument (see REGISTERS)
 0x8000..0xBFFF: GENERAL PURPOSE RAM (BANKED)
 0xC000..0xFDFF: GENERAL PURPOSE RAM
 0xFC00..0xFEFF: STACK (RECOMMENDED), else GP RAM
-0xFF00..0xFFF8: GENERAL PURPOSE RAM
+0xFF00..0xFFF7: GENERAL PURPOSE RAM
+0xFFF8..0xFFF8: GRAPHICS MODE
 0xFFF9..0xFFF9: Additional Flags 
 0xFFFA..0xFFFA: MB/(M)emory (B)ank
 0xFFFB..0xFFFB: Controller IO
@@ -122,4 +123,25 @@ Z: 3-bit register identifier of first register argument (see REGISTERS)
 === MEMORY BANKING ===
 0x8000..0xBFFF can be swapped using the MB register, where MB=0 indicates that
 the built-in RAM is in use. MB=1 maps to the built-in VRAM.
+
+=== GRAPHICS MODES ===
+
+=== MODE 0 ===
+  raw pixel mode 
+  - each byte of vram coresponds to one pixel, color data is encoded into the byte
+  - color RRRGGGBB
+  - 125 x 125 screen size
+
+=== MODE 1 ===
+  tile map modes
+  - each byte of tile map coresponds to the tile of that section
+  - each tile is 8 x 8 pixels
+  - each byte of the tile map has the color of the pixel (RRRGGGBB)
+
+  === MEMORY LAYOUT ===
+  0x8000..0xBFFF: GENERAL PURPOSE RAM (BANKED)
+
+  0x8000..0x9FFF: TILE MAP (100 x 40 ish)
+  0xA000..0xBFFF: TILE TABLE (192 slots, each 8 x 8)
+
 

@@ -5,7 +5,7 @@
 @define IOAddr 0xFFFB
 @define VRAM 0x8000
 @define Membank 0xFFFA
-@define Width 125
+@define Width 128
 @define Color 255
 @define Apple_Color 160
 @define Snake_Length 20

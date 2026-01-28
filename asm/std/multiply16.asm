@@ -1,6 +1,6 @@
 ; multiply function
 ; params (a, b), (c, d)
-; result in z
+; result in first param
 multiply16:
   SET_FP
 
@@ -70,17 +70,6 @@ num2_save:
 mask_save:
   @dd 0
 
-@macro
-LDR16 %r0, %r1, [%i2]:
-  ldr %r0, [%i2]
-  ldr %r1, [(%i2 + 1)]
-@end
-
-@macro 
-STR16 %r0, %r1, [%i2]:
-  str %r0, [%i2]
-  str %r1, [(%i2 + 1)]
-@end
 
 @macro
 STR16 %i0, [%i1]:

@@ -23,6 +23,10 @@ impl SharedBuffer {
             id: AtomicUsize::new(0),
         }
     }
+    pub fn id(&self) -> usize {
+        return self.id.load(Ordering::Acquire);
+    }
+
     pub fn publish(&self) {
         self.id.fetch_add(1, Ordering::Release);
     }

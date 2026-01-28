@@ -1,4 +1,4 @@
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU8, AtomicUsize, Ordering};
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 use std::{sync::Arc, time::Duration};
@@ -9,7 +9,7 @@ use crate::graphics::memory_window::MemoryWindow;
 use crate::graphics::pixel_paint_mode::PixelPaintMode;
 use crate::graphics::shared_buffer::SharedBuffer;
 use crate::memory::Memory;
-use eframe::egui::{self, Vec2};
+use eframe::egui::{self, Image, Vec2};
 use eframe::emath::History;
 
 pub struct EmulatorWindow {
@@ -22,8 +22,8 @@ pub struct EmulatorWindow {
     pub last_id: usize,
 }
 impl EmulatorWindow {
-    pub const SIZE: f32 = 125.0;
-    pub const SCALE: f32 = 5.0;
+    pub const SIZE: usize = 128;
+    pub const SCALE: usize = 5;
 
     pub fn new(emu: &Emulator) -> Self {
         Self {
@@ -41,6 +41,7 @@ impl EmulatorWindow {
 impl eframe::App for EmulatorWindow {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
         self.update_history();
+
         egui::CentralPanel::default().show(ctx, |ui| {
             // this is the hiding and showing button ui
             ui.horizontal_top(|ui| {
@@ -70,15 +71,24 @@ impl eframe::App for EmulatorWindow {
                 }
             });
 
-            let buf = self.vram.read();
-            let painter = ui.painter();
-            PixelPaintMode::paint_pixels(
-                painter,
-                buf,
-                Self::SCALE,
-                Self::SIZE,
-                Some(Vec2::new(0.0, 35.0)),
-            );
+            let buf = self.mem.read();
+            let vram = self.vram.read();
+            let graphics_mode = buf[0xFFF8];
+            if graphics_mode == 0 {
+                let texture = PixelPaintMode::create_vram_pixel_texture(ctx, vram, Self::SIZE);
+
+                ui.add(Image::from_texture(&texture).fit_to_exact_size(Vec2::new(
+                    (Self::SIZE * Self::SCALE) as f32,
+                    (Self::SIZE * Self::SCALE) as f32,
+                )));
+            } else if graphics_mode == 1 {
+                let texture = PixelPaintMode::create_varm_tile_texture(ctx, vram, [64, 64]);
+
+                ui.add(
+                    Image::from_texture(&texture)
+                        .fit_to_exact_size(Vec2::new((64 * 20) as f32, (64 * 20) as f32)),
+                );
+            }
         });
 
         let buttons = KeyboardInputs::controller_buttons(ctx);
@@ -144,9 +154,10 @@ pub fn create_window(mut emu: Emulator, print_regs: bool) -> eframe::Result {
         }
     });
 
-    let inner_size = EmulatorWindow::SIZE * EmulatorWindow::SCALE;
+    let inner_size = (EmulatorWindow::SIZE * EmulatorWindow::SCALE) as f32;
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([inner_size, inner_size]),
+        viewport: egui::ViewportBuilder::default()
+            .with_inner_size([inner_size + 20.0, inner_size + 40.0]),
         ..Default::default()
     };
     eframe::run_native("8-bit Emulator", options, Box::new(|_cc| Ok(Box::new(app))))
