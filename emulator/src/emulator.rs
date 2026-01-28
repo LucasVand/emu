@@ -30,26 +30,26 @@ impl Emulator {
         }
     }
     pub fn execute_instruction(&mut self, inst: [u8; 3]) -> u8 {
-        let instruction = Execute::parse_mnemonic(inst);
+        let instruction = inst[0] >> 4;
 
         match instruction {
-            Instruction::MOV => Execute::execute_mov(self, inst),
-            Instruction::LDR => Execute::execute_ldr(self, inst),
-            Instruction::STR => Execute::execute_str(self, inst),
-            Instruction::JNZ => Execute::execute_jnz(self, inst),
-            Instruction::ADD => Execute::execute_add(self, inst),
-
-            Instruction::ADC => Execute::execute_adc(self, inst),
-            Instruction::SUB => Execute::execute_sub(self, inst),
-            Instruction::SBB => Execute::execute_sbb(self, inst),
-            Instruction::LSL => Execute::execute_lsl(self, inst),
-            Instruction::AND => Execute::execute_and(self, inst),
-            Instruction::ORR => Execute::execute_orr(self, inst),
-            Instruction::NOR => Execute::execute_nor(self, inst),
-            Instruction::CMP => Execute::execute_cmp(self, inst),
-            Instruction::LDA => Execute::execute_lda(self, inst),
-            Instruction::POP => Execute::execute_pop(self, inst),
-            Instruction::PUSH => Execute::execute_push(self, inst),
+            0 => Execute::execute_mov(self, inst),
+            1 => Execute::execute_ldr(self, inst),
+            2 => Execute::execute_str(self, inst),
+            6 => Execute::execute_jnz(self, inst),
+            9 => Execute::execute_add(self, inst),
+            0xA => Execute::execute_adc(self, inst),
+            8 => Execute::execute_sub(self, inst),
+            0xF => Execute::execute_sbb(self, inst),
+            7 => Execute::execute_lsl(self, inst),
+            0xB => Execute::execute_and(self, inst),
+            0xC => Execute::execute_orr(self, inst),
+            0xD => Execute::execute_nor(self, inst),
+            0xE => Execute::execute_cmp(self, inst),
+            0x5 => Execute::execute_lda(self, inst),
+            0x4 => Execute::execute_pop(self, inst),
+            0x3 => Execute::execute_push(self, inst),
+            _ => panic!("invalid instruction"),
         }
     }
     pub fn register_callback<F: FnMut(u16, u8, u8) + Send + 'static>(&mut self, callback: F) {
