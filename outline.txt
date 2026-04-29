@@ -138,8 +138,8 @@ the built-in RAM is in use. MB=1 maps to the built-in VRAM.
   - each tile is 8 x 8 pixels
   - each byte of the tile map has the color of the pixel (RRRGGGBB)
 
-  === MEMORY LAYOUT ===
-  0x8000..0xBFFF: GENERAL PURPOSE RAM (BANKED)
+  === VRAM MEMORY LAYOUT ===
+  0x8000..0xBFFF: GENERAL PURPOSE RAM (BANKED) MB=1
 
   0x8000..0x9FFF: TILE MAP (100 x 40 ish)
   0xA000..0xBFFF: TILE TABLE (192 slots, each 8 x 8)

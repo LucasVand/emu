@@ -19,9 +19,7 @@ impl Disassembly {
     const BOTH_INSTRUCTIONS: [Instruction; 2] = [Instruction::PUSH, Instruction::JNZ];
     const REG_ADDR_INSTRUCTIONS: [Instruction; 2] = [Instruction::LDR, Instruction::STR];
     const ADDR_INSTRUCTIONS: [Instruction; 1] = [Instruction::LDA];
-    pub fn disassemble_inst(inst: [u8; 3]) -> String {
-        return Self::disassemble_inst_length(inst).0;
-    }
+
     pub fn disassemble_inst_length(inst: [u8; 3]) -> (String, usize) {
         let instruction = Instruction::from_u8(inst[0] >> 4);
         let mut inst_str = Self::inst_to_str(&instruction);

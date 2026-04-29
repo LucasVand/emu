@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicBool, AtomicU8, AtomicUsize, Ordering};
-use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
+use std::{mem, thread};
 use std::{sync::Arc, time::Duration};
 
 use crate::emulator::Emulator;
