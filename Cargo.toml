@@ -2,7 +2,7 @@
 members = [
   "assembler",
   "common", "disassembly",
-  "emulator", "run"]
+  "emulator"]
 resolver = "3"
 
 

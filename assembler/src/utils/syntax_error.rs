@@ -86,7 +86,11 @@ impl Display for dyn AssemblerError {
             let fix_str = format!("Fix: {}", &fix).green();
             writeln!(f, "{} {}", prefix, fix_str)?;
         }
-        writeln!(f, "{:?}", info)?;
+        writeln!(f, "{}", prefix)?;
+
+        let file_path_str = format!("File: {}", info.file_location).red();
+        writeln!(f, "{}", file_path_str)?;
+        // writeln!(f, "{:?}", info)?;
 
         return Ok(());
     }

@@ -1,4 +1,5 @@
 use std::iter::Peekable;
+use std::path::Path;
 use std::str::Chars;
 use std::sync::LazyLock;
 
@@ -34,15 +35,24 @@ impl Lexer {
         CommentLexer::parse,
         ExpressionLexer::parse,
     ];
-    pub fn parse_str(file: String) -> (Vec<Token>, Vec<Box<dyn AssemblerError>>) {
+    pub fn parse_str(
+        file: String,
+        file_path: impl AsRef<Path>,
+    ) -> (Vec<Token>, Vec<Box<dyn AssemblerError>>) {
         let mut parsed_tokens: Vec<Token> = Vec::new();
         let mut errors: Vec<LexerError> = Vec::new();
-        let mut line_num = 0;
+        let mut line_num = 1;
         let lines: Vec<&str> = file.split("\n").collect();
         let mut char_iter = file.chars().peekable();
 
         while char_iter.peek().is_some() {
-            let new_token = Self::next_token(&mut char_iter, &parsed_tokens, &mut line_num, &lines);
+            let new_token = Self::next_token(
+                &mut char_iter,
+                &parsed_tokens,
+                &mut line_num,
+                &lines,
+                file_path.as_ref(),
+            );
             match new_token.0 {
                 Ok(token) => {
                     // we dont want add single char tokens
@@ -55,36 +65,6 @@ impl Lexer {
                 Err(err) => errors.push(err),
             }
         }
-        // let mut iter = parsed_tokens.iter();
-        // let mut num = 0;
-        // let mut tokens: Vec<Token> = Vec::new();
-        // while let Some(token) = iter.next() {
-        //     if token.token_info.line_num == num {
-        //         tokens.push(token.clone());
-        //     } else {
-        //         let len = tokens.len();
-        //         if len != 0 {
-        //             print!("{} : ", num);
-        //             print!("{}", tokens[0].token_info.line);
-        //             for tok in &tokens {
-        //                 print!("({})", tok.kind);
-        //             }
-        //             println!("");
-        //         }
-        //         tokens.clear();
-        //         num = token.token_info.line_num;
-        //         tokens.push(token.clone());
-        //     }
-        // }
-        // let len = tokens.len();
-        // if len != 0 {
-        //     print!("{} : ", num);
-        //     print!("{}", tokens[0].token_info.line);
-        //     for tok in &tokens {
-        //         print!("({})", tok.kind);
-        //     }
-        //     println!("");
-        // }
 
         let mappped_error = errors
             .iter()
@@ -101,6 +81,7 @@ impl Lexer {
         parsed_tokens: &Vec<Token>,
         line_num: &mut usize,
         lines: &Vec<&str>,
+        file_path: &Path,
     ) -> (Result<Token, LexerError>, usize) {
         let mut token = String::new();
         while let Some(ch) = iter.peek() {
@@ -115,6 +96,7 @@ impl Lexer {
                         *line_num,
                         &format!("Index: {}", index),
                         Self::is_address(trimmed_token),
+                        file_path,
                     );
                     let token_str = if token_type == TokenType::SingleChar {
                         &token
@@ -144,6 +126,7 @@ impl Lexer {
                             *line_num,
                             "unknown",
                             Self::is_address(trimmed_token),
+                            file_path,
                         ),
                         LexerErrorType::TokenDoesNotMatch,
                     )),
@@ -165,7 +148,14 @@ impl Lexer {
             Ok(Token::new(
                 token.clone(),
                 TokenType::EOF,
-                TokenInfo::new(lines[*line_num], &token, *line_num, "unknown", false),
+                TokenInfo::new(
+                    lines[*line_num],
+                    &token,
+                    *line_num,
+                    "unknown",
+                    false,
+                    file_path,
+                ),
             )),
             token.len(),
         );

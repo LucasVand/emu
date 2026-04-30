@@ -2,6 +2,8 @@ use std::fs;
 use std::io;
 use std::io::Error;
 
+use crate::includes::entry_point::EntryPoint;
+use crate::includes::include_injection::IncludeInjection;
 use crate::includes::includes::Includes;
 use crate::utils::syntax_error::AssemblerError;
 use crate::{
@@ -15,36 +17,24 @@ impl Assembler {
         filename: &str,
         path_to_std: &str,
     ) -> Result<(Vec<u8>, Vec<Box<dyn AssemblerError>>), io::Error> {
-        let mut contents = fs::read_to_string(filename)?;
+        let contents = fs::read_to_string(filename)?;
         let mut error_list: Vec<Box<dyn AssemblerError>> = Vec::new();
 
-        // if we have an import then we must have a main entry point
-        contents.insert_str(0, "@include <always.asm>\n");
-        contents.insert_str(0, "lda [main]\njnz 1\n");
-
-        let (mut imports_resolved, mut import_errors) =
-            Includes::resolve_imports(contents, path_to_std);
-        error_list.append(&mut import_errors);
-        while imports_resolved.contains("@include") {
-            let (new_imports, mut new_errors) =
-                Includes::resolve_imports(imports_resolved, path_to_std);
-            imports_resolved = new_imports;
-            error_list.append(&mut new_errors);
-        }
-
-        // let split = imports_resolved.split("\n");
-        // for (index, line) in split.enumerate() {
-        //     println!("Line: {} {}", index, line)
-        // }
-
-        let (lexed, mut lexer_errors) = Lexer::parse_str(imports_resolved);
+        let (mut lexed, mut lexer_errors) = Lexer::parse_str(contents, filename);
         error_list.append(&mut lexer_errors);
+
+        // Inject entry point tokens before the main file tokens to preserve line numbers
+        let entry_point_tokens = EntryPoint::create_entry_point_tokens(filename);
+        lexed = [entry_point_tokens, lexed].concat();
+
+        let (imported, mut imported_errors) = IncludeInjection::inject_includes(lexed, path_to_std);
+        error_list.append(&mut imported_errors);
 
         // for ele in &lexed {
         // println!("{}", ele);
         // }
 
-        let (preprocessed, mut preprocessor_errors) = Preprocessor::preprocess_tokens(lexed);
+        let (preprocessed, mut preprocessor_errors) = Preprocessor::preprocess_tokens(imported);
 
         error_list.append(&mut preprocessor_errors);
 
