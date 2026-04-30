@@ -45,7 +45,7 @@ impl Display for dyn AssemblerError {
         let info = self.info();
 
         // get the line number string
-        let line_num_str = info.line_num.to_string();
+        let line_num_str = (info.line_num + 1).to_string();
         // get the prefix for all lines
         let mut prefix: String = "|".blue().to_string();
         for _ in 0..(line_num_str.len() + 1) {

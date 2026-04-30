@@ -41,7 +41,7 @@ impl Lexer {
     ) -> (Vec<Token>, Vec<Box<dyn AssemblerError>>) {
         let mut parsed_tokens: Vec<Token> = Vec::new();
         let mut errors: Vec<LexerError> = Vec::new();
-        let mut line_num = 1;
+        let mut line_num = 0;
         let lines: Vec<&str> = file.split("\n").collect();
         let mut char_iter = file.chars().peekable();
 
