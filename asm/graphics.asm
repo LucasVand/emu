@@ -1,3 +1,5 @@
+main:
+
 mov a, 1 
 str a, [0xFFFA] ; set the mem bank to grapics
 @define graphics 0x8000
@@ -79,11 +81,6 @@ JEQ:
 
 
 @macro
-ADD16 %r0, %r1, %i2:
-  add %r1, (%i2)
-  adc %r0, (%i2 >> 8)
-@end
-macro
 LDAR %r0, %r1, %i2:
   mov %r1, (%i2)
   mov %r0, (%i2 >> 8)

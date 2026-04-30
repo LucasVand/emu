@@ -1,6 +1,6 @@
 use std::env;
 
-use assembler::assembler::Assembler;
+use assembler::Assembler;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

@@ -5,9 +5,17 @@ members = [
   "emulator", "run"]
 resolver = "3"
 
-# [package]
-# name = "emu"
-# version = "0.1.0"
-# edition = "2024"
-#
-#
+
+
+[package]
+name = "emu"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+assembler = { path = "./assembler" }
+disassembly = { path = "./disassembly" }
+emulator = { path = "./emulator" }
+clap = { version = "4.6.1", features = ["derive"] }
+
+

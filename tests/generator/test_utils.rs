@@ -1,13 +1,13 @@
 use std::{fs, io};
 
-use assembler::assembler::Assembler;
+use assembler::Assembler;
 
-use crate::emulator::Emulator;
+use emulator::Emulator;
 
 pub struct EmulatorTestUtils {}
 impl EmulatorTestUtils {
     pub fn test_file(path: &str) {
-        let binary = Assembler::assemble_file_to_vec(path, "../asm/std");
+        let binary = Assembler::assemble_file_to_vec(path, "./asm/std");
 
         if binary.is_err() {
             let err = binary.err().unwrap();
@@ -30,6 +30,7 @@ impl EmulatorTestUtils {
 
         assert!(emu.registers.a == 0);
     }
+    #[allow(dead_code)]
     pub fn test_all(dir: &str) -> Result<(), io::Error> {
         let dir = fs::read_dir(dir)?;
 

@@ -1,8 +1,7 @@
 use crate::execute::Execute;
 use crate::memory::Memory;
 use crate::registers::Registers;
-use common::instruction::Instruction;
-use disassembly::disassemble::Disassembly;
+use disassembly::disassemble_instruction;
 use std::fs;
 use std::thread::sleep;
 use std::time::Duration;
@@ -56,7 +55,7 @@ impl Emulator {
         self.write_callbacks.push(Box::new(callback));
     }
     pub fn print_regs(&self, inst: [u8; 3]) {
-        let dis = Disassembly::disassemble_inst(inst);
+        let dis = disassemble_instruction(inst);
         println!(
             "{:4} {:17} {} {}",
             self.memory.get_pc(),

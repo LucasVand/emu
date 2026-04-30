@@ -4,4 +4,6 @@ pub mod execute;
 pub mod graphics;
 pub mod memory;
 pub mod registers;
-pub mod tests;
+
+pub use emulator::Emulator;
+pub use graphics::window::create_window;

@@ -39,3 +39,6 @@ pub fn disassemble_file(filename: &str) -> Result<(), io::Error> {
 
     return Ok(());
 }
+pub fn disassemble_instruction(inst: [u8; 3]) -> String {
+    Disassembly::disassemble_inst_length(inst).0
+}

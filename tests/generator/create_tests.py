@@ -1,7 +1,12 @@
 from pathlib import Path
 
-DIRECTORY = "/Users/lucasvanderwielen/Desktop/Programming/Rust/emu/asm/tests"
-LOCATION = "/Users/lucasvanderwielen/Desktop/Programming/Rust/emu/emulator/src/tests/"
+# Usage: run the file and it will generate a tests file that includes tests for all the
+# files in the location directory
+
+
+DIRECTORY = "/Users/lucasvanderwielen/Projects/Rust/emu/asm/tests"
+LOCATION = "/Users/lucasvanderwielen/Projects/Rust/emu/tests/generator/"
+OUTPUT = "/Users/lucasvanderwielen/Projects/Rust/emu/tests/"
 
 
 def search_dir(path: Path) -> list[Path]:
@@ -39,7 +44,7 @@ def insert_tests(tests: list[str]):
                 # insert all tests here
                 for test in tests:
                     final_str += test
-    with open(LOCATION + "tests.rs", "w") as file:
+    with open(OUTPUT + "emulator_tests.rs", "w") as file:
         _res: int = file.write(final_str)
 
 
