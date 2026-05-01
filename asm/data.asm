@@ -8,7 +8,9 @@ main:
 mov a, 245
 add a, 245
 
-ADD16 a, b, d, d, e
+ADD16 a, b, d, d
+
+lda [ad]
 
 
 add b, 255

@@ -83,6 +83,7 @@ impl ExpressionSolver {
         if token.is_none() {
             panic!("ummm idk");
         }
+
         let token = token.unwrap();
 
         let mut left = token.nud(tokens);

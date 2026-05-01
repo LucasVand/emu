@@ -47,7 +47,7 @@ H (5): GP register/(H)igh index register
 Z (6): GP register
 F (7): flags (LSB to MSB)
     
- outline: LZCBONNH
+ outline: LZCBONNN
 
     LESS
     ZERO
