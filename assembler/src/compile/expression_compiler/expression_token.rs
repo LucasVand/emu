@@ -188,6 +188,7 @@ impl ExpressionToken {
             '*' => ExpressionTokenType::Multiply,
             '(' => ExpressionTokenType::LBrack,
             ')' => ExpressionTokenType::RBrack,
+            '!' => ExpressionTokenType::Not,
             _ => panic!("found in valid char when parsing single char token"),
         };
         let token = ExpressionToken {

@@ -1,6 +1,6 @@
-# LUC-8 Instruction and Data Definition Reference
+# MINI-8 Instruction and Data Definition Reference
 
-Complete reference for all 16 core instructions and data definition directives of the LUC-8 processor.
+Complete reference for all 16 core instructions and data definition directives of the MINI-8 processor.
 
 ## Table of Contents
 
@@ -600,7 +600,7 @@ message:
   @ds "Hello, World!"
 
 name:
-  @ds "LUC-8"
+  @ds "MINI-8"
 
 ; String with list
 data:

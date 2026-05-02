@@ -1,6 +1,6 @@
-# LUC-8 Graphics Guide
+# MINI-8 Graphics Guide
 
-Complete reference for the LUC-8 graphics system, including memory layout, memory banking, graphics modes, and pixel encoding.
+Complete reference for the MINI-8 graphics system, including memory layout, memory banking, graphics modes, and pixel encoding.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Complete reference for the LUC-8 graphics system, including memory layout, memor
 
 ## Overview
 
-The LUC-8 processor has a built-in graphics system with two rendering modes. Graphics data is stored in dedicated VRAM (Video RAM) that must be switched into the memory map using the Memory Bank register.
+The MINI-8 processor has a built-in graphics system with two rendering modes. Graphics data is stored in dedicated VRAM (Video RAM) that must be switched into the memory map using the Memory Bank register.
 
 **Key Specifications**:
 

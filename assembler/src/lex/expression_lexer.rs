@@ -6,7 +6,7 @@ use crate::{
     lex::lexer::Lexer,
     utils::token::{Token, TokenType},
 };
-const EXPRESSION_EXPR: &'static str = r"^\([0-9A-Za-z_.+\-*/<>()\s%$]+\)$";
+const EXPRESSION_EXPR: &'static str = r"^\([0-9A-Za-z_.+\-*/<>()\s%$!]+\)$";
 
 pub struct ExpressionLexer {}
 

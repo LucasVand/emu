@@ -107,9 +107,6 @@ impl ExpressionToken {
     ) -> Box<dyn ASTNode> {
         match self.kind {
             ExpressionTokenType::Decimal { num } => Box::new(ASTLiteral::new(num)),
-            ExpressionTokenType::Plus => panic!("should not happen"),
-            ExpressionTokenType::Multiply => panic!("should not happen"),
-            ExpressionTokenType::RBrack => panic!("should not happen"),
             ExpressionTokenType::LBrack => {
                 let expr = ExpressionSolver::parse_expression(tokens, 0);
                 let rbrack = tokens.next();
@@ -122,18 +119,16 @@ impl ExpressionToken {
 
                 return expr;
             }
-            ExpressionTokenType::Divide => panic!("should not happen"),
             ExpressionTokenType::Minus => {
                 let right = ExpressionSolver::parse_expression(tokens, 40);
 
                 Box::new(ASTUnary::new(right, ASTUnaryOp::Minus))
             }
-            ExpressionTokenType::RightShift => panic!("this should not happen"),
-            ExpressionTokenType::LeftShift => panic!("this should not happen"),
             ExpressionTokenType::Not => {
                 let right = ExpressionSolver::parse_expression(tokens, 40);
                 Box::new(ASTUnary::new(right, ASTUnaryOp::Not))
             }
+            _ => panic!("Should not happen"),
         }
     }
     pub fn led<'a>(

@@ -8,7 +8,7 @@ resolver = "3"
 
 
 [package]
-name = "emu"
+name = "mini8"
 version = "0.1.0"
 edition = "2024"
 

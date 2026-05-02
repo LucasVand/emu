@@ -1086,16 +1086,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "emu"
-version = "0.1.0"
-dependencies = [
- "assembler",
- "clap",
- "disassembly",
- "emulator",
-]
-
-[[package]]
 name = "emulator"
 version = "0.1.0"
 dependencies = [
@@ -1891,6 +1881,16 @@ dependencies = [
  "log",
  "objc",
  "paste",
+]
+
+[[package]]
+name = "mini8"
+version = "0.1.0"
+dependencies = [
+ "assembler",
+ "clap",
+ "disassembly",
+ "emulator",
 ]
 
 [[package]]

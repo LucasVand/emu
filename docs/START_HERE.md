@@ -1,6 +1,6 @@
-# LUC-8 Assembly Language Guide
+# MINI-8 Assembly Language Guide
 
-This guide covers the fundamentals of writing LUC-8 assembly programs, all core instructions, data definitions, and basic concepts.
+This guide covers the fundamentals of writing MINI-8 assembly programs, all core instructions, data definitions, and basic concepts.
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ This guide covers the fundamentals of writing LUC-8 assembly programs, all core 
 
 ## Overview
 
-LUC-8 is an 8-bit processor architecture with:
+MINI-8 is an 8-bit processor architecture with:
 
 - **8-bit data width**: All operations work with 8-bit values
 - **16-bit address bus**: 64 KiB of directly addressable memory
@@ -58,7 +58,7 @@ mov a, 10  ; This is a comment
 
 ## Registers
 
-LUC-8 has 8 registers:
+MINI-8 has 8 registers:
 
 | Name  | ID  | Purpose                              |
 | ----- | --- | ------------------------------------ |

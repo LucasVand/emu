@@ -1,6 +1,6 @@
-# LUC-8 Macro System Guide
+# MINI-8 Macro System Guide
 
-Complete reference for creating and using macros in LUC-8 assembly, including syntax, parameter types, macro overloading, and practical examples.
+Complete reference for creating and using macros in MINI-8 assembly, including syntax, parameter types, macro overloading, and practical examples.
 
 ## Table of Contents
 
@@ -445,7 +445,7 @@ CALL [%i0]:
 
 ## Standard Library
 
-The LUC-8 standard library provides pre-made macros for common operations.
+The MINI-8 standard library provides pre-made macros for common operations.
 
 ### Including the Library
 
