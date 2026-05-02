@@ -5,6 +5,7 @@ Complete reference for all 16 core instructions and data definition directives o
 ## Table of Contents
 
 ### Instructions
+
 1. [MOV - Move/Load Immediate](#mov---moveload-immediate)
 2. [LDR - Load from Memory](#ldr---load-from-memory)
 3. [STR - Store to Memory](#str---store-to-memory)
@@ -23,6 +24,7 @@ Complete reference for all 16 core instructions and data definition directives o
 16. [SBB - Subtract with Borrow](#sbb---subtract-with-borrow)
 
 ### Data Definitions
+
 17. [@db - Define Bytes](#db---define-bytes)
 18. [@dd - Define Double Words](#dd---define-double-words)
 19. [@dw - Define Words (Reserve Space)](#dw---define-words-reserve-space)
@@ -74,6 +76,8 @@ Load a byte from memory into a register.
 
 **Flags**: None
 
+**Bytes**: 2-3
+
 **Examples**:
 
 ```asm
@@ -100,6 +104,8 @@ Store a register value into memory.
 **Modifies**: Memory at the specified address
 
 **Flags**: None
+
+**Bytes**: 2-3
 
 **Examples**:
 
@@ -474,6 +480,29 @@ sbb a, d            ; A = A - D - borrow
 
 ---
 
+## Quick Reference Table
+
+| Mnemonic | Opcode | Operands      | Description          | Flags |
+| -------- | ------ | ------------- | -------------------- | ----- |
+| MOV      | 0x0    | reg, imm8/reg | Move value           | -     |
+| LDR      | 0x1    | reg, [addr]   | Load from memory     | -     |
+| STR      | 0x2    | reg, [addr]   | Store to memory      | -     |
+| PUSH     | 0x3    | imm8/reg      | Push to stack        | -     |
+| POP      | 0x4    | reg           | Pop from stack       | -     |
+| LDA      | 0x5    | [imm16]       | Load address to HL   | -     |
+| JNZ      | 0x6    | imm8/reg      | Jump if not zero     | -     |
+| LSL      | 0x7    | reg, imm8/reg | Shift left           | C     |
+| SUB      | 0x8    | reg, imm8/reg | Subtract             | C,O   |
+| ADD      | 0x9    | reg, imm8/reg | Add                  | C,O   |
+| ADC      | 0xA    | reg, imm8/reg | Add with carry       | C,O   |
+| AND      | 0xB    | reg, imm8/reg | Bitwise AND          | Z     |
+| OR       | 0xC    | reg, imm8/reg | Bitwise OR           | Z     |
+| NOR      | 0xD    | reg, imm8/reg | Bitwise NOR          | Z     |
+| CMP      | 0xE    | reg, imm8/reg | Compare              | Z,L   |
+| SBB      | 0xF    | reg, imm8/reg | Subtract with borrow | C,O   |
+
+---
+
 ## @db - Define Bytes
 
 Define one or more 8-bit bytes in memory. Each value takes 1 byte.
@@ -481,6 +510,7 @@ Define one or more 8-bit bytes in memory. Each value takes 1 byte.
 **Syntax**: `label: @db value1, value2, value3, ...`
 
 **Values can be**:
+
 - Decimal: `42`, `255`
 - Hexadecimal: `0xFF`, `0x00`
 - Binary: `0b11110000`, `0b00001111`
@@ -488,6 +518,7 @@ Define one or more 8-bit bytes in memory. Each value takes 1 byte.
 - Expressions: `(10 + 5)`, `(Snake_Length + 5)`
 
 **Examples**:
+
 ```asm
 my_value:
   @db 42
@@ -516,6 +547,7 @@ Define one or more 16-bit values in memory. Each value takes 2 bytes.
 **Each value is stored as two consecutive bytes**
 
 **Examples**:
+
 ```asm
 addresses:
   @dd 0x1000, 0x2000
@@ -538,6 +570,7 @@ Reserve N bytes of space in memory. Can be used with a single size value or a li
 **Size is in bytes**
 
 **Examples**:
+
 ```asm
 ; Reserve 40 bytes of space
 buffer:
@@ -561,6 +594,7 @@ Define a string in memory. Can be a single string or a list of values.
 **Syntax**: `label: @ds "text"` or `label: @ds value1, value2, ...`
 
 **Examples**:
+
 ```asm
 message:
   @ds "Hello, World!"
@@ -573,25 +607,11 @@ data:
   @ds "ABC", 10, 20
 ```
 
----
+## Data Definition Quick Reference
 
-## Quick Reference Table
-
-| Mnemonic | Opcode | Operands | Description | Flags |
-|----------|--------|----------|-------------|-------|
-| MOV | 0x0 | reg, imm8/reg | Move value | - |
-| LDR | 0x1 | reg, [addr] | Load from memory | - |
-| STR | 0x2 | reg, [addr] | Store to memory | - |
-| PUSH | 0x3 | imm8/reg | Push to stack | - |
-| POP | 0x4 | reg | Pop from stack | - |
-| LDA | 0x5 | [imm16] | Load address to HL | - |
-| JNZ | 0x6 | imm8/reg | Jump if not zero | - |
-| LSL | 0x7 | reg, imm8/reg | Shift left | C |
-| SUB | 0x8 | reg, imm8/reg | Subtract | C,O |
-| ADD | 0x9 | reg, imm8/reg | Add | C,O |
-| ADC | 0xA | reg, imm8/reg | Add with carry | C,O |
-| AND | 0xB | reg, imm8/reg | Bitwise AND | Z |
-| OR  | 0xC | reg, imm8/reg | Bitwise OR | Z |
-| NOR | 0xD | reg, imm8/reg | Bitwise NOR | Z |
-| CMP | 0xE | reg, imm8/reg | Compare | Z,L |
-| SBB | 0xF | reg, imm8/reg | Subtract with borrow | C,O |
+| Directive | Purpose                | Syntax                                       | Bytes per Value |
+| --------- | ---------------------- | -------------------------------------------- | --------------- |
+| @db       | Define Bytes           | `label: @db val1, val2, ...`                 | 1 byte each     |
+| @dd       | Define Double Words    | `label: @dd val1, val2, ...`                 | 2 bytes each    |
+| @dw       | Define Words (Reserve) | `label: @dw size` or `@dw size1, size2, ...` | As specified    |
+| @ds       | Define String          | `label: @ds "text"` or `@ds val1, val2, ...` | String length   |

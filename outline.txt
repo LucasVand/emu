@@ -130,7 +130,7 @@ the built-in RAM is in use. MB=1 maps to the built-in VRAM.
   raw pixel mode 
   - each byte of vram coresponds to one pixel, color data is encoded into the byte
   - color RRRGGGBB
-  - 125 x 125 screen size
+  - 128 x 128 screen size
 
 === MODE 1 ===
   tile map modes

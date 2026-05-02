@@ -72,22 +72,19 @@ impl DefineMacro {
         }
         return (new_tokens_list, errors);
     }
-    pub fn sub_expression(token: Token, define_macros: &Vec<DefineMacro>) -> Token {
-        let label_exists = define_macros.iter().find(|def| {
+    pub fn sub_expression(mut token: Token, define_macros: &Vec<DefineMacro>) -> Token {
+        let mut token_str = token.token.clone();
+        let labels_list = define_macros.iter().filter(|def| {
             let stripped_token = &token.token;
 
             return stripped_token.contains(&def.label);
         });
-
-        if label_exists.is_none() {
-            return token;
+        for label in labels_list {
+            token_str = token_str.replace(&label.label, &label.value);
         }
 
-        let label_def = label_exists.unwrap();
-
-        let new_token = token.token.replace(&label_def.label, &label_def.value);
-
-        return Token::new(new_token, token.kind, token.token_info);
+        token.token = token_str;
+        return token;
     }
     pub fn sub_label(
         token: Token,

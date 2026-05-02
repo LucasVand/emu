@@ -22,7 +22,7 @@ LUC-8 is an 8-bit processor architecture with:
 
 - **8-bit data width**: All operations work with 8-bit values
 - **16-bit address bus**: 64 KiB of directly addressable memory
-- **Memory banking**: MB register provides access to 256 memory banks (16 MiB total)
+- **Memory banking**: MB register provides access to 256 memory banks
 - **7 general purpose registers** plus a flags register
 - **Stack support** for function calls and temporary storage
 - **Graphics capabilities** with raw pixel and tile modes
@@ -168,7 +168,7 @@ Data is stored in memory using data definition keywords. For detailed documentat
 | --------- | ---------------------- | -------------------------------------------- | --------------- |
 | @db       | Define Bytes           | `label: @db val1, val2, ...`                 | 1 byte each     |
 | @dd       | Define Double Words    | `label: @dd val1, val2, ...`                 | 2 bytes each    |
-| @dw       | Define Words (Reserve) | `label: @dw size` or `@dw v1, v2, ...`       | As specified    |
+| @dw       | Define Words (Reserve) | `label: @dw size` or `@dw size1, size2, ...` | As specified    |
 | @ds       | Define String          | `label: @ds "text"` or `@ds val1, val2, ...` | String length   |
 
 **Quick Examples**:
@@ -247,7 +247,7 @@ ldr a, [0x1000]     ; Hex address
 Include other assembly files:
 
 ```asm
-@include <debug.asm>        ; From std/ directory
+@include <debug.asm>        ; From std
 @include "helper.asm"       ; From current directory
 ```
 
@@ -274,6 +274,66 @@ Remove a previously defined constant:
 ; ... code using DEBUG ...
 @undefine DEBUG
 ```
+
+### Expression Solver
+
+Any value wrapped in parentheses `()` is evaluated at compile time. This allows for compile-time math and address calculations using definitions and labels.
+
+**Valid Operations**:
+
+- **Addition**: `+`
+- **Subtraction**: `-`
+- **Multiplication**: `*`
+- **Division**: `/`
+- **Left Shift**: `<<` (multiply by powers of 2)
+- **Right Shift**: `>>` (divide by powers of 2)
+- **Bitwise NOT**: `~` (invert all bits)
+- **Unary Minus**: `-value`
+- **Grouping**: Parentheses for precedence
+
+**Operands**:
+
+- Numeric literals: decimal, hex (`0x`), binary (`0b`)
+- `@define` constants
+- Label addresses
+- Combinations of the above
+
+**Examples**:
+
+```asm
+@define TILE_SIZE 8
+@define NUM_TILES 192
+@define TILE_TABLE_START 0xA000
+
+; Calculate total tile data size at compile time
+total_tile_bytes: @dw (TILE_SIZE * TILE_SIZE * NUM_TILES)
+
+; Calculate offsets within tile table
+tile_5_offset: @dd (TILE_TABLE_START + (5 * 64))
+
+; Bit operations
+mask: @db (0xFF << 2)           ; 0xFF shifted left 2 bits
+shift_result: @db (200 >> 3)    ; Divide by 8
+
+; Address calculations with labels
+main_addr: @dd (main)           ; Address of main label
+offset_math: @dd (main + 10)    ; Address plus offset
+
+; Complex expressions
+game_data:
+  @dw ((BUFFER_WIDTH * BUFFER_HEIGHT) + 100)
+
+; Unary operations
+inverted: @db (~0x00)           ; All bits set
+negative: @db (-5)              ; Two's complement -5
+```
+
+**Compile-Time Evaluation**:
+
+- Expressions are solved during assembly, before code generation
+- Only compile-time known values are allowed (definitions, label addresses, literals)
+- Results are baked into the assembled code
+- Useful for address math, memory layout calculations, and bit manipulations
 
 ---
 

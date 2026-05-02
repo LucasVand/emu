@@ -38,7 +38,7 @@ impl Assembler {
         error_list.append(&mut preprocessor_errors);
 
         // for ele in &preprocessed {
-        // println!("{}", ele);
+        //     println!("{:#?}", ele);
         // }
         let (compiled, mut compiler_errors) = Compile::compile(preprocessed);
 
