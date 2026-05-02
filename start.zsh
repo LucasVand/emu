@@ -1,5 +1,0 @@
-alias assemble='cargo run --bin assembler'
-alias emulate='cargo run --bin emulator'
-alias run='cargo run --bin run'
-alias disassemble='cargo run --bin disassembly'
-alias build_tests='python3 ./emulator/src/tests/create_tests.py'

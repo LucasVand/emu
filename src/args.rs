@@ -47,10 +47,6 @@ pub enum AsmCommand {
         #[arg(long, default_value = "./asm/std")]
         std_path: PathBuf,
 
-        /// Print registers after each instruction
-        #[arg(short = 'p', long)]
-        print_regs: bool,
-
         /// Enable graphics window
         #[arg(short = 'g', long)]
         graphics: bool,
@@ -58,16 +54,20 @@ pub enum AsmCommand {
         /// Execution speed in microseconds per instruction
         #[arg(long, short = 's', default_value = "0")]
         speed: usize,
+
+        /// Verbosity level (0=silent, 1=minimal, 2=normal, 3=verbose)
+        #[arg(short = 'v', long, default_value = "2")]
+        verbose: u8,
+
+        /// Interactive mode - press space to execute next instruction
+        #[arg(short = 'i', long)]
+        interactive: bool,
     },
     /// Execute a binary in emulator
     Execute {
         /// Binary file to run
         #[arg(value_name = "FILE")]
         input: PathBuf,
-
-        /// Print registers after each instruction
-        #[arg(short = 'p', long)]
-        print_regs: bool,
 
         /// Enable graphics window
         #[arg(short = 'g', long)]
@@ -76,5 +76,13 @@ pub enum AsmCommand {
         /// Execution speed in microseconds per instruction
         #[arg(long, default_value = "0")]
         speed: usize,
+
+        /// Verbosity level (0=silent, 1=minimal, 2=normal, 3=verbose)
+        #[arg(short = 'v', long, default_value = "2")]
+        verbose: u8,
+
+        /// Interactive mode - press space to execute next instruction
+        #[arg(short = 'i', long)]
+        interactive: bool,
     },
 }

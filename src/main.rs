@@ -1,4 +1,5 @@
 mod args;
+mod interactive;
 
 use clap::Parser;
 use std::path::PathBuf;
@@ -6,6 +7,7 @@ use std::path::PathBuf;
 use assembler::Assembler;
 use disassembly::disassemble_file;
 use emulator::{Emulator, create_window};
+use interactive::interactive_start;
 
 use args::{AsmArgs, AsmCommand};
 
@@ -26,19 +28,21 @@ fn main() {
         AsmCommand::Run {
             input,
             std_path,
-            print_regs,
             graphics,
             speed,
+            verbose,
+            interactive,
         } => {
-            run_command(&input, &std_path, print_regs, graphics, speed);
+            run_command(&input, &std_path, verbose, graphics, speed, interactive);
         }
         AsmCommand::Execute {
             input,
-            print_regs,
             graphics,
             speed,
+            verbose,
+            interactive,
         } => {
-            execute_command(&input, print_regs, graphics, speed);
+            execute_command(&input, verbose, graphics, speed, interactive);
         }
     }
 }
@@ -73,9 +77,10 @@ fn disassemble_command(input: &PathBuf, _detailed: bool) {
 fn run_command(
     input: &PathBuf,
     std_path: &PathBuf,
-    print_regs: bool,
+    verbose: u8,
     graphics: bool,
     speed: usize,
+    interactive: bool,
 ) {
     let result = Assembler::assemble_file_to_vec(
         input.to_str().unwrap_or(""),
@@ -91,14 +96,18 @@ fn run_command(
                 return;
             }
 
-            let mut emulator = Emulator::new_speed(speed);
+            let mut emulator = Emulator::new_speed(speed, verbose);
             emulator.load_binary_vec(&binary);
 
-            println!("Running: {}", input.display());
+            if verbose >= 1 {
+                println!("Running: {}", input.display());
+            }
             if graphics {
-                let _ = create_window(emulator, print_regs);
+                let _ = create_window(emulator);
+            } else if interactive {
+                interactive_start(&mut emulator);
             } else {
-                emulator.start(print_regs);
+                emulator.start();
             }
         }
         Err(e) => {
@@ -107,8 +116,8 @@ fn run_command(
     }
 }
 
-fn execute_command(input: &PathBuf, print_regs: bool, graphics: bool, speed: usize) {
-    let mut emulator = Emulator::new_speed(speed);
+fn execute_command(input: &PathBuf, verbose: u8, graphics: bool, speed: usize, interactive: bool) {
+    let mut emulator = Emulator::new_speed(speed, verbose);
     let load_success = emulator.load_binary(input.to_str().unwrap_or(""));
 
     if !load_success {
@@ -116,10 +125,14 @@ fn execute_command(input: &PathBuf, print_regs: bool, graphics: bool, speed: usi
         return;
     }
 
-    println!("Executing: {}", input.display());
+    if verbose >= 1 {
+        println!("Executing: {}", input.display());
+    }
     if graphics {
-        let _ = create_window(emulator, print_regs);
+        let _ = create_window(emulator);
+    } else if interactive {
+        interactive_start(&mut emulator);
     } else {
-        emulator.start(print_regs);
+        emulator.start();
     }
 }

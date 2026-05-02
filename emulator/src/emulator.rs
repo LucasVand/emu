@@ -11,20 +11,22 @@ pub struct Emulator {
     pub memory: Memory,
     pub registers: Registers,
     pub speed: usize,
+    pub verbose: u8,
     pub write_callbacks: Vec<Box<dyn FnMut(u16, u8, u8) + Send>>,
 }
 
 impl Emulator {
-    // TODO: add print regs additional flags for debug
-    pub fn new_speed(speed: usize) -> Self {
+    pub fn new_speed(speed: usize, verbose: u8) -> Self {
         Emulator {
             speed: speed,
+            verbose: verbose,
             ..Default::default()
         }
     }
-    pub fn new() -> Self {
+    pub fn new(verbose: u8) -> Self {
         Emulator {
             speed: 0,
+            verbose: verbose,
             ..Default::default()
         }
     }
@@ -54,20 +56,51 @@ impl Emulator {
     pub fn register_callback<F: FnMut(u16, u8, u8) + Send + 'static>(&mut self, callback: F) {
         self.write_callbacks.push(Box::new(callback));
     }
-    pub fn print_regs(&self, inst: [u8; 3]) {
-        let dis = disassemble_instruction(inst);
-        println!(
-            "{:4} {:17} {} {}",
-            self.memory.get_pc(),
-            dis,
-            self.registers,
-            self.memory.get_stack()
-        );
+    pub fn print_header(&self) {
+        if self.verbose < 2 {
+            return;
+        }
+        if self.verbose < 3 {
+            println!("{:<6} {:17} {}", "PC", "Instruction", "Registers")
+        } else if self.verbose < 4 {
+            println!(
+                "{:<6} {:17} {:63} {:33} {:32} {}",
+                "PC", "Instruction", "Registers", "Pair Registers", "Flags", "SP"
+            )
+        }
     }
-    pub fn cycle(&mut self, print_reg: bool) {
+    pub fn print_regs(&self, inst: [u8; 3]) {
+        let verbose = self.verbose;
+        if verbose < 2 {
+            return;
+        }
+        if verbose < 3 {
+            let dis = disassemble_instruction(inst);
+            print!(
+                "0x{:<4x} {:17} {}",
+                self.memory.get_pc(),
+                dis,
+                self.registers.normal_print(),
+            );
+        } else if verbose < 4 {
+            let dis = disassemble_instruction(inst);
+            print!(
+                "0x{:<4x} {:17} {:<63} {:<33} {:<32} {}",
+                self.memory.get_pc(),
+                dis,
+                self.registers.normal_print(),
+                self.registers.pairs_print(),
+                self.registers.flags_print(),
+                self.memory.get_stack()
+            );
+        }
+
+        println!();
+    }
+    pub fn cycle(&mut self) {
         let inst = self.memory.load_instruction();
 
-        if print_reg {
+        if self.verbose >= 2 {
             self.print_regs(inst);
         }
 
@@ -84,15 +117,16 @@ impl Emulator {
             sleep(Duration::from_micros(self.speed as u64));
         }
     }
-    pub fn start(&mut self, print_reg: bool) {
+    pub fn start(&mut self) {
+        self.print_header();
         loop {
             if self.memory.is_halted() {
-                if print_reg {
-                    println!("XX {:17} {}", "HAL", self.registers);
+                if self.verbose >= 1 {
+                    println!("Program halted");
                 }
                 return;
             }
-            self.cycle(print_reg);
+            self.cycle();
         }
     }
     pub fn load_binary_vec(&mut self, bin: &Vec<u8>) -> bool {

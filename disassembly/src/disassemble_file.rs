@@ -5,6 +5,10 @@ use crate::disassemble::Disassembly;
 pub fn disassemble_binary(bin: &Vec<u8>) {
     let mut index = 0;
     let mut inst_count = 0;
+    println!(
+        "{:<6} {:4} {:20} {:8}",
+        "Hex", "Dec", "Instruction", "Binary"
+    );
     while index < bin.len() {
         let first = bin.get(index);
         let second = bin.get(index + 1);

@@ -20,13 +20,13 @@ impl EmulatorTestUtils {
             }
             panic!("Could not test because file contains errors");
         }
-        let mut emu = Emulator::new();
+        let mut emu = Emulator::new(4);
 
         let res = emu.load_binary_vec(&binary.0);
         if !res {
             panic!("unable to load data_test");
         }
-        emu.start(false);
+        emu.start();
 
         assert!(emu.registers.a == 0);
     }

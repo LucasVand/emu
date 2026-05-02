@@ -17,5 +17,6 @@ assembler = { path = "./assembler" }
 disassembly = { path = "./disassembly" }
 emulator = { path = "./emulator" }
 clap = { version = "4.6.1", features = ["derive"] }
+crossterm = "0.27"
 
 

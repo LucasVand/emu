@@ -106,12 +106,36 @@ impl Registers {
         let mask: u8 = 0b10000000;
         return (self.f & mask) != 0;
     }
+    pub fn normal_print(&self) -> String {
+        format!(
+            "a: {:<4} b: {:<4} c: {:<4} d: {:<4} h: {:<4} l: {:<4} z: {:<4} f: {:<4}",
+            self.a, self.b, self.c, self.d, self.h, self.l, self.z, self.f,
+        )
+    }
+    pub fn flags_print(&self) -> String {
+        format!(
+            "le: {}  ze: {}  c: {}  b: {}  ov: {}",
+            self.get_less() as u8,
+            self.get_zero() as u8,
+            self.get_carry() as u8,
+            self.get_borrow() as u8,
+            self.get_overflow() as u8,
+        )
+    }
+    pub fn pairs_print(&self) -> String {
+        format!(
+            "ab: {:<6}  cd: {:<6} hl: {:<6}",
+            self.get_16bit_pair(0, 1),
+            self.get_16bit_pair(2, 3),
+            self.get_16bit_pair(5, 4)
+        )
+    }
 }
 impl Display for Registers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "a: {:<4}  b: {:<4}  c: {:<4}  d: {:<4}  h: {:<4}  l: {:<4}  z: {:<4}  f: {:<4}  le: {}  ze: {}  c: {}  b: {}  ov: {}  ab: {:<6}  cd: {:<6} hl: {:<6}",
+            "a: {:<4}  b: {:<4}  c: {:<4}  d: {:<4}  h: {:<4}  l: {:<4}  z: {:<4}  f: {:<4}  le: {}  ze: {}  c: {}  b: {}  ov: {}  7ab: {:<6}  cd: {:<6} hl: {:<6}",
             self.a,
             self.b,
             self.c,

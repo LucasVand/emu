@@ -125,7 +125,7 @@ impl EmulatorWindow {
     }
 }
 
-pub fn create_window(mut emu: Emulator, print_regs: bool) -> eframe::Result {
+pub fn create_window(mut emu: Emulator) -> eframe::Result {
     let app = EmulatorWindow::new(&emu);
     let buf_clone = Arc::clone(&app.vram);
     let mem_clone = Arc::clone(&app.mem);
@@ -144,7 +144,7 @@ pub fn create_window(mut emu: Emulator, print_regs: bool) -> eframe::Result {
         });
 
         loop {
-            emu.cycle(print_regs);
+            emu.cycle();
             let contr = controller_clone.load(Ordering::Acquire);
             emu.memory[0xFFFB] = contr;
 
